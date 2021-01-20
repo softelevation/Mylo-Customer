@@ -6,6 +6,7 @@ import {
   Linking,
   Platform,
   StyleSheet,
+  Alert,
 } from 'react-native';
 import Header from '../../common/header';
 import {Block, Button, ImageComponent, Text} from '../../components';
@@ -26,7 +27,12 @@ import Geolocation from '@react-native-community/geolocation';
 const BookBroker = () => {
   const [Modal, setModal] = useState(false);
   const [action, setAction] = useState('');
-  const [location, setlocation] = useState({});
+  const [location, setlocation] = useState({
+    latitude: 0,
+    longitude: 0,
+    latitudeDelta: 0.09,
+    longitudeDelta: 0.02,
+  });
   const {width, height} = Dimensions.get('window');
   const [defaultHeight, setDefaultHeight] = useState(height / 3);
   const modalizeRef = useRef();
@@ -35,6 +41,7 @@ const BookBroker = () => {
   const dispatch = useDispatch();
   const loader = useSelector((state) => state.broker.list.loading);
   const brokerData = useSelector((state) => state.broker.list.broker.data);
+  const mapRef = useRef();
 
   // const markers = [
   //   {latitude: -33.765513, longitude: 150.893109},
@@ -45,16 +52,23 @@ const BookBroker = () => {
   useEffect(() => {
     dispatch(brokerlistRequest());
   }, []);
-  // useEffect(() => {
-  //   Geolocation.getCurrentPosition((info) => {
-  //     setlocation(info.coords);
-  //     console.log(info, 'info');
-  //   });
-  // }, []);
-
+  const isMapRegionSydney = (coords) => {
+    return (
+      coords.longitude >= 148.601105 &&
+      coords.longitude <= 151.75 &&
+      coords.latitude >= -35.353333 &&
+      coords.latitude <= -31.083332
+    );
+  };
   useEffect(() => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
+        if (!isMapRegionSydney(position.coords)) {
+          Alert.alert('You can book services only for an address in Sydney.');
+
+          return;
+        }
+
         let region = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
@@ -75,7 +89,7 @@ const BookBroker = () => {
 
     return () => Geolocation.clearWatch(watchId);
   }, []);
-
+  console.log(location);
   useEffect(() => {
     onOpen();
     const unsubscribe = navigation.addListener('focus', () => {
@@ -138,44 +152,64 @@ const BookBroker = () => {
       .catch((err) => console.error('An error occurred', err));
   };
 
+  const _renderLocation = (region) => {
+    setlocation(region);
+  };
+
+  const getDefaultCoords = () => {
+    return {
+      longitude: 151.2099,
+      latitude: -33.865143,
+    };
+  };
+
   return (
     <Block>
       <Header centerText="Find Broker" />
       {loader && <ActivityLoader />}
       <View style={styles.container}>
-        {location && (
-          <MapView
-            cacheEnabled={false}
-            showsUserLocation={true}
-            loadingEnabled
-            followsUserLocation={true}
-            scrollEnabled
-            style={styles.map}
-            region={location}>
-            {brokerData &&
-              brokerData.map((item, index) => {
-                const marker = {
-                  latitude: item.latitude,
-                  longitude: item.longitude,
-                };
-                return (
-                  <Marker title={item.name} coordinate={marker}>
-                    <ImageComponent
-                      name={'map_person_icon'}
-                      height="40"
-                      width="40"
-                    />
-                  </Marker>
-                );
-              })}
-          </MapView>
-        )}
+        <MapView
+          ref={mapRef}
+          minZoomLevel={10}
+          maxZoomLevel={14}
+          showsUserLocation={true}
+          provider="google"
+          style={styles.map}
+          initialRegion={location}
+          onRegionChangeComplete={async (coords) => {
+            if (!isMapRegionSydney(coords)) {
+              if (isMapRegionSydney(location)) {
+                mapRef && mapRef.current.animateToCoordinate(location);
+              } else {
+                mapRef &&
+                  mapRef.current.animateToCoordinate(getDefaultCoords());
+              }
+              return;
+            }
+          }}>
+          {brokerData &&
+            brokerData.map((item, index) => {
+              const marker = {
+                latitude: item.latitude,
+                longitude: item.longitude,
+              };
+              return (
+                <Marker title={item.name} coordinate={marker}>
+                  <ImageComponent
+                    name={'map_person_icon'}
+                    height="40"
+                    width="40"
+                  />
+                </Marker>
+              );
+            })}
+        </MapView>
       </View>
 
       {Modal === true && (
         <Modalize
           alwaysOpen={defaultHeight}
-          modalHeight={action === 'schedulebroker' ? hp(22) : hp(30)}
+          modalHeight={action === 'schedulebroker' ? hp(26) : hp(30)}
           scrollViewProps={{keyboardShouldPersistTaps: 'always'}}
           modalStyle={{backgroundColor: '#292F37'}}
           overlayStyle={{backgroundColor: 'transparent'}}
