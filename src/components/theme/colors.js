@@ -15,4 +15,5 @@ export const light = {
   warning: '#EE3254',
   accent: '#B92D00',
   darkColor: '#191E2D',
+  starColor: '#FDCC0D',
 };

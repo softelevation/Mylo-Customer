@@ -89,7 +89,6 @@ const BookBroker = () => {
 
     return () => Geolocation.clearWatch(watchId);
   }, []);
-  console.log(location);
   useEffect(() => {
     onOpen();
     const unsubscribe = navigation.addListener('focus', () => {
@@ -120,7 +119,7 @@ const BookBroker = () => {
     setAction('loading');
     setTimeout(() => {
       setModal(false);
-      navigation.navigate('Request');
+      navigation.navigate('RequestDetails');
     }, loaderTime);
   };
   const dialCall = () => {
@@ -150,10 +149,6 @@ const BookBroker = () => {
         }
       })
       .catch((err) => console.error('An error occurred', err));
-  };
-
-  const _renderLocation = (region) => {
-    setlocation(region);
   };
 
   const getDefaultCoords = () => {

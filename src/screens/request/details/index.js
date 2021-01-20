@@ -27,6 +27,23 @@ const RequestDetails = () => {
 
     Linking.openURL(phoneNumber);
   };
+  const openMessage = () => {
+    const url =
+      Platform.OS === 'android'
+        ? 'sms:1-408-555-1212?body=yourMessage'
+        : 'sms:1-408-555-1212';
+
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (!supported) {
+          console.log('Unsupported url: ' + url);
+        } else {
+          return Linking.openURL(url);
+        }
+      })
+      .catch((err) => console.error('An error occurred', err));
+  };
+
   const _renderItem = () => {
     return (
       <Block
@@ -45,7 +62,7 @@ const RequestDetails = () => {
               disabled={false}
               starSize={20}
               maxStars={5}
-              fullStarColor={light.darkColor}
+              fullStarColor={light.starColor}
               rating={5}
               starStyle={{marginLeft: w1}}
               containerStyle={{
@@ -89,7 +106,7 @@ const RequestDetails = () => {
               disabled={false}
               starSize={20}
               maxStars={5}
-              fullStarColor={light.darkColor}
+              fullStarColor={light.starColor}
               rating={5}
               starStyle={{marginLeft: w1}}
               containerStyle={{
@@ -98,7 +115,7 @@ const RequestDetails = () => {
               }}
             />
             <Text semibold white size={14}>
-              location name
+              1543 Stoney Lonesome Road 17690 PA
             </Text>
           </Block>
         </Block>
@@ -111,15 +128,11 @@ const RequestDetails = () => {
             Phone
           </Button>
           <Button
-            onPress={() =>
-              nav.navigate('ChatDetails', {
-                userName: 'Addison Mccray',
-              })
-            }
+            onPress={() => openMessage()}
             shadow
             style={{width: wp(43)}}
             color="primary">
-            Chat
+            Message
           </Button>
         </Block>
       </Block>

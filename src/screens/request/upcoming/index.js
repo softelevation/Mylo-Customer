@@ -6,7 +6,7 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {Block, CustomButton, ImageComponent, Text} from '../../../components';
-import {t1, t2, w1, w3} from '../../../components/theme/fontsize';
+import {t1, t2, w3} from '../../../components/theme/fontsize';
 
 const UpcomingRequest = () => {
   const navigation = useNavigation();
@@ -20,16 +20,19 @@ const UpcomingRequest = () => {
         padding={[t2]}
         flex={false}
         shadow>
-        <Block center row flex={false}>
-          <ImageComponent name="avatar" height="50" width="50" radius={50} />
-          <Block margin={[0, w3]} flex={false}>
-            <Text bold size={18}>
-              Addison Mccray
-            </Text>
-            <Text margin={[hp(0.5), 0, 0, 0]} grey body>
-              Request Id: #{index + 1} (08 august, 1{index}:1{index})
-            </Text>
+        <Block space={'between'} center row flex={false}>
+          <Block row flex={false}>
+            <ImageComponent name="avatar" height="50" width="50" radius={50} />
+            <Block margin={[0, w3]} flex={false}>
+              <Text bold size={18}>
+                Addison Mccray
+              </Text>
+              <Text margin={[hp(0.5), 0, 0, 0]} grey body>
+                Request Id: #{index + 1} (08 august, 1{index}:1{index})
+              </Text>
+            </Block>
           </Block>
+          <ImageComponent name="route_icon" height="30" width="30" />
         </Block>
         <Block margin={[t1, 0, 0, 0]} flex={false} row>
           <Block
@@ -44,7 +47,7 @@ const UpcomingRequest = () => {
               </Text>
             </Block>
             <Block margin={[t1, 0]} row center flex={false}>
-              <ImageComponent name="calendar_icon" height="14" width="12.25" />
+              <ImageComponent name="calendar_icon" height="14" width="13" />
               <Text margin={[0, w3]} grey body>
                 Mon, 10 august
               </Text>
@@ -74,7 +77,7 @@ const UpcomingRequest = () => {
   return (
     <Block white middle>
       <FlatList
-        data={['1', '2']}
+        data={['1']}
         contentContainerStyle={{paddingBottom: hp(2)}}
         showsVerticalScrollIndicator={false}
         renderItem={_renderItem}

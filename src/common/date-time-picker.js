@@ -47,6 +47,7 @@ const DatePicker = ({mode, Title, setValue, initialValue}) => {
         </CustomButton>
       </Block>
       <DateTimePickerModal
+        isDarkModeEnabled
         isVisible={isDatePickerVisible}
         mode={mode}
         onConfirm={handleConfirm}

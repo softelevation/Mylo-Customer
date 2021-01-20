@@ -36,7 +36,7 @@ const Feedback = () => {
               starSize={50}
               maxStars={5}
               selectedStar={(rating) => setRatings(rating)}
-              fullStarColor={light.darkColor}
+              fullStarColor={light.starColor}
               rating={Ratings}
               starStyle={{marginLeft: w1}}
               containerStyle={{
@@ -56,7 +56,7 @@ const Feedback = () => {
               placeholder={'Enter text here ...'}
             />
           </Block>
-          <Button color="primary">Send Feedback</Button>
+          <Button color="secondary">Send Feedback</Button>
         </Block>
       </KeyboardAwareScrollView>
     </Block>

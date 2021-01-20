@@ -112,6 +112,11 @@ const HomeStack = () => (
       options={transition}
       component={Feedback}
     />
+    <PostLoginStack.Screen
+      name="RequestDetails"
+      options={transition}
+      component={RequestDetails}
+    />
   </PostLoginStack.Navigator>
 );
 
