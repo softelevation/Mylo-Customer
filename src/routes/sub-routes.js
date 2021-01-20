@@ -6,7 +6,6 @@ import {
 import Splash from '../screens/splash';
 import Login from '../screens/auth/login';
 import Register from '../screens/auth/register';
-import Home from '../screens/Home';
 import {createDrawerNavigator} from '@react-navigation/drawer';
 import {widthPercentageToDP} from 'react-native-responsive-screen';
 import DrawerScreen from '../common/drawer';
@@ -24,6 +23,7 @@ import Chat from '../screens/chat';
 import ChatDetails from '../screens/chat/detail';
 import Feedback from '../screens/feedback';
 import Intro from '../screens/intro';
+import TrackBroker from '../screens/track';
 
 const Tab = createMaterialTopTabNavigator();
 const PostLoginStack = createStackNavigator();
@@ -140,6 +140,11 @@ const RequestStack = () => (
       options={transition}
       component={ChatDetails}
     />
+    <PostLoginStack.Screen
+      name="TrackBroker"
+      options={transition}
+      component={TrackBroker}
+    />
   </PostLoginStack.Navigator>
 );
 const ChatStack = () => (
@@ -163,7 +168,6 @@ function HomeDrawer() {
       drawerContent={(props) => <DrawerScreen {...props} />}>
       <Drawer.Screen name="Maps" options={transition} component={HomeStack} />
       <Drawer.Screen name="Request" component={RequestStack} />
-      {/* <Drawer.Screen name="Chat" component={ChatStack} /> */}
       <Drawer.Screen name="Notifications" component={Notifications} />
       <Drawer.Screen name="BecomeBroker" component={BecomeBroker} />
       <Drawer.Screen name="Profile" component={Profile} />

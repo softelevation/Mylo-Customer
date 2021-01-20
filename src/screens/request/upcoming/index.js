@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import React from 'react';
-import {FlatList} from 'react-native';
+import {FlatList, TouchableOpacity} from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -32,7 +32,9 @@ const UpcomingRequest = () => {
               </Text>
             </Block>
           </Block>
-          <ImageComponent name="route_icon" height="30" width="30" />
+          <TouchableOpacity onPress={() => navigation.navigate('TrackBroker')}>
+            <ImageComponent name="route_icon" height="30" width="30" />
+          </TouchableOpacity>
         </Block>
         <Block margin={[t1, 0, 0, 0]} flex={false} row>
           <Block
@@ -64,8 +66,8 @@ const UpcomingRequest = () => {
               padding={[5, 10, 5, 10]}
               borderRadius={5}
               flex={false}
-              color="#FFF8E3">
-              <Text size={12} color="#FAC01C">
+              secondary>
+              <Text transform="uppercase" size={13} white>
                 In Progress
               </Text>
             </Block>

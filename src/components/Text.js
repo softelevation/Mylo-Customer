@@ -21,7 +21,7 @@ const componentStyles = () => {
       fontWeight: 'bold',
     },
     semibold: {
-      fontWeight: '500',
+      fontWeight: '700',
     },
     medium: {
       fontWeight: '500',

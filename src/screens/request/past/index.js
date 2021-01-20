@@ -26,7 +26,7 @@ const PastRequest = () => {
               Addison Mccray
             </Text>
             <Text margin={[hp(0.5), 0, 0, 0]} grey body>
-              Request Id: #1 (08 august, 11:11)
+              Request Id: #2 (08 august, 11:11)
             </Text>
           </Block>
         </Block>
@@ -60,8 +60,8 @@ const PastRequest = () => {
               padding={[5, 10, 5, 10]}
               borderRadius={5}
               flex={false}
-              color="rgba(87, 185, 86,.3)">
-              <Text semibold size={12} secondary>
+              secondary>
+              <Text transform="uppercase" size={13} white>
                 Completed
               </Text>
             </Block>

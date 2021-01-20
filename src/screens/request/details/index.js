@@ -13,6 +13,7 @@ import Header from '../../../common/header';
 import {Block, Text, ImageComponent, Button} from '../../../components';
 import {light} from '../../../components/theme/colors';
 import {t1, t2, w1, w2, w3, w4, w5} from '../../../components/theme/fontsize';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 const RequestDetails = () => {
   const [seeMore, setSeeMore] = useState(false);
   const nav = useNavigation();
@@ -99,7 +100,7 @@ const RequestDetails = () => {
             <ImageComponent name="avatar" height="70" width="70" radius={70} />
           </Block>
           <Block flex={false} margin={[0, w5]}>
-            <Text white semibold>
+            <Text white medium>
               Addison Mccray
             </Text>
             <StarRating
@@ -114,9 +115,6 @@ const RequestDetails = () => {
                 marginVertical: t1,
               }}
             />
-            <Text semibold white size={14}>
-              1543 Stoney Lonesome Road 17690 PA
-            </Text>
           </Block>
         </Block>
         <Block margin={[t1, 0, 0, 0]} flex={false} row space={'between'}>
@@ -138,31 +136,52 @@ const RequestDetails = () => {
       </Block>
       <ScrollView>
         <Block flex={false} margin={[t2, w4]}>
+          <Text semibold>About Me</Text>
           <Text
+            margin={[t1, 0, 0]}
             numberOfLines={seeMore === true ? undefined : 2}
-            size={12}
+            size={15}
             regular>
-            Then a mist closed over the black water and the robot gardener.
-            Still it was a steady pulse of pain midway down his spine. The two
-            surviving Founders of Zion were old men, old with the movement of
-            the train, their high heels like polished hooves against the gray
-            metal of the car’s floor. Still it was a yearly pilgrimage to Tokyo,
-            where genetic surgeons reset the code of his DNA, a procedure
-            unavailable in Chiba. Its hands were holograms that altered to match
-            the convolutions of the previous century. It was disturbing to think
-            of the Flatline as a paid
+            I am a Real estate agents are licenced professionals. We helps
+            people to buy and sell properties. They provide advice to buyers,
+            sellers, renters and owners about the property market and guide
+            people to find the right home or office space that will suit their
+            needs and budget.
           </Text>
           <TouchableOpacity
             onPress={() => {
               setSeeMore(!seeMore);
             }}>
-            <Text size={12} secondary regular>
+            <Text size={14} secondary regular>
               {seeMore === true ? 'read less' : 'read more'}
             </Text>
           </TouchableOpacity>
+          <Text margin={[t2, 0, t1, 0]} semibold>
+            Details
+          </Text>
+          <Block margin={[t1, 0, 0]} flex={false} row>
+            <Icon style={{width: wp(7)}} name="phone" size={20} />
+            <Text size={15} margin={[0, w2]}>
+              +91-9988223366
+            </Text>
+          </Block>
+          <Block margin={[t1, 0, 0]} flex={false} row>
+            <Icon style={{width: wp(7)}} name="email" size={20} />
+            <Text size={15} margin={[0, w2]}>
+              addison@gmail.com
+            </Text>
+          </Block>
+          <Block margin={[t1, 0, 0]} flex={false} row>
+            <Icon style={{width: wp(7)}} name="map-marker-radius" size={20} />
+            <Text size={15} margin={[0, w2]}>
+              1543 Stoney Lonesome Road 17690 PA
+            </Text>
+          </Block>
         </Block>
-        <Block margin={[t1, w2]}>
-          <Text margin={[0, w2]}>Reviews</Text>
+        <Block margin={[t1, w2, t1]}>
+          <Text semibold margin={[0, w2, t1]}>
+            Reviews
+          </Text>
           <FlatList data={['1', '2']} renderItem={_renderItem} />
         </Block>
       </ScrollView>
