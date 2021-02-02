@@ -1,5 +1,5 @@
-import React from 'react';
-import {FlatList} from 'react-native';
+import React, {useState} from 'react';
+import {FlatList, RefreshControl} from 'react-native';
 import {Block, CustomButton, ImageComponent, Text} from '../../../components';
 import {t1, t2, w1, w3} from '../../../components/theme/fontsize';
 import {
@@ -7,14 +7,17 @@ import {
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
 import {useNavigation} from '@react-navigation/native';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import moment from 'moment';
 import {strictValidObjectWithKeys} from '../../../utils/commonUtils';
 import ActivityLoader from '../../../components/activityLoader';
+import {brokerRequest} from '../../../redux/requests/action';
 const PastRequest = () => {
   const navigation = useNavigation();
   const isLoad = useSelector((state) => state.request.list.loading);
   const data = useSelector((state) => state.request.list.data);
+  const [refreshing, setRefreshing] = useState(false);
+  const dispatch = useDispatch();
 
   const {completed} = data;
   console.log(data);
@@ -24,6 +27,15 @@ const PastRequest = () => {
   const formatTime = (v) => {
     return moment(v).format('hh:mm a');
   };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+    dispatch(brokerRequest());
+  };
+
   const _renderItem = ({item}) => {
     return (
       <CustomButton
@@ -91,9 +103,12 @@ const PastRequest = () => {
   };
   return (
     <Block white middle>
-      {isLoad && <ActivityLoader />}
+      {!refreshing && isLoad && <ActivityLoader />}
       {strictValidObjectWithKeys(data) && (
         <FlatList
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
           contentContainerStyle={{paddingBottom: hp(2)}}
           data={completed}
           showsVerticalScrollIndicator={false}
