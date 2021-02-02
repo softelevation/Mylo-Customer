@@ -1,18 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import {
-  Block,
-  Button,
-  ImageComponent,
-  Input,
-  Text,
-} from '../../../components';
-import { useNavigation } from '@react-navigation/native';
+import {Block, Button, ImageComponent, Input, Text} from '../../../components';
+import {useNavigation} from '@react-navigation/native';
 import Otp from '../../../components/otp';
-import { Alert, Keyboard, KeyboardAvoidingView, Platform } from 'react-native';
+import {Alert, Keyboard, KeyboardAvoidingView, Platform} from 'react-native';
 const Register = () => {
   const nav = useNavigation();
   const [counter, setCounter] = useState(59);
@@ -27,25 +21,22 @@ const Register = () => {
   }, [counter]);
 
   const verifyOtp = () => {
-    if(value === "123456"){
+    if (value === '123456') {
       nav.navigate('Home');
+    } else {
+      Alert.alert('Invalid Otp', 'Please enter a valid otp');
     }
-    else{
-      Alert.alert('Invalid Otp','Please enter a valid otp')
-    }
-  }
+  };
   return (
     <KeyboardAvoidingView
       keyboardVerticalOffset={hp(5)}
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+      style={{flex: 1}}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <>
         <Block
           onStartShouldSetResponder={() => Keyboard.dismiss()}
           white
-          safearea
-        >
+          safearea>
           <Block padding={[hp(4), 0, 0, 0]} center flex={false}>
             <ImageComponent name="logo" height={100} width={100} radius={20} />
             <Text margin={[hp(3), wp(8), 0, wp(8)]} h3 center>
@@ -67,11 +58,10 @@ const Register = () => {
             <Text
               onPress={() => nav.goBack()}
               body
-              style={{ alignSelf: 'center' }}
+              style={{alignSelf: 'center'}}
               transform="uppercase"
               secondary
-              margin={[hp(2), 0, 0, 0]}
-            >
+              margin={[hp(2), 0, 0, 0]}>
               Change phone number
             </Text>
           </Block>
@@ -80,8 +70,7 @@ const Register = () => {
           <Button
             disabled={value.length < 6}
             onPress={() => verifyOtp()}
-            color="secondary"
-          >
+            color="secondary">
             VERIFY OTP
           </Button>
         </Block>
