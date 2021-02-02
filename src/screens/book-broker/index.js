@@ -18,9 +18,9 @@ import {
 import {t1, t3, t5, w1, w5} from '../../components/theme/fontsize';
 import StarRating from 'react-native-star-rating';
 import {light} from '../../components/theme/colors';
-import {useNavigation} from '@react-navigation/native';
+import {DrawerActions, useNavigation} from '@react-navigation/native';
 import MapView, {Marker} from 'react-native-maps';
-import {brokerlistRequest} from '../../redux/action';
+import {brokerlistRequest, profileRequest} from '../../redux/action';
 import {useDispatch, useSelector} from 'react-redux';
 import ActivityLoader from '../../components/activityLoader';
 import Geolocation from '@react-native-community/geolocation';
@@ -45,9 +45,32 @@ const BookBroker = () => {
   const socket = useSelector((state) => state.socket.data);
   const mapRef = useRef();
   const [toggle, settoggle] = useState(true);
+  const user = useSelector((state) => state.user.profile.user);
 
   useEffect(() => {
     dispatch(brokerlistRequest());
+    dispatch(profileRequest());
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (user && !user.name) {
+      setTimeout(() => {
+        navigation.dispatch(DrawerActions.openDrawer());
+        navigation.navigate('Profile');
+      }, 2000);
+    }
+    const unsubscribe = navigation.addListener('state', () => {
+      if (user && !user.name) {
+        setTimeout(() => {
+          navigation.dispatch(DrawerActions.openDrawer());
+          navigation.navigate('Profile');
+        }, 2000);
+      }
+    });
+
+    return unsubscribe;
   }, []);
   const isMapRegionSydney = (coords) => {
     return (
@@ -60,7 +83,9 @@ const BookBroker = () => {
   useEffect(() => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
-        if (!isMapRegionSydney(position.coords)) {
+        if (user && !user.name) {
+          Alert.alert('Please Update the Profile first');
+        } else if (!isMapRegionSydney(position.coords)) {
           Alert.alert('You can book services only for an address in Sydney.');
 
           return;

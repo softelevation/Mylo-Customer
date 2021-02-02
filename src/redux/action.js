@@ -9,6 +9,9 @@ export {
   profileRequest,
   profileSuccess,
   profileFlush,
+  profileUpdateError,
+  profileUpdateRequest,
+  profileUpdateSuccess,
 } from './auth/profile/action';
 export {
   generateOtpError,

@@ -17,6 +17,7 @@ const PastRequest = () => {
   const data = useSelector((state) => state.request.list.data);
 
   const {completed} = data;
+  console.log(data);
   const formatDate = (v) => {
     return moment(v).format('DD, MMM YYYY');
   };

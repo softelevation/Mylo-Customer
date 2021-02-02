@@ -9,10 +9,12 @@ import {useNavigation} from '@react-navigation/native';
 import {DrawerData} from '../utils/static-data';
 import AsyncStorage from '@react-native-community/async-storage';
 import {loginSuccess} from '../redux/action';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
+import {strictValidObjectWithKeys} from '../utils/commonUtils';
 const DrawerScreen = ({state}) => {
   const nav = useNavigation();
   const dispatch = useDispatch();
+  const user = useSelector((v) => v.user.profile.user);
 
   const renderHeight = (icon) => {
     switch (icon) {
@@ -54,7 +56,9 @@ const DrawerScreen = ({state}) => {
         });
       } catch (error) {}
     } else {
-      nav.navigate(val);
+      nav.reset({
+        routes: [{name: val}],
+      });
     }
   };
 
@@ -106,7 +110,7 @@ const DrawerScreen = ({state}) => {
           </Block>
           <Block margin={[0, wp(4), 0, wp(4)]} flex={false}>
             <Text white bold>
-              Jack Ryan
+              {strictValidObjectWithKeys(user) && user.name}
             </Text>
             <TouchableOpacity onPress={() => nav.navigate('Profile')}>
               <Text
