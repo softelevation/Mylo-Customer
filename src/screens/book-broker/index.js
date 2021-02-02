@@ -24,8 +24,9 @@ import {brokerlistRequest} from '../../redux/action';
 import {useDispatch, useSelector} from 'react-redux';
 import ActivityLoader from '../../components/activityLoader';
 import Geolocation from '@react-native-community/geolocation';
+import AsyncStorage from '@react-native-community/async-storage';
+
 const BookBroker = () => {
-  const [Modal, setModal] = useState(false);
   const [action, setAction] = useState('');
   const [location, setlocation] = useState({
     latitude: 0,
@@ -41,13 +42,9 @@ const BookBroker = () => {
   const dispatch = useDispatch();
   const loader = useSelector((state) => state.broker.list.loading);
   const brokerData = useSelector((state) => state.broker.list.broker.data);
+  const socket = useSelector((state) => state.socket.data);
   const mapRef = useRef();
-
-  // const markers = [
-  //   {latitude: -33.765513, longitude: 150.893109},
-  //   {latitude: -33.7650415, longitude: 150.8936997},
-  //   {latitude: -33.76572, longitude: 150.892572},
-  // ];
+  const [toggle, settoggle] = useState(true);
 
   useEffect(() => {
     dispatch(brokerlistRequest());
@@ -89,6 +86,18 @@ const BookBroker = () => {
 
     return () => Geolocation.clearWatch(watchId);
   }, []);
+
+  // Socket
+
+  useEffect(() => {
+    socket.on('refresh_feed', (msg) => {
+      console.log('Websocket event received!', msg);
+      if (msg.type === 'broker_detail') {
+        viewDetailsDialog();
+      }
+    });
+  }, []);
+
   useEffect(() => {
     onOpen();
     const unsubscribe = navigation.addListener('focus', () => {
@@ -97,31 +106,48 @@ const BookBroker = () => {
 
     return unsubscribe;
   }, []);
+
+  const viewDetailsDialog = () => {
+    modalizeRef.current?.open();
+    setAction('brokerdetails');
+  };
+
   const onOpen = () => {
-    setModal(true);
+    modalizeRef.current?.open();
     setAction('schedulebroker');
   };
-  const bookNowBroker = () => {
+
+  // Call Book Now
+
+  const bookNowBroker = async () => {
+    const token = await AsyncStorage.getItem('token');
+    socket.emit('book_now', token);
     setAction('loading');
     setTimeout(() => {
-      setAction('brokerdetails');
-      // setModal(false);
+      setAction('loading');
+      modalizeRef.current?.close();
     }, loaderTime);
   };
+
+  // Call Schedule Broker
   const bookScheduledBroker = () => {
     setAction('loading');
     setTimeout(() => {
       navigation.navigate('SelectDateTime');
-      setModal(false);
+      modalizeRef.current?.close();
     }, loaderTime);
   };
+
+  // Call View Details
+
   const viewDetails = () => {
     setAction('loading');
     setTimeout(() => {
-      setModal(false);
+      modalizeRef.current?.close();
       navigation.navigate('RequestDetails');
     }, loaderTime);
   };
+
   const dialCall = () => {
     let phoneNumber = '';
 
@@ -155,6 +181,8 @@ const BookBroker = () => {
     return {
       longitude: 151.2099,
       latitude: -33.865143,
+      latitudeDelta: 0.09,
+      longitudeDelta: 0.02,
     };
   };
 
@@ -168,7 +196,7 @@ const BookBroker = () => {
           minZoomLevel={10}
           maxZoomLevel={14}
           showsUserLocation={true}
-          provider="google"
+          // provider="google"
           style={styles.map}
           initialRegion={location}
           onRegionChangeComplete={async (coords) => {
@@ -176,6 +204,12 @@ const BookBroker = () => {
               if (isMapRegionSydney(location)) {
                 mapRef && mapRef.current.animateToCoordinate(location);
               } else {
+                setlocation({
+                  longitude: 151.2099,
+                  latitude: -33.865143,
+                  latitudeDelta: 0.09,
+                  longitudeDelta: 0.02,
+                });
                 mapRef &&
                   mapRef.current.animateToCoordinate(getDefaultCoords());
               }
@@ -185,8 +219,8 @@ const BookBroker = () => {
           {brokerData &&
             brokerData.map((item, index) => {
               const marker = {
-                latitude: item.latitude,
-                longitude: item.longitude,
+                latitude: JSON.parse(item.latitude),
+                longitude: JSON.parse(item.longitude),
               };
               return (
                 <Marker title={item.name} coordinate={marker}>
@@ -201,97 +235,94 @@ const BookBroker = () => {
         </MapView>
       </View>
 
-      {Modal === true && (
-        <Modalize
-          alwaysOpen={defaultHeight}
-          modalHeight={action === 'schedulebroker' ? hp(26) : hp(30)}
-          scrollViewProps={{keyboardShouldPersistTaps: 'always'}}
-          modalStyle={{backgroundColor: '#292F37'}}
-          overlayStyle={{backgroundColor: 'transparent'}}
-          handlePosition="inside"
-          handleStyle={{backgroundColor: '#11181E'}}
-          ref={modalizeRef}>
-          {action === 'loading' && (
-            <Block center middle margin={[hp(15), 0, 0, 0]} flex={false}>
-              <ActivityIndicator size="large" color="#fff" />
+      <Modalize
+        alwaysOpen={action === 'schedulebroker' ? defaultHeight : 0}
+        modalStyle={{backgroundColor: '#292F37'}}
+        overlayStyle={{backgroundColor: 'transparent'}}
+        handlePosition="inside"
+        handleStyle={{backgroundColor: '#11181E'}}
+        adjustToContentHeight={toggle}
+        ref={modalizeRef}>
+        {action === 'loading' && (
+          <Block center middle margin={[hp(15), 0, 0, 0]} flex={false}>
+            <ActivityIndicator size="large" color="#fff" />
+          </Block>
+        )}
+        {action === 'schedulebroker' && (
+          <Block margin={[t5, w5, t5, w5]} flex={false}>
+            <Button onPress={() => bookNowBroker()} color="secondary">
+              Book Now
+            </Button>
+            <Button
+              style={{marginVertical: 0}}
+              onPress={() => bookScheduledBroker()}
+              color="secondary">
+              Schedule
+            </Button>
+          </Block>
+        )}
+        {action === 'brokerdetails' && (
+          <Block margin={[t3, w5, t5, w5]} flex={false}>
+            <Block flex={false} row center>
+              <Block
+                alignSelf={'flex-start'}
+                flex={false}
+                borderRadius={80}
+                borderWidth={1}
+                borderColor="#fff">
+                <ImageComponent
+                  name="avatar"
+                  height="70"
+                  width="70"
+                  radius={70}
+                />
+              </Block>
+              <Block flex={false} margin={[0, w5]}>
+                <Text white semibold>
+                  Addison Mccray
+                </Text>
+                <StarRating
+                  disabled={false}
+                  starSize={20}
+                  maxStars={5}
+                  fullStarColor={light.secondary}
+                  rating={5}
+                  starStyle={{marginLeft: w1}}
+                  containerStyle={{
+                    width: wp(20),
+                    marginTop: t1,
+                  }}
+                />
+              </Block>
             </Block>
-          )}
-          {action === 'schedulebroker' && (
-            <Block margin={[t5, w5, t5, w5]} flex={false}>
-              <Button onPress={() => bookNowBroker()} color="secondary">
-                Book Now
+            <Block row space={'between'}>
+              <Button
+                onPress={() => dialCall()}
+                shadow
+                style={{width: wp(43)}}
+                color="#434751">
+                Phone
               </Button>
               <Button
-                style={{marginVertical: 0}}
-                onPress={() => bookScheduledBroker()}
-                color="secondary">
-                Schedule
+                onPress={() => openMessage()}
+                shadow
+                style={{width: wp(43)}}
+                color="#434751">
+                Message
               </Button>
             </Block>
-          )}
-          {action === 'brokerdetails' && (
-            <Block margin={[t3, w5, t5, w5]} flex={false}>
-              <Block flex={false} row center>
-                <Block
-                  alignSelf={'flex-start'}
-                  flex={false}
-                  borderRadius={80}
-                  borderWidth={1}
-                  borderColor="#fff">
-                  <ImageComponent
-                    name="avatar"
-                    height="70"
-                    width="70"
-                    radius={70}
-                  />
-                </Block>
-                <Block flex={false} margin={[0, w5]}>
-                  <Text white semibold>
-                    Addison Mccray
-                  </Text>
-                  <StarRating
-                    disabled={false}
-                    starSize={20}
-                    maxStars={5}
-                    fullStarColor={light.secondary}
-                    rating={5}
-                    starStyle={{marginLeft: w1}}
-                    containerStyle={{
-                      width: wp(20),
-                      marginTop: t1,
-                    }}
-                  />
-                </Block>
-              </Block>
-              <Block row space={'between'}>
-                <Button
-                  onPress={() => dialCall()}
-                  shadow
-                  style={{width: wp(43)}}
-                  color="#434751">
-                  Phone
-                </Button>
-                <Button
-                  onPress={() => openMessage()}
-                  shadow
-                  style={{width: wp(43)}}
-                  color="#434751">
-                  Message
-                </Button>
-              </Block>
-              <Block flex={false}>
-                <Button
-                  onPress={() => viewDetails()}
-                  style={{marginTop: hp(0.5)}}
-                  shadow
-                  color="#434751">
-                  View Details
-                </Button>
-              </Block>
+            <Block flex={false}>
+              <Button
+                onPress={() => viewDetails()}
+                style={{marginTop: hp(0.5)}}
+                shadow
+                color="#434751">
+                View Details
+              </Button>
             </Block>
-          )}
-        </Modalize>
-      )}
+          </Block>
+        )}
+      </Modalize>
     </Block>
   );
 };

@@ -14,16 +14,21 @@ import {Block, Text, ImageComponent, Button} from '../../../components';
 import {light} from '../../../components/theme/colors';
 import {t1, t2, w1, w2, w3, w4, w5} from '../../../components/theme/fontsize';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-const RequestDetails = () => {
+import {strictValidString} from '../../../utils/commonUtils';
+const RequestDetails = ({
+  route: {
+    params: {item},
+  },
+}) => {
   const [seeMore, setSeeMore] = useState(false);
   const nav = useNavigation();
   const dialCall = () => {
     let phoneNumber = '';
 
     if (Platform.OS === 'android') {
-      phoneNumber = 'tel:1234567890';
+      phoneNumber = `tel:${item.phone_no}`;
     } else {
-      phoneNumber = 'telprompt:1234567890';
+      phoneNumber = `telprompt:${item.phone_no}`;
     }
 
     Linking.openURL(phoneNumber);
@@ -31,20 +36,19 @@ const RequestDetails = () => {
   const openMessage = () => {
     const url =
       Platform.OS === 'android'
-        ? 'sms:1-408-555-1212?body=yourMessage'
-        : 'sms:1-408-555-1212';
+        ? `sms:${item.phone_no}?body=yourMessage`
+        : `sms:${item.phone_no}`;
 
     Linking.canOpenURL(url)
       .then((supported) => {
         if (!supported) {
-          console.log('Unsupported url: ' + url);
         } else {
           return Linking.openURL(url);
         }
       })
       .catch((err) => console.error('An error occurred', err));
   };
-
+  console.log(item, 'i');
   const _renderItem = () => {
     return (
       <Block
@@ -100,8 +104,8 @@ const RequestDetails = () => {
             <ImageComponent name="avatar" height="70" width="70" radius={70} />
           </Block>
           <Block flex={false} margin={[0, w5]}>
-            <Text white medium>
-              Addison Mccray
+            <Text style={{width: wp(60)}} white medium>
+              {item.name}
             </Text>
             <StarRating
               disabled={false}
@@ -136,47 +140,53 @@ const RequestDetails = () => {
       </Block>
       <ScrollView>
         <Block flex={false} margin={[t2, w4]}>
-          <Text semibold>About Me</Text>
-          <Text
-            margin={[t1, 0, 0]}
-            numberOfLines={seeMore === true ? undefined : 2}
-            size={15}
-            regular>
-            I am a Real estate agents are licenced professionals. We helps
-            people to buy and sell properties. They provide advice to buyers,
-            sellers, renters and owners about the property market and guide
-            people to find the right home or office space that will suit their
-            needs and budget.
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              setSeeMore(!seeMore);
-            }}>
-            <Text size={14} secondary regular>
-              {seeMore === true ? 'read less' : 'read more'}
-            </Text>
-          </TouchableOpacity>
+          {strictValidString(item.about_me) && (
+            <>
+              <Text semibold>About Me</Text>
+              <Text
+                margin={[t1, 0, 0]}
+                numberOfLines={seeMore === true ? undefined : 2}
+                size={15}
+                regular>
+                {item.about_me}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setSeeMore(!seeMore);
+                }}>
+                <Text size={14} secondary regular>
+                  {seeMore === true ? 'read less' : 'read more'}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
           <Text margin={[t2, 0, t1, 0]} semibold>
             Details
           </Text>
-          <Block margin={[t1, 0, 0]} flex={false} row>
-            <Icon style={{width: wp(7)}} name="phone" size={20} />
-            <Text size={15} margin={[0, w2]}>
-              +91-9988223366
-            </Text>
-          </Block>
-          <Block margin={[t1, 0, 0]} flex={false} row>
-            <Icon style={{width: wp(7)}} name="email" size={20} />
-            <Text size={15} margin={[0, w2]}>
-              addison@gmail.com
-            </Text>
-          </Block>
-          <Block margin={[t1, 0, 0]} flex={false} row>
-            <Icon style={{width: wp(7)}} name="map-marker-radius" size={20} />
-            <Text size={15} margin={[0, w2]}>
-              1543 Stoney Lonesome Road 17690 PA
-            </Text>
-          </Block>
+          {strictValidString(item.phone_no) && (
+            <Block margin={[t1, 0, 0]} flex={false} row>
+              <Icon style={{width: wp(7)}} name="phone" size={20} />
+              <Text size={15} margin={[0, w2]}>
+                {item.phone_no}
+              </Text>
+            </Block>
+          )}
+          {strictValidString(item.email) && (
+            <Block margin={[t1, 0, 0]} flex={false} row>
+              <Icon style={{width: wp(7)}} name="email" size={20} />
+              <Text size={15} margin={[0, w2]}>
+                {item.email}
+              </Text>
+            </Block>
+          )}
+          {strictValidString(item.address) && (
+            <Block margin={[t1, 0, 0]} flex={false} row>
+              <Icon style={{width: wp(7)}} name="map-marker-radius" size={20} />
+              <Text size={15} margin={[0, w2]}>
+                {item.address}
+              </Text>
+            </Block>
+          )}
         </Block>
         <Block margin={[t1, w2, t1]}>
           <Text semibold margin={[0, w2, t1]}>

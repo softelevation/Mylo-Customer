@@ -1,24 +1,41 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {useEffect} from 'react';
 import {FlatList, Text, View} from 'react-native';
 import {
   heightPercentageToDP,
   widthPercentageToDP,
 } from 'react-native-responsive-screen';
+import {useDispatch, useSelector} from 'react-redux';
 import styled from 'styled-components';
 import Header from '../../common/header';
 import {Block, CustomButton} from '../../components';
+import {brokerRequest} from '../../redux/requests/action';
+import io from 'socket.io-client';
 
 const Request = ({navigationState}) => {
   const {routes, index} = navigationState;
   const selected = index;
   const navigation = useNavigation();
+  const socket = useSelector((state) => state.socket.data);
+
+  const dispatch = useDispatch();
   const getValues = (name) => {
     if (name === 'PastRequest') {
       return 'Past';
     }
     return 'Upcoming';
   };
+
+  useEffect(() => {
+    dispatch(brokerRequest());
+    socket.on('refresh_feed', (msg) => {
+      if (msg.type === 'book_broker') {
+        dispatch(brokerRequest());
+      }
+      console.log('Websocket event received!', msg);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   return (
     <Block safearea flex={false}>
       <Header centerText={'Requests'} />

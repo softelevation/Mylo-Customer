@@ -7,8 +7,13 @@ import {
 import {Block, CustomButton, ImageComponent, Text} from '../components';
 import {useNavigation} from '@react-navigation/native';
 import {DrawerData} from '../utils/static-data';
+import AsyncStorage from '@react-native-community/async-storage';
+import {loginSuccess} from '../redux/action';
+import {useDispatch} from 'react-redux';
 const DrawerScreen = ({state}) => {
   const nav = useNavigation();
+  const dispatch = useDispatch();
+
   const renderHeight = (icon) => {
     switch (icon) {
       case 'become_broker_icon':
@@ -38,10 +43,25 @@ const DrawerScreen = ({state}) => {
     }
   };
 
+  const navigateHelpers = async (val) => {
+    if (val === 'Login') {
+      try {
+        const keys = await AsyncStorage.getAllKeys();
+        await AsyncStorage.multiRemove(keys);
+        dispatch(loginSuccess(''));
+        nav.reset({
+          routes: [{name: 'Auth'}],
+        });
+      } catch (error) {}
+    } else {
+      nav.navigate(val);
+    }
+  };
+
   const _renderItem = ({item, index}) => {
     return (
       <CustomButton
-        onPress={() => nav.navigate(item.nav)}
+        onPress={() => navigateHelpers(item.nav)}
         row
         center
         flex={false}
