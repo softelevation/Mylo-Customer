@@ -13,7 +13,7 @@ const configurePush = () => {
     onRegister: onRegister,
     onNotification: onNotificationReceived,
 
-    largeIcon: 'ic_notification',
+    largeIcon: 'ic_launcher',
     smallIcon: 'ic_notification',
     senderID: '274162840428',
     permissions: {
@@ -60,7 +60,7 @@ function onNotificationClicked() {
 
 function toastLocalNotification(notification) {
   PushNotification.localNotification({
-    largeIcon: 'ic_notification',
+    largeIcon: 'ic_launcher',
     smallIcon: 'ic_notification',
     title: 'dfesf',
     message: 'hewb',

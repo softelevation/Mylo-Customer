@@ -117,9 +117,9 @@ const BookBroker = () => {
   useEffect(() => {
     socket.on('refresh_feed', (msg) => {
       console.log('Websocket event received!', msg);
-      if (msg.type === 'broker_detail') {
-        viewDetailsDialog();
-      }
+      // if (msg.type === 'book_broker') {
+      //   viewDetailsDialog();
+      // }
     });
   }, []);
 
