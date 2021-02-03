@@ -15,7 +15,7 @@ const configurePush = () => {
 
     largeIcon: 'ic_notification',
     smallIcon: 'ic_notification',
-    senderID: '1096446835967',
+    senderID: '274162840428',
     permissions: {
       alert: true,
       badge: true,
@@ -35,6 +35,7 @@ const configurePush = () => {
 };
 
 function onRegister(data) {
+  console.log(data);
   let currentPlatform = 'Android';
   if (Platform.OS === 'ios') {
     currentPlatform = 'ios';
@@ -57,15 +58,15 @@ function onNotificationClicked() {
   });
 }
 
-// function toastLocalNotification(notification) {
-//   PushNotification.localNotification({
-//     largeIcon: 'ic_notification',
-//     smallIcon: 'ic_notification',
-//     title: notification.title,
-//     message: notification.message,
-//     playSound: true,
-//     soundName: 'default',
-//   });
-// }
+function toastLocalNotification(notification) {
+  PushNotification.localNotification({
+    largeIcon: 'ic_notification',
+    smallIcon: 'ic_notification',
+    title: 'dfesf',
+    message: 'hewb',
+    playSound: true,
+    soundName: 'default',
+  });
+}
 
-export {configurePush, pushTokenData};
+export {configurePush, pushTokenData, toastLocalNotification};
