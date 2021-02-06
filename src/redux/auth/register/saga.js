@@ -14,6 +14,7 @@ export function* request(action) {
     const response = yield call(Api, action.payload);
     if (response.data.status === 1) {
       yield call(SaveToken, response.data.data.accessToken);
+      // yield call(saveUser, response.data);
       yield put(registerSuccess(response.data));
       navigation.navigate('Home');
     } else {

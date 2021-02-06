@@ -10,7 +10,9 @@ export function* loginRequest(action) {
     const response = yield call(Api, action.payload);
     if (response.data.status === 1 && response.data.data.roll_id === 1) {
       yield put(loginSuccess(response.data));
-      navigation.navigate('Register');
+      navigation.navigate('Register', {
+        phone_no: action.payload,
+      });
     } else if (response.data.data.roll_id === 2) {
       alert('Please login with registered user number ');
       yield put(loginError(response));

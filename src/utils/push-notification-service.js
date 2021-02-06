@@ -53,7 +53,7 @@ function onNotificationReceived(notification) {
 function onNotificationClicked() {
   AsyncStorage.getItem('loggedOut').then((result) => {
     if (!result) {
-      navigation.navigate('Notifications');
+      navigation.navigate('Request');
     }
   });
 }
@@ -62,8 +62,8 @@ function toastLocalNotification(notification) {
   PushNotification.localNotification({
     largeIcon: 'ic_launcher',
     smallIcon: 'ic_notification',
-    title: 'dfesf',
-    message: 'hewb',
+    title: 'Welcome to mylo pro',
+    message: '',
     playSound: true,
     soundName: 'default',
   });

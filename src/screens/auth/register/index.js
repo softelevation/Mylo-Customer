@@ -10,13 +10,16 @@ import {Alert, Keyboard, KeyboardAvoidingView, Platform} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {registerRequest} from '../../../redux/action';
 
-const Register = () => {
+const Register = ({
+  route: {
+    params: {phone_no},
+  },
+}) => {
   const nav = useNavigation();
   const [counter, setCounter] = useState(59);
   const [value, setValue] = useState('');
   const dispatch = useDispatch();
-
-  const phone_no = useSelector((state) => state.user.login.user.data.phone_no);
+  console.log(phone_no, 'phone_no');
   const isLoad = useSelector((state) => state.user.register.loading);
 
   // First Attempts

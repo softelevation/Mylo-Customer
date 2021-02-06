@@ -14,7 +14,11 @@ import {Block, Text, ImageComponent, Button} from '../../../components';
 import {light} from '../../../components/theme/colors';
 import {t1, t2, w1, w2, w3, w4, w5} from '../../../components/theme/fontsize';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {strictValidString} from '../../../utils/commonUtils';
+import {
+  strictValidArray,
+  strictValidArrayWithLength,
+  strictValidString,
+} from '../../../utils/commonUtils';
 const RequestDetails = ({
   route: {
     params: {item},
@@ -48,7 +52,6 @@ const RequestDetails = ({
       })
       .catch((err) => console.error('An error occurred', err));
   };
-  console.log(item, 'i');
   const _renderItem = () => {
     return (
       <Block
@@ -68,7 +71,7 @@ const RequestDetails = ({
               starSize={20}
               maxStars={5}
               fullStarColor={light.starColor}
-              rating={5}
+              rating={item.rating || 0}
               starStyle={{marginLeft: w1}}
               containerStyle={{
                 marginVertical: t1,
@@ -112,7 +115,7 @@ const RequestDetails = ({
               starSize={20}
               maxStars={5}
               fullStarColor={light.starColor}
-              rating={5}
+              rating={item.rating || 1}
               starStyle={{marginLeft: w1}}
               containerStyle={{
                 width: wp(20),
@@ -188,12 +191,17 @@ const RequestDetails = ({
             </Block>
           )}
         </Block>
-        <Block margin={[t1, w2, t1]}>
-          <Text semibold margin={[0, w2, t1]}>
-            Reviews
-          </Text>
-          <FlatList data={['1', '2']} renderItem={_renderItem} />
-        </Block>
+        {strictValidArrayWithLength(item.reviews) && (
+          <Block margin={[t1, w2, t1]}>
+            <Text semibold margin={[0, w2, t1]}>
+              Reviews
+            </Text>
+            <FlatList
+              data={item.reviews && item.reviews}
+              renderItem={_renderItem}
+            />
+          </Block>
+        )}
       </ScrollView>
     </Block>
   );

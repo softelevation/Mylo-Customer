@@ -9,7 +9,13 @@ import {
   Alert,
 } from 'react-native';
 import Header from '../../common/header';
-import {Block, Button, ImageComponent, Text} from '../../components';
+import {
+  Block,
+  Button,
+  CustomButton,
+  ImageComponent,
+  Text,
+} from '../../components';
 import {Modalize} from 'react-native-modalize';
 import {
   heightPercentageToDP as hp,
@@ -25,6 +31,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import ActivityLoader from '../../components/activityLoader';
 import Geolocation from '@react-native-community/geolocation';
 import AsyncStorage from '@react-native-community/async-storage';
+import {strictValidObjectWithKeys} from '../../utils/commonUtils';
 
 const BookBroker = () => {
   const [action, setAction] = useState('');
@@ -36,6 +43,7 @@ const BookBroker = () => {
   });
   const {width, height} = Dimensions.get('window');
   const [defaultHeight, setDefaultHeight] = useState(height / 3);
+  const [brokerDetails, setbrokerDetails] = useState({});
   const modalizeRef = useRef();
   const navigation = useNavigation();
   const loaderTime = 1000;
@@ -115,13 +123,12 @@ const BookBroker = () => {
   // Socket
 
   useEffect(() => {
-    socket.on('refresh_feed', (msg) => {
+    socket.on('broker_details', (msg) => {
       console.log('Websocket event received!', msg);
-      // if (msg.type === 'book_broker') {
-      //   viewDetailsDialog();
-      // }
+      setbrokerDetails(msg);
+      viewDetailsDialog();
     });
-  }, []);
+  }, [brokerDetails]);
 
   useEffect(() => {
     onOpen();
@@ -131,7 +138,7 @@ const BookBroker = () => {
 
     return unsubscribe;
   }, []);
-
+  console.log(brokerDetails, 'vv');
   const viewDetailsDialog = () => {
     modalizeRef.current?.open();
     setAction('brokerdetails');
@@ -165,31 +172,33 @@ const BookBroker = () => {
 
   // Call View Details
 
-  const viewDetails = () => {
+  const viewDetails = (item) => {
     setAction('loading');
     setTimeout(() => {
       modalizeRef.current?.close();
-      navigation.navigate('RequestDetails');
+      navigation.navigate('RequestDetails', {
+        item: item,
+      });
     }, loaderTime);
   };
 
-  const dialCall = () => {
+  const dialCall = (phone) => {
     let phoneNumber = '';
 
     if (Platform.OS === 'android') {
-      phoneNumber = 'tel:1234567890';
+      phoneNumber = `tel:${phone}`;
     } else {
-      phoneNumber = 'telprompt:1234567890';
+      phoneNumber = `telprompt:${phone}`;
     }
 
     Linking.openURL(phoneNumber);
   };
 
-  const openMessage = () => {
+  const openMessage = (phone) => {
     const url =
       Platform.OS === 'android'
-        ? 'sms:1-408-555-1212?body=yourMessage'
-        : 'sms:1-408-555-1212';
+        ? `sms:${phone}?body=yourMessage`
+        : `sms:${phone}`;
 
     Linking.canOpenURL(url)
       .then((supported) => {
@@ -259,9 +268,16 @@ const BookBroker = () => {
             })}
         </MapView>
       </View>
+      {/* {!action && ( */}
+      <CustomButton
+        onPress={() => onOpen()}
+        flex={false}
+        style={{position: 'absolute', bottom: hp(2), right: wp(3)}}>
+        <ImageComponent name="plus_icon" height="60" width="60" />
+      </CustomButton>
+      {/* )} */}
 
       <Modalize
-        alwaysOpen={action === 'schedulebroker' ? defaultHeight : 0}
         modalStyle={{backgroundColor: '#292F37'}}
         overlayStyle={{backgroundColor: 'transparent'}}
         handlePosition="inside"
@@ -269,7 +285,7 @@ const BookBroker = () => {
         adjustToContentHeight={toggle}
         ref={modalizeRef}>
         {action === 'loading' && (
-          <Block center middle margin={[hp(15), 0, 0, 0]} flex={false}>
+          <Block center middle style={{height: hp(30)}} flex={false}>
             <ActivityIndicator size="large" color="#fff" />
           </Block>
         )}
@@ -287,7 +303,10 @@ const BookBroker = () => {
           </Block>
         )}
         {action === 'brokerdetails' && (
-          <Block margin={[t3, w5, t5, w5]} flex={false}>
+          <Block
+            style={{height: hp(35)}}
+            padding={[t3, w5, t3, w5]}
+            flex={false}>
             <Block flex={false} row center>
               <Block
                 alignSelf={'flex-start'}
@@ -304,14 +323,19 @@ const BookBroker = () => {
               </Block>
               <Block flex={false} margin={[0, w5]}>
                 <Text white semibold>
-                  Addison Mccray
+                  {strictValidObjectWithKeys(brokerDetails) &&
+                    brokerDetails.name}
                 </Text>
                 <StarRating
                   disabled={false}
                   starSize={20}
                   maxStars={5}
                   fullStarColor={light.secondary}
-                  rating={5}
+                  rating={
+                    (strictValidObjectWithKeys(brokerDetails) &&
+                      brokerDetails.rating) ||
+                    0
+                  }
                   starStyle={{marginLeft: w1}}
                   containerStyle={{
                     width: wp(20),
@@ -320,16 +344,26 @@ const BookBroker = () => {
                 />
               </Block>
             </Block>
-            <Block row space={'between'}>
+            <Block flex={false} row space={'between'}>
               <Button
-                onPress={() => dialCall()}
+                onPress={() =>
+                  dialCall(
+                    strictValidObjectWithKeys(brokerDetails) &&
+                      brokerDetails.phone_no,
+                  )
+                }
                 shadow
                 style={{width: wp(43)}}
                 color="#434751">
                 Phone
               </Button>
               <Button
-                onPress={() => openMessage()}
+                onPress={() =>
+                  openMessage(
+                    strictValidObjectWithKeys(brokerDetails) &&
+                      brokerDetails.phone_no,
+                  )
+                }
                 shadow
                 style={{width: wp(43)}}
                 color="#434751">
@@ -338,7 +372,7 @@ const BookBroker = () => {
             </Block>
             <Block flex={false}>
               <Button
-                onPress={() => viewDetails()}
+                onPress={() => viewDetails(brokerDetails)}
                 style={{marginTop: hp(0.5)}}
                 shadow
                 color="#434751">
