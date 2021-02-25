@@ -5,9 +5,15 @@ import {
 } from 'react-native-responsive-screen';
 import {StyleSheet} from 'react-native';
 import Header from '../../../common/header';
-import {Block, Button, ImageComponent, Input, Text} from '../../../components';
-import {t1, t2, w1, w5} from '../../../components/theme/fontsize';
-import Icon from 'react-native-vector-icons/Ionicons';
+import {
+  Block,
+  Button,
+  CustomButton,
+  ImageComponent,
+  Input,
+  Text,
+} from '../../../components';
+import {t1, t2, t3, w1, w5} from '../../../components/theme/fontsize';
 import DatePicker from '../../../common/date-time-picker';
 import styled from 'styled-components/native';
 import {useNavigation} from '@react-navigation/native';
@@ -15,6 +21,7 @@ import MapView, {Marker} from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import {useSelector} from 'react-redux';
 import {Alert} from 'react-native';
+import {light} from '../../../components/theme/colors';
 const initialState = {
   date: '',
   time: '',
@@ -25,6 +32,7 @@ const SelectDateTime = () => {
   const {date, time} = details;
   const mapRef = useRef();
   const nav = useNavigation();
+  const [type, settype] = useState('ASAP');
   const brokerData = useSelector((state) => state.broker.list.broker.data);
   const [location, setlocation] = useState({
     latitude: 0,
@@ -52,7 +60,7 @@ const SelectDateTime = () => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
         if (!isMapRegionSydney(position.coords)) {
-          Alert.alert('You can book services only for an address in Sydney.');
+          // Alert.alert('You can book services only for an address in Sydney.');
 
           return;
         }
@@ -78,12 +86,7 @@ const SelectDateTime = () => {
   }, []);
   return (
     <Block>
-      <Header
-        menu={'left_arrow_icon'}
-        menuColor="#fff"
-        navigation
-        centerText={'Date and Time'}
-      />
+      <Header centerText={'Current Location'} />
       <Block white>
         <Map center middle secondary flex={false}>
           <MapView
@@ -124,37 +127,53 @@ const SelectDateTime = () => {
           </MapView>
         </Map>
         <Block padding={[t2]} flex={false}>
-          <Block flex={false} margin={[t1, w1]}>
-            <Block
-              row
-              center
-              space={'between'}
-              flex={false}
-              borderColorDeafult
-              padding={[t1, 0]}
-              borderWidth={[0, 0, 1, 0]}>
-              <TextArea
-                placeholderTextColor={'#00000091'}
-                placeholder={'Search Location here'}
-              />
-              <Icon name="chevron-down-sharp" size={20} />
-            </Block>
+          <Block row middle center flex={false}>
+            <CustomButton
+              onPress={() => settype('ASAP')}
+              color={type === 'ASAP' ? light.secondary : light.headerColor}
+              padding={[hp(1.5), wp(10)]}
+              style={{
+                borderTopLeftRadius: 10,
+                borderBottomLeftRadius: 10,
+              }}
+              flex={false}>
+              <Text white size={18}>
+                ASAP
+              </Text>
+            </CustomButton>
+            <CustomButton
+              onPress={() => settype('LATER')}
+              color={type === 'LATER' ? light.secondary : light.headerColor}
+              padding={[hp(1.5), wp(10)]}
+              style={{
+                borderTopRightRadius: 10,
+                borderBottomRightRadius: 10,
+              }}
+              flex={false}>
+              <Text white size={18}>
+                LATER
+              </Text>
+            </CustomButton>
           </Block>
-          <DatePicker
-            mode="date"
-            initialValue={date}
-            setValue={(val) => setDetails({date: val})}
-          />
-          <DatePicker
-            mode="time"
-            Title={'Time'}
-            initialValue={time}
-            setValue={(val) => setDetails({time: val})}
-          />
+          {type === 'LATER' && (
+            <>
+              <DatePicker
+                mode="date"
+                initialValue={date}
+                setValue={(val) => setDetails({...details, date: val})}
+              />
+              <DatePicker
+                mode="time"
+                Title={'Time'}
+                initialValue={time}
+                setValue={(val) => setDetails({...details, time: val})}
+              />
+            </>
+          )}
         </Block>
         <Block margin={[0, w5]}>
           <Button onPress={() => nav.navigate('Feedback')} color="secondary">
-            Schedule
+            Book Now
           </Button>
         </Block>
       </Block>
@@ -166,11 +185,7 @@ const Map = styled(Block)({
   borderBottomLeftRadius: 20,
   borderBottomRightRadius: 20,
 });
-const TextArea = styled(Input)({
-  borderWidth: 0,
-  padding: 0,
-  width: wp(80),
-});
+
 const styles = StyleSheet.create({
   container: {
     // ...StyleSheet.absoluteFillObject,

@@ -167,10 +167,15 @@ function HomeDrawer() {
       drawerStyle={{width: widthPercentageToDP(70)}}
       drawerContent={(props) => <DrawerScreen {...props} />}>
       <Drawer.Screen name="Maps" options={transition} component={HomeStack} />
+      <Drawer.Screen
+        name="SelectDateTime"
+        options={transition}
+        component={SelectDateTime}
+      />
       <Drawer.Screen name="Request" component={RequestStack} />
       <Drawer.Screen name="Notifications" component={Notifications} />
-      <Drawer.Screen name="BecomeBroker" component={BecomeBroker} />
-      <Drawer.Screen name="Profile" component={Profile} />
+      {/* <Drawer.Screen name="BecomeBroker" component={BecomeBroker} />
+      <Drawer.Screen name="Profile" component={Profile} /> */}
     </Drawer.Navigator>
   );
 }

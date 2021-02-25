@@ -27,5 +27,10 @@ const images = {
   map_person_icon: require('./icons/mapicon.png'),
   route_icon: require('./icons/route.png'),
   plus_icon: require('./icons/plus.png'),
+  google_icon: require('./icons/google-symbol.png'),
+  fb_icon: require('./icons/facebook.png'),
+  background: require('./icons/image_2021_02_25T07_33_37_494Z.png'),
+  home_icon: require('./icons/home.png'),
+  run_icon: require('./icons/run.png'),
 };
 export default images;

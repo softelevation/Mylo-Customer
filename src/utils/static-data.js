@@ -1,8 +1,13 @@
 export const DrawerData = [
   {
+    name: 'Home',
+    icon: 'home_icon',
+    nav: 'Maps',
+  },
+  {
     name: 'New Request',
     icon: 'request_icon',
-    nav: 'Maps',
+    nav: 'SelectDateTime',
   },
   {
     name: 'My Request',

@@ -14,6 +14,7 @@ import {
   Button,
   CustomButton,
   ImageComponent,
+  Input,
   Text,
 } from '../../components';
 import {Modalize} from 'react-native-modalize';
@@ -21,7 +22,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import {t1, t3, t5, w1, w5} from '../../components/theme/fontsize';
+import {t1, t3, t5, w1, w2, w3, w4, w5} from '../../components/theme/fontsize';
 import StarRating from 'react-native-star-rating';
 import {light} from '../../components/theme/colors';
 import {DrawerActions, useNavigation} from '@react-navigation/native';
@@ -32,6 +33,9 @@ import ActivityLoader from '../../components/activityLoader';
 import Geolocation from '@react-native-community/geolocation';
 import AsyncStorage from '@react-native-community/async-storage';
 import {strictValidObjectWithKeys} from '../../utils/commonUtils';
+import {FlatList} from 'react-native-gesture-handler';
+import styled from 'styled-components';
+import Icon from 'react-native-vector-icons/Ionicons';
 
 const BookBroker = () => {
   const [action, setAction] = useState('');
@@ -220,9 +224,28 @@ const BookBroker = () => {
     };
   };
 
+  const renderAds = ({item}) => {
+    return (
+      <Block
+        row
+        shadow
+        primary
+        borderColorDeafult
+        flex={false}
+        borderWidth={1}
+        margin={[t1, 0]}
+        padding={[hp(3)]}>
+        <Text style={{width: wp(65)}} semibold secondary>
+          {item}
+        </Text>
+        <ImageComponent name="run_icon" height={60} width={60} />
+      </Block>
+    );
+  };
+
   return (
     <Block>
-      <Header centerText="Find Broker" />
+      <Header centerText="" />
       {loader && <ActivityLoader />}
       <View style={styles.container}>
         <MapView
@@ -268,21 +291,14 @@ const BookBroker = () => {
             })}
         </MapView>
       </View>
-      {/* {!action && ( */}
-      <CustomButton
-        onPress={() => onOpen()}
-        flex={false}
-        style={{position: 'absolute', bottom: hp(2), right: wp(3)}}>
-        <ImageComponent name="plus_icon" height="60" width="60" />
-      </CustomButton>
-      {/* )} */}
 
       <Modalize
-        modalStyle={{backgroundColor: '#292F37'}}
+        modalStyle={{backgroundColor: '#fff', marginTop: hp(5)}}
         overlayStyle={{backgroundColor: 'transparent'}}
         handlePosition="inside"
-        handleStyle={{backgroundColor: '#11181E'}}
-        adjustToContentHeight={toggle}
+        handleStyle={{backgroundColor: light.darkColor}}
+        alwaysOpen={350}
+        snapPoint={350}
         ref={modalizeRef}>
         {action === 'loading' && (
           <Block center middle style={{height: hp(30)}} flex={false}>
@@ -291,15 +307,38 @@ const BookBroker = () => {
         )}
         {action === 'schedulebroker' && (
           <Block margin={[t5, w5, t5, w5]} flex={false}>
+            <Block
+              row
+              center
+              space={'between'}
+              flex={false}
+              borderColorDeafult
+              padding={[t1, 0]}
+              color="#F0F1F3"
+              borderWidth={1}>
+              <Icon
+                style={{paddingLeft: w4}}
+                name="ios-search"
+                color={light.secondary}
+                size={30}
+              />
+              <TextArea
+                placeholderTextColor={'#00000091'}
+                placeholder={'Search Destination'}
+              />
+            </Block>
             <Button onPress={() => bookNowBroker()} color="secondary">
-              Book Now
+              Find a Mortgage Broker
             </Button>
-            <Button
-              style={{marginVertical: 0}}
-              onPress={() => bookScheduledBroker()}
-              color="secondary">
-              Schedule
-            </Button>
+            <FlatList
+              scrollEnabled={false}
+              data={[
+                'Purchase your first home at 1.89%',
+                'Refinance at 1.94% and get 4k cashback with a major bank',
+                'Restructure your portfolio with a major.',
+              ]}
+              renderItem={renderAds}
+            />
           </Block>
         )}
         {action === 'brokerdetails' && (
@@ -396,6 +435,13 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
+});
+const TextArea = styled(Input)({
+  borderWidth: 0,
+  padding: 0,
+  width: wp(75),
+  fontSize: 20,
+  backgroundColor: '#F0F1F3',
 });
 
 export default BookBroker;

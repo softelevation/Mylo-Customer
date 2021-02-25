@@ -6,7 +6,11 @@ import {
 import {Block, CustomButton, ImageComponent, Text} from '../components';
 import Icon from 'react-native-vector-icons/Ionicons';
 import PropTypes from 'prop-types';
-import {DrawerActions, useNavigation} from '@react-navigation/native';
+import {
+  DrawerActions,
+  StackActions,
+  useNavigation,
+} from '@react-navigation/native';
 const Header = ({
   leftIcon,
   centerText,
@@ -30,7 +34,9 @@ const Header = ({
           left
           middle
           onPress={() =>
-            navigation ? nav.goBack() : nav.dispatch(DrawerActions.openDrawer())
+            navigation
+              ? nav.dispatch(StackActions.pop())
+              : nav.dispatch(DrawerActions.openDrawer())
           }>
           <ImageComponent
             name={menu}

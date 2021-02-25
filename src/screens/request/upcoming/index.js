@@ -62,12 +62,6 @@ const UpcomingRequest = () => {
               </Text>
             </Block>
           </Block>
-          {!item.status === 'pending' && (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('TrackBroker')}>
-              <ImageComponent name="route_icon" height="30" width="30" />
-            </TouchableOpacity>
-          )}
         </Block>
         <Block margin={[t1, 0, 0, 0]} flex={false} row>
           <Block
@@ -104,6 +98,15 @@ const UpcomingRequest = () => {
                 {item.status}
               </Text>
             </Block>
+            {item.status !== 'pending' && (
+              <Text
+                onPress={() => navigation.navigate('TrackBroker')}
+                size={12}
+                underline
+                margin={[t1, 0]}>
+                Track Your Broker
+              </Text>
+            )}
           </Block>
         </Block>
       </CustomButton>

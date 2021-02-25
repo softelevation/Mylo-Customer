@@ -10,25 +10,26 @@ import {
 import images from '../../assets';
 import {Block, ImageComponent, Text} from '../../components';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {light} from '../../components/theme/colors';
 const slides = [
   {
     key: 1,
     title: 'Title 1',
-    text: 'Extraordinary Reach.Extraordinary Results',
+    text: 'Find your Local Mortgage Broker',
     image: images.intro1_icon,
     backgroundColor: '#59b2ab',
   },
   {
     key: 2,
     title: 'Title 2',
-    text: 'We Are Life Changers',
+    text: 'Schedule a Meeting',
     image: images.intro1_icon,
     backgroundColor: '#febe29',
   },
   {
     key: 3,
     title: 'Rocket guy',
-    text: 'How Real Estate Gets Real',
+    text: 'Have your needs met!',
     image: images.intro1_icon,
     backgroundColor: '#22bcb5',
   },
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
   buttonCircle: {
     width: 40,
     height: 40,
-    backgroundColor: 'rgba(0, 0, 0, .2)',
+    backgroundColor: light.secondary,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -85,8 +86,8 @@ const Intro = () => {
   };
   const _renderItem = ({item}) => {
     return (
-      <Block center secondary>
-        <Block flex={0.7} middle center secondary>
+      <Block center primary>
+        <Block flex={0.7} middle center primary>
           <ResponsiveImage
             source={item.image}
             initHeight="250"
@@ -95,7 +96,7 @@ const Intro = () => {
           />
         </Block>
 
-        <Text style={{width: wp(100)}} size={20} center white semibold>
+        <Text style={{width: wp(80)}} size={20} left semibold>
           {item.text}
         </Text>
       </Block>
@@ -119,6 +120,8 @@ const Intro = () => {
       renderNextButton={_renderNextButton}
       renderPrevButton={_renderPrevButton}
       renderSkipButton={_renderSkipButton}
+      dotStyle={{backgroundColor: light.headerColor}}
+      activeDotStyle={{backgroundColor: light.secondary}}
     />
   );
 };
