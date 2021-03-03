@@ -16,7 +16,7 @@ export function* request(action) {
       yield call(SaveToken, response.data.data.accessToken);
       // yield call(saveUser, response.data);
       yield put(registerSuccess(response.data));
-      navigation.navigate('Home');
+      navigation.resetNav('Home');
     } else {
       alert(response.data.message);
       yield put(registerError(response));

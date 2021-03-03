@@ -8,12 +8,29 @@ import {PostLoginScreen, PreLaunchScreen, PreLoginScreen} from './sub-routes';
 import {SafeAreaView, StatusBar} from 'react-native';
 import {light} from '../components/theme/colors';
 import {navigationRef} from './NavigationService';
+import BrokerDetails from '../common/dialog/broker_details';
+import io from 'socket.io-client';
+import {strictValidObjectWithKeys} from '../utils/commonUtils';
 const RootStack = createStackNavigator();
 
-function Routes() {
+const Routes = () => {
+  const [brokerDetails, setbrokerDetails] = React.useState({});
+
+  React.useEffect(() => {
+    const socket = io('http://104.131.39.110:3000');
+    socket.on('broker_details', (msg) => {
+      setbrokerDetails(msg);
+    });
+  }, []);
   return (
     <NavigationContainer ref={navigationRef}>
       <SafeAreaView style={{flex: 1, backgroundColor: light.secondary}}>
+        {strictValidObjectWithKeys(brokerDetails) && (
+          <BrokerDetails
+            brokerDetails={brokerDetails}
+            setBrokerDetails={() => setbrokerDetails({})}
+          />
+        )}
         <StatusBar barStyle="light-content" />
         <RootStack.Navigator
           screenOptions={{
@@ -29,6 +46,6 @@ function Routes() {
       </SafeAreaView>
     </NavigationContainer>
   );
-}
+};
 
 export default Routes;

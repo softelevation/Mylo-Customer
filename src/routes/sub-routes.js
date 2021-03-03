@@ -174,20 +174,21 @@ function HomeDrawer() {
       />
       <Drawer.Screen name="Request" component={RequestStack} />
       <Drawer.Screen name="Notifications" component={Notifications} />
-      {/* <Drawer.Screen name="BecomeBroker" component={BecomeBroker} />
-      <Drawer.Screen name="Profile" component={Profile} /> */}
+      <Drawer.Screen name="Profile" component={Profile} />
     </Drawer.Navigator>
   );
 }
-export const PostLoginScreen = () => (
-  <PostLoginStack.Navigator
-    headerMode="none"
-    mode="card"
-    initialRouteName="Home">
-    <PostLoginStack.Screen
-      name="Home"
-      options={transition}
-      component={HomeDrawer}
-    />
-  </PostLoginStack.Navigator>
-);
+export const PostLoginScreen = () => {
+  return (
+    <PostLoginStack.Navigator
+      headerMode="none"
+      mode="card"
+      initialRouteName="Home">
+      <PostLoginStack.Screen
+        name="Home"
+        options={transition}
+        component={HomeDrawer}
+      />
+    </PostLoginStack.Navigator>
+  );
+};

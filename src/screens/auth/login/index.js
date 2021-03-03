@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -11,25 +11,16 @@ import {
   Input,
   Text,
 } from '../../../components';
-import {useNavigation} from '@react-navigation/native';
-import {
-  ImageBackground,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import {ImageBackground, Keyboard} from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import {useDispatch, useSelector} from 'react-redux';
 import {loginRequest} from '../../../redux/action';
 import images from '../../../assets';
-import {t1, t2, t3, w1, w3, w6} from '../../../components/theme/fontsize';
+import {t3, w1, w3} from '../../../components/theme/fontsize';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {light} from '../../../components/theme/colors';
 const Login = () => {
-  const nav = useNavigation();
   const dispatch = useDispatch();
-  const [type, settype] = useState('ASAP');
 
   const isLoad = useSelector((state) => state.user.login.loading);
   const submitValues = (values, {resetForm}) => {
@@ -42,7 +33,7 @@ const Login = () => {
   return (
     <KeyboardAwareScrollView
       showsVerticalScrollIndicator={false}
-      style={{flex: 1}}>
+      style={{flex: 1, backgroundColor: '#fff'}}>
       <Formik
         initialValues={{mobile: ''}}
         onSubmit={submitValues}
@@ -81,34 +72,6 @@ const Login = () => {
                   />
                 </Block>
               </ImageBackground>
-              <Block margin={[t2, 0, 0]} row middle center flex={false}>
-                <CustomButton
-                  onPress={() => settype('ASAP')}
-                  color={type === 'ASAP' ? light.secondary : light.headerColor}
-                  padding={[hp(1.5), wp(16)]}
-                  style={{
-                    borderTopLeftRadius: 10,
-                    borderBottomLeftRadius: 10,
-                  }}
-                  flex={false}>
-                  <Text white size={18}>
-                    BROKER
-                  </Text>
-                </CustomButton>
-                <CustomButton
-                  onPress={() => settype('LATER')}
-                  color={type === 'LATER' ? light.secondary : light.headerColor}
-                  padding={[hp(1.5), wp(10)]}
-                  style={{
-                    borderTopRightRadius: 10,
-                    borderBottomRightRadius: 10,
-                  }}
-                  flex={false}>
-                  <Text white size={18}>
-                    CUSTOMER
-                  </Text>
-                </CustomButton>
-              </Block>
               <Block
                 primary
                 padding={[hp(2), wp(4), hp(2), wp(4)]}

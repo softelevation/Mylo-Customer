@@ -22,6 +22,7 @@ import Geolocation from '@react-native-community/geolocation';
 import {useSelector} from 'react-redux';
 import {Alert} from 'react-native';
 import {light} from '../../../components/theme/colors';
+import AsyncStorage from '@react-native-community/async-storage';
 const initialState = {
   date: '',
   time: '',
@@ -33,7 +34,10 @@ const SelectDateTime = () => {
   const mapRef = useRef();
   const nav = useNavigation();
   const [type, settype] = useState('ASAP');
+  const [Loader, setLoader] = useState(false);
   const brokerData = useSelector((state) => state.broker.list.broker.data);
+  const socket = useSelector((state) => state.socket.data);
+
   const [location, setlocation] = useState({
     latitude: 0,
     longitude: 0,
@@ -56,6 +60,25 @@ const SelectDateTime = () => {
       coords.latitude <= -31.083332
     );
   };
+
+  const bookNowBroker = async () => {
+    setLoader(true);
+    const token = await AsyncStorage.getItem('token');
+    socket.emit('book_now', token);
+    setTimeout(() => {
+      setLoader(false);
+      Alert.alert('Please wait for the availability of the broker');
+    }, 2000);
+  };
+
+  const checkType = () => {
+    if (type === 'ASAP') {
+      bookNowBroker();
+    } else {
+      Alert.alert('Coming Soon');
+    }
+  };
+
   useEffect(() => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
@@ -172,7 +195,10 @@ const SelectDateTime = () => {
           )}
         </Block>
         <Block margin={[0, w5]}>
-          <Button onPress={() => nav.navigate('Feedback')} color="secondary">
+          <Button
+            isLoading={Loader}
+            onPress={() => checkType()}
+            color="secondary">
             Book Now
           </Button>
         </Block>

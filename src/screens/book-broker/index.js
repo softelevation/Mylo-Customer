@@ -36,7 +36,11 @@ import {strictValidObjectWithKeys} from '../../utils/commonUtils';
 import {FlatList} from 'react-native-gesture-handler';
 import styled from 'styled-components';
 import Icon from 'react-native-vector-icons/Ionicons';
+import MapViewDirections from 'react-native-maps-directions';
 
+const origin = {latitude: -33.8623719, longitude: 151.2211646};
+const destination = {latitude: -33.8729566, longitude: 151.1927314};
+const GOOGLE_MAPS_APIKEY = 'AIzaSyADePjPgnwznPmlGboEQlTFWLHZIxAIgaQ';
 const BookBroker = () => {
   const [action, setAction] = useState('');
   const [location, setlocation] = useState({
@@ -124,16 +128,6 @@ const BookBroker = () => {
     return () => Geolocation.clearWatch(watchId);
   }, []);
 
-  // Socket
-
-  useEffect(() => {
-    socket.on('broker_details', (msg) => {
-      console.log('Websocket event received!', msg);
-      setbrokerDetails(msg);
-      viewDetailsDialog();
-    });
-  }, [brokerDetails]);
-
   useEffect(() => {
     onOpen();
     const unsubscribe = navigation.addListener('focus', () => {
@@ -142,7 +136,6 @@ const BookBroker = () => {
 
     return unsubscribe;
   }, []);
-  console.log(brokerDetails, 'vv');
   const viewDetailsDialog = () => {
     modalizeRef.current?.open();
     setAction('brokerdetails');
@@ -160,59 +153,8 @@ const BookBroker = () => {
     socket.emit('book_now', token);
     setAction('loading');
     setTimeout(() => {
-      setAction('loading');
       modalizeRef.current?.close();
     }, loaderTime);
-  };
-
-  // Call Schedule Broker
-  const bookScheduledBroker = () => {
-    setAction('loading');
-    setTimeout(() => {
-      navigation.navigate('SelectDateTime');
-      modalizeRef.current?.close();
-    }, loaderTime);
-  };
-
-  // Call View Details
-
-  const viewDetails = (item) => {
-    setAction('loading');
-    setTimeout(() => {
-      modalizeRef.current?.close();
-      navigation.navigate('RequestDetails', {
-        item: item,
-      });
-    }, loaderTime);
-  };
-
-  const dialCall = (phone) => {
-    let phoneNumber = '';
-
-    if (Platform.OS === 'android') {
-      phoneNumber = `tel:${phone}`;
-    } else {
-      phoneNumber = `telprompt:${phone}`;
-    }
-
-    Linking.openURL(phoneNumber);
-  };
-
-  const openMessage = (phone) => {
-    const url =
-      Platform.OS === 'android'
-        ? `sms:${phone}?body=yourMessage`
-        : `sms:${phone}`;
-
-    Linking.canOpenURL(url)
-      .then((supported) => {
-        if (!supported) {
-          console.log('Unsupported url: ' + url);
-        } else {
-          return Linking.openURL(url);
-        }
-      })
-      .catch((err) => console.error('An error occurred', err));
   };
 
   const getDefaultCoords = () => {
@@ -273,6 +215,11 @@ const BookBroker = () => {
               return;
             }
           }}>
+          <MapViewDirections
+            origin={origin}
+            destination={destination}
+            apikey={GOOGLE_MAPS_APIKEY}
+          />
           {brokerData &&
             brokerData.map((item, index) => {
               const marker = {
@@ -302,7 +249,7 @@ const BookBroker = () => {
         ref={modalizeRef}>
         {action === 'loading' && (
           <Block center middle style={{height: hp(30)}} flex={false}>
-            <ActivityIndicator size="large" color="#fff" />
+            <ActivityIndicator size="large" color="#000" />
           </Block>
         )}
         {action === 'schedulebroker' && (
@@ -339,85 +286,6 @@ const BookBroker = () => {
               ]}
               renderItem={renderAds}
             />
-          </Block>
-        )}
-        {action === 'brokerdetails' && (
-          <Block
-            style={{height: hp(35)}}
-            padding={[t3, w5, t3, w5]}
-            flex={false}>
-            <Block flex={false} row center>
-              <Block
-                alignSelf={'flex-start'}
-                flex={false}
-                borderRadius={80}
-                borderWidth={1}
-                borderColor="#fff">
-                <ImageComponent
-                  name="avatar"
-                  height="70"
-                  width="70"
-                  radius={70}
-                />
-              </Block>
-              <Block flex={false} margin={[0, w5]}>
-                <Text white semibold>
-                  {strictValidObjectWithKeys(brokerDetails) &&
-                    brokerDetails.name}
-                </Text>
-                <StarRating
-                  disabled={false}
-                  starSize={20}
-                  maxStars={5}
-                  fullStarColor={light.secondary}
-                  rating={
-                    (strictValidObjectWithKeys(brokerDetails) &&
-                      brokerDetails.rating) ||
-                    0
-                  }
-                  starStyle={{marginLeft: w1}}
-                  containerStyle={{
-                    width: wp(20),
-                    marginTop: t1,
-                  }}
-                />
-              </Block>
-            </Block>
-            <Block flex={false} row space={'between'}>
-              <Button
-                onPress={() =>
-                  dialCall(
-                    strictValidObjectWithKeys(brokerDetails) &&
-                      brokerDetails.phone_no,
-                  )
-                }
-                shadow
-                style={{width: wp(43)}}
-                color="#434751">
-                Phone
-              </Button>
-              <Button
-                onPress={() =>
-                  openMessage(
-                    strictValidObjectWithKeys(brokerDetails) &&
-                      brokerDetails.phone_no,
-                  )
-                }
-                shadow
-                style={{width: wp(43)}}
-                color="#434751">
-                Message
-              </Button>
-            </Block>
-            <Block flex={false}>
-              <Button
-                onPress={() => viewDetails(brokerDetails)}
-                style={{marginTop: hp(0.5)}}
-                shadow
-                color="#434751">
-                View Details
-              </Button>
-            </Block>
           </Block>
         )}
       </Modalize>

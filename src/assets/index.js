@@ -32,5 +32,7 @@ const images = {
   background: require('./icons/image_2021_02_25T07_33_37_494Z.png'),
   home_icon: require('./icons/home.png'),
   run_icon: require('./icons/run.png'),
+  trash_icon: require('./icons/remove.png'),
+  cancel_icon: require('./icons/cancel.png'),
 };
 export default images;

@@ -22,6 +22,7 @@ const Profile = () => {
       name: values.name,
       address: values.address,
       email: values.email,
+      phone_no: values.mobile_number,
     };
     dispatch(profileUpdateRequest(data));
   };
