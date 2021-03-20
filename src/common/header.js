@@ -18,6 +18,9 @@ const Header = ({
   menu,
   menuColor,
   navigation,
+  rightIcon,
+  rightColor,
+  rightPress,
 }) => {
   const nav = useNavigation();
   return (
@@ -51,16 +54,21 @@ const Header = ({
       <Block flex={false} center middle>
         <Text
           semibold
-          // style={{width: wp(40)}}
+          style={{width: wp(80)}}
           transform="uppercase"
           center
           white>
           {centerText}
         </Text>
       </Block>
-      <Block right middle>
-        <Text white>{rightText}</Text>
-      </Block>
+      <CustomButton onPress={rightPress} right middle>
+        <ImageComponent
+          name={rightIcon}
+          height="25"
+          width="25"
+          color={rightColor}
+        />
+      </CustomButton>
     </Block>
   );
 };
@@ -71,6 +79,8 @@ Header.defaultProps = {
   leftIcon: true,
   menu: 'menu_icon',
   menuColor: '',
+  rightColor: '',
+  rightIcon: '',
 };
 Header.propTypes = {
   centerText: PropTypes.string,
@@ -78,5 +88,7 @@ Header.propTypes = {
   leftIcon: PropTypes.bool,
   menu: PropTypes.string,
   menuColor: PropTypes.string,
+  rightColor: PropTypes.string,
+  rightPress: PropTypes.func.isRequired,
 };
 export default Header;

@@ -14,7 +14,7 @@ const componentStyles = () => {
     },
     shadow: {
       shadowColor: '#000',
-      shadowOffset: { width: 0, height: 2 },
+      shadowOffset: {width: 0, height: 2},
       shadowOpacity: 0.1,
       shadowRadius: 10,
     },
@@ -33,11 +33,17 @@ const componentStyles = () => {
       backgroundColor: '#00000052',
       borderWidth: 0,
     },
-    accent: { backgroundColor: 'red' },
-    primary: { backgroundColor: '#000', paddingVertical: t1 * 1.5 },
+    accent: {backgroundColor: 'red'},
+    primary: {backgroundColor: '#000', paddingVertical: t1 * 1.5},
     secondary: {
       backgroundColor: light.secondary,
       paddingVertical: t1 * 1.5,
+    },
+    transparent: {
+      backgroundColor: '#fff',
+      paddingVertical: t1 * 1.5,
+      borderColor: light.secondary,
+      borderWidth: 1,
     },
   });
 };
@@ -78,23 +84,27 @@ const Button = ({
     return <Block style={buttonStyles}>{icon}</Block>;
   }
 
+  const colorType = (type) => {
+    switch (type) {
+      case 'secondary':
+        return '#fff';
+      case 'transparent':
+        return light.secondary;
+      case 'primary':
+        return '#fff';
+    }
+  };
+
   return (
     <TouchableOpacity
       style={[buttonStyles, disabled && styles.disabledButton]}
       disabled={!!disabled}
       activeOpacity={disabled ? opacity || 0.8 : 0.2}
-      {...rest}
-    >
+      {...rest}>
       {isLoading ? (
         <ActivityIndicator size="small" color="#ffffff" />
       ) : (
-        <Text
-          center
-          bold
-          h1
-          size={size || 17}
-          color={color === 'secondary' ? '#fff' : '#fff'}
-        >
+        <Text center bold h1 size={size || 17} color={colorType(color)}>
           {children}
         </Text>
       )}

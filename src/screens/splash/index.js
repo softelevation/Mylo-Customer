@@ -9,7 +9,7 @@ import {strictValidString} from '../../utils/commonUtils';
 import io from 'socket.io-client';
 
 const Splash = () => {
-  const nav = useNavigation();
+  const navigation = useNavigation();
 
   const dispatch = useDispatch();
 
@@ -18,11 +18,15 @@ const Splash = () => {
     if (strictValidString(token)) {
       dispatch(loginSuccess(token));
       setTimeout(() => {
-        nav.navigate('Home');
+        navigation.reset({
+          routes: [{name: 'Home'}],
+        });
       }, 3000);
     } else {
       setTimeout(() => {
-        nav.navigate('Auth');
+        navigation.reset({
+          routes: [{name: 'Auth'}],
+        });
       }, 3000);
     }
   };

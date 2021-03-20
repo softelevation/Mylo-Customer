@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -11,17 +11,38 @@ import {
   Input,
   Text,
 } from '../../../components';
-import {ImageBackground, Keyboard} from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  ImageBackground,
+  Keyboard,
+} from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
 import {useDispatch, useSelector} from 'react-redux';
-import {loginRequest} from '../../../redux/action';
+import {loginRequest, registerRequest} from '../../../redux/action';
 import images from '../../../assets';
 import {t3, w1, w3} from '../../../components/theme/fontsize';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {useNavigation} from '@react-navigation/core';
+import {
+  GoogleSignin,
+  GoogleSigninButton,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import {
+  LoginManager,
+  AccessToken,
+  GraphRequest,
+  GraphRequestManager,
+} from 'react-native-fbsdk';
+import {pushTokenData} from '../../../utils/push-notification-service';
+
 const Login = () => {
   const dispatch = useDispatch();
-
+  const navigation = useNavigation();
+  const [fbLoader, setFbLoader] = useState(false);
+  const [googleLoader, setGoogleLoader] = useState(false);
   const isLoad = useSelector((state) => state.user.login.loading);
   const submitValues = (values, {resetForm}) => {
     dispatch(loginRequest(values.mobile));
@@ -29,6 +50,117 @@ const Login = () => {
     setTimeout(() => {
       resetForm();
     }, 100);
+  };
+
+  const handleFacebookLogin = () => {
+    setFbLoader(true);
+    LoginManager.logInWithPermissions(['public_profile']).then(
+      function (result) {
+        if (result.isCancelled) {
+          console.log('Login cancelled');
+          setFbLoader(false);
+        } else {
+          const _responseInfoCallback = (error: ?Object, result) => {
+            if (error) {
+              console.log('Error fetching data: ' + error.toString());
+              setFbLoader(false);
+            } else {
+              setFbLoader(false);
+              console.log(result, 'user');
+
+              const data = {
+                social_type: 'F',
+                social_token: result.id,
+                name: result.name,
+                email: result.email,
+                token: pushTokenData.token,
+                image: result.picture.data.url || null,
+                // mobile: result.email,
+              };
+              console.log('Success fetching data: ', data);
+              dispatch(registerRequest(data));
+            }
+          };
+          // Create a graph request asking for user information with a callback to handle the response.
+          const infoRequest = new GraphRequest(
+            '/me',
+            {
+              parameters: {
+                fields: {
+                  string:
+                    'email,name,first_name,middle_name,last_name,picture.type(large)',
+                },
+              },
+            },
+            _responseInfoCallback,
+          );
+          console.log(infoRequest, 'infoRequest');
+          // Start the graph request.
+          const res = new GraphRequestManager().addRequest(infoRequest).start();
+          console.log(
+            'Login success with permissions: ' +
+              result.grantedPermissions.toString(),
+          );
+          console.log(result, 'result', res);
+        }
+      },
+      function (error) {
+        console.log('Login fail with error: ' + error);
+        setFbLoader(false);
+      },
+    );
+  };
+
+  const signIn = async () => {
+    setGoogleLoader(true);
+    try {
+      await GoogleSignin.hasPlayServices();
+      try {
+        await GoogleSignin.configure({
+          webClientId:
+            '274162840428-v7tssdlskph9c4m2j7p21n87m26o4dq9.apps.googleusercontent.com',
+          hostedDomain: '',
+          forceConsentPrompt: true,
+        });
+        await GoogleSignin.signOut();
+      } catch (e) {
+        setGoogleLoader(false);
+      }
+      const userInfo = await GoogleSignin.signIn();
+      setGoogleLoader(false);
+      console.log(userInfo, 'user');
+      const {email, name, id, photo} = userInfo.user;
+      const data = {
+        social_type: 'G',
+        social_token: id,
+        name: name || '',
+        email: email,
+        token: pushTokenData.token,
+        image: photo || null,
+      };
+      console.log(data, 'data');
+      dispatch(registerRequest(data));
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // sign in was cancelled
+        setGoogleLoader(false);
+
+        //Alert.alert('cancelled');
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // operation in progress already
+        setGoogleLoader(false);
+
+        Alert.alert('in progress');
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        setGoogleLoader(false);
+
+        Alert.alert('play services not available or outdated');
+      } else {
+        setGoogleLoader(false);
+
+        Alert.alert('Something went wrong', error.toString());
+      }
+    }
   };
   return (
     <KeyboardAwareScrollView
@@ -59,7 +191,7 @@ const Login = () => {
               <ImageBackground
                 source={images.background}
                 style={{
-                  height: hp(47),
+                  height: hp(55),
                   width: wp(100),
                   alignItems: 'center',
                 }}>
@@ -89,21 +221,33 @@ const Login = () => {
               </Block>
               <Block margin={[0, w1]} flex={false} row space={'around'}>
                 <CustomButton
+                  onPress={() => signIn()}
                   shadow
+                  borderRadius={10}
                   row
                   center
                   middle
                   borderWidth={1}
                   margin={[0, w1, 0, wp(6)]}
-                  padding={[hp(1)]}
+                  padding={[hp(1.3), wp(1)]}
                   borderColorDeafult
                   color="primary">
                   <ImageComponent name="google_icon" height={20} width={20} />
-                  <Text size={14} margin={[0, 0, 0, w3]}>
-                    Google
-                  </Text>
+                  {googleLoader ? (
+                    <ActivityIndicator
+                      size="small"
+                      color="#F34336"
+                      style={{marginLeft: w3}}
+                    />
+                  ) : (
+                    <Text regular size={14} margin={[0, 0, 0, w3]}>
+                      Google
+                    </Text>
+                  )}
                 </CustomButton>
                 <CustomButton
+                  borderRadius={10}
+                  onPress={() => handleFacebookLogin()}
                   shadow
                   row
                   center
@@ -114,9 +258,17 @@ const Login = () => {
                   borderWidth={1}
                   color="primary">
                   <ImageComponent name="fb_icon" height={20} width={20} />
-                  <Text size={14} margin={[0, 0, 0, w3]}>
-                    Facebook
-                  </Text>
+                  {fbLoader ? (
+                    <ActivityIndicator
+                      size="small"
+                      color="#3D5898"
+                      style={{marginLeft: w3}}
+                    />
+                  ) : (
+                    <Text regular size={14} margin={[0, 0, 0, w3]}>
+                      Facebook
+                    </Text>
+                  )}
                 </CustomButton>
               </Block>
               <Block

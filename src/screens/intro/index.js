@@ -1,128 +1,110 @@
 import {useNavigation} from '@react-navigation/native';
-import React from 'react';
+import React, {useRef, useState} from 'react';
 import {StyleSheet} from 'react-native';
-import AppIntroSlider from 'react-native-app-intro-slider';
+
 import ResponsiveImage from 'react-native-responsive-image';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
 import images from '../../assets';
-import {Block, ImageComponent, Text} from '../../components';
-import Icon from 'react-native-vector-icons/Ionicons';
+import {Block, Button, Text} from '../../components';
 import {light} from '../../components/theme/colors';
-const slides = [
-  {
-    key: 1,
-    title: 'Title 1',
-    text: 'Find your Local Mortgage Broker',
-    image: images.intro1_icon,
-    backgroundColor: '#59b2ab',
-  },
-  {
-    key: 2,
-    title: 'Title 2',
-    text: 'Schedule a Meeting',
-    image: images.intro1_icon,
-    backgroundColor: '#febe29',
-  },
-  {
-    key: 3,
-    title: 'Rocket guy',
-    text: 'Have your needs met!',
-    image: images.intro1_icon,
-    backgroundColor: '#22bcb5',
-  },
-];
-const styles = StyleSheet.create({
-  buttonCircle: {
-    width: 40,
-    height: 40,
-    backgroundColor: light.secondary,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  //[...]
-});
+import Carousel from 'react-native-snap-carousel';
+import {w5} from '../../components/theme/fontsize';
 
 const Intro = () => {
   const navigation = useNavigation();
-  const _renderDoneButton = () => {
-    return (
-      <Block style={styles.buttonCircle}>
-        <Icon name="md-checkmark" color="rgba(255, 255, 255, .9)" size={24} />
-      </Block>
-    );
-  };
-  const _renderNextButton = () => {
-    return (
-      <Block style={styles.buttonCircle}>
-        <Icon
-          name="md-chevron-forward"
-          color="rgba(255, 255, 255, .9)"
-          size={24}
-        />
-      </Block>
-    );
-  };
-  const _renderPrevButton = () => {
-    return (
-      <Block style={styles.buttonCircle}>
-        <Icon
-          name="md-chevron-back"
-          color="rgba(255, 255, 255, .9)"
-          size={24}
-        />
-      </Block>
-    );
-  };
-  const _renderSkipButton = () => {
-    return (
-      <Block flex={false} padding={[hp(1), 0]}>
-        <Text white>Skip</Text>
-      </Block>
-    );
-  };
+  const [activeSlide, setActiveSlide] = useState(0);
+  const carouselRef = useRef();
+  const [slides, setstate] = useState([
+    {
+      key: 1,
+      header: 'Find your Local Mortgage Broker',
+      text:
+        'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. ',
+      image: images.find_icon,
+      subtitle: 'Find your Local Mortgage Broker',
+      backgroundColor: '#59b2ab',
+    },
+    {
+      key: 2,
+      header: 'Schedule a Meeting',
+      text:
+        'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. ',
+      image: images.meet_icon,
+      subtitle: 'Schedule a Meeting',
+      backgroundColor: '#febe29',
+    },
+    {
+      key: 3,
+      header: 'Have your needs met!',
+      text:
+        'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. ',
+
+      image: images.met_icon,
+      subtitle: 'Have your needs met!',
+      backgroundColor: '#22bcb5',
+    },
+  ]);
+
   const _renderItem = ({item}) => {
     return (
-      <Block center primary>
-        <Block flex={0.7} middle center primary>
+      <Block primary>
+        <Block flex={0.9} middle center primary>
+          <Text color="#282B32" margin={[hp(5), 0]} size={25} center bold>
+            {item.header}
+          </Text>
           <ResponsiveImage
             source={item.image}
-            initHeight="250"
-            initWidth="350"
+            initHeight="260"
+            initWidth="370"
             borderRadius={20}
           />
+          <Text margin={[hp(5), 0, 0]} size={20} center regular>
+            {item.text}
+          </Text>
         </Block>
-
-        <Text style={{width: wp(80)}} size={20} left semibold>
-          {item.text}
-        </Text>
       </Block>
     );
-  };
-  const _onDone = () => {
-    navigation.navigate('Login');
   };
 
   return (
-    <AppIntroSlider
-      renderItem={_renderItem}
-      data={slides}
-      onDone={_onDone}
-      onSkip={_onDone}
-      showDoneButton
-      showSkipButton
-      showNextButton
-      showPrevButton
-      renderDoneButton={_renderDoneButton}
-      renderNextButton={_renderNextButton}
-      renderPrevButton={_renderPrevButton}
-      renderSkipButton={_renderSkipButton}
-      dotStyle={{backgroundColor: light.headerColor}}
-      activeDotStyle={{backgroundColor: light.secondary}}
-    />
+    <Block primary>
+      <Carousel
+        ref={carouselRef}
+        autoplay
+        autoplayInterval={3000}
+        useScrollView
+        lockScrollWhileSnapping
+        data={slides}
+        renderItem={_renderItem}
+        sliderWidth={wp(100)}
+        itemWidth={wp(100)}
+        layout={'default'}
+        // inactiveSlideScale={1}
+        enableSnap
+        onSnapToItem={(index) => setActiveSlide(index)}
+      />
+      {activeSlide === 2 ? (
+        <Block flex={false} padding={[0, w5]} row center space={'between'}>
+          <Button style={{width: wp(42)}} color="transparent">
+            Back
+          </Button>
+          {/* <Text style={{height: hp(10)}} /> */}
+          <Button
+            onPress={() => navigation.navigate('Login')}
+            style={{width: wp(42)}}
+            color="secondary">
+            Continue
+          </Button>
+        </Block>
+      ) : (
+        <Block flex={false} padding={[0, w5]} row center space={'between'}>
+          <Text style={{height: hp(10)}} />
+        </Block>
+      )}
+    </Block>
   );
 };
 export default Intro;

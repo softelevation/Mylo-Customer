@@ -7,8 +7,17 @@ import {Block, ImageComponent, Text} from '../../components';
 import MapView, {Marker} from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import Header from '../../common/header';
+import MapViewDirections from 'react-native-maps-directions';
 
-const TrackBroker = () => {
+const origin = {latitude: -33.8623719, longitude: 151.2211646};
+const destination = {latitude: -33.8729566, longitude: 151.1927314};
+const GOOGLE_MAPS_APIKEY = 'AIzaSyADePjPgnwznPmlGboEQlTFWLHZIxAIgaQ';
+
+const TrackBroker = ({
+  route: {
+    params: {item},
+  },
+}) => {
   const mapRef = useRef();
   const nav = useNavigation();
   const brokerData = useSelector((state) => state.broker.list.broker.data);
@@ -72,20 +81,41 @@ const TrackBroker = () => {
           maxZoomLevel={20}
           zoomControlEnabled
           showsUserLocation={true}
-          // provider="google"
+          provider="google"
           style={styles.map}
           initialRegion={location}
           onRegionChangeComplete={async (coords) => {
             if (!isMapRegionSydney(coords)) {
               if (isMapRegionSydney(location)) {
                 mapRef && mapRef.current.animateToCoordinate(location);
+                setlocation({
+                  longitude: location.longitude,
+                  latitude: location.latitude,
+                });
               } else {
                 mapRef &&
                   mapRef.current.animateToCoordinate(getDefaultCoords());
+                setlocation({
+                  longitude: 151.2099,
+                  latitude: -33.865143,
+                });
               }
               return;
             }
           }}>
+          <MapViewDirections
+            origin={origin}
+            destination={destination}
+            apikey={GOOGLE_MAPS_APIKEY}
+          />
+          <Marker
+            title={'me'}
+            coordinate={{
+              latitude: location.latitude,
+              longitude: location.longitude,
+            }}>
+            <ImageComponent name={'customer_icon'} height="40" width="40" />
+          </Marker>
           {brokerData && (
             <Marker
               title={brokerData[3].name}

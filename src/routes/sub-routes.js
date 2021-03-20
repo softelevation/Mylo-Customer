@@ -97,11 +97,11 @@ const HomeStack = () => (
       options={transition}
       component={Profile}
     />
-    <PostLoginStack.Screen
+    {/* <PostLoginStack.Screen
       name="SelectDateTime"
       options={transition}
       component={SelectDateTime}
-    />
+    /> */}
     <PostLoginStack.Screen
       name="ChatDetails"
       options={transition}

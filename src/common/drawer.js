@@ -1,5 +1,5 @@
 import React from 'react';
-import {FlatList, TouchableOpacity} from 'react-native';
+import {Alert, FlatList, TouchableOpacity} from 'react-native';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -10,7 +10,10 @@ import {DrawerData} from '../utils/static-data';
 import AsyncStorage from '@react-native-community/async-storage';
 import {loginSuccess} from '../redux/action';
 import {useDispatch, useSelector} from 'react-redux';
-import {strictValidObjectWithKeys} from '../utils/commonUtils';
+import {
+  strictValidObjectWithKeys,
+  strictValidString,
+} from '../utils/commonUtils';
 const DrawerScreen = ({state}) => {
   const nav = useNavigation();
   const dispatch = useDispatch();
@@ -44,16 +47,33 @@ const DrawerScreen = ({state}) => {
         return 17.5;
     }
   };
+  const onLogout = async () => {
+    const keys = await AsyncStorage.getAllKeys();
+    await AsyncStorage.multiRemove(keys);
+    dispatch(loginSuccess(''));
+    nav.reset({
+      routes: [{name: 'Auth'}],
+    });
+  };
 
   const navigateHelpers = async (val) => {
     if (val === 'Login') {
       try {
-        const keys = await AsyncStorage.getAllKeys();
-        await AsyncStorage.multiRemove(keys);
-        dispatch(loginSuccess(''));
-        nav.reset({
-          routes: [{name: 'Auth'}],
-        });
+        Alert.alert(
+          '',
+          'Are you sure you want to log out ?',
+          [
+            {
+              text: 'Cancel',
+            },
+            {
+              text: 'Yes, do it',
+              onPress: () => onLogout(),
+              style: 'cancel',
+            },
+          ],
+          {cancelable: false},
+        );
       } catch (error) {}
     } else {
       nav.reset({
@@ -106,7 +126,23 @@ const DrawerScreen = ({state}) => {
             borderWidth={1}
             borderColor="#fff"
             borderRadius={60}>
-            <ImageComponent name="avatar" height="80" width="80" radius={80} />
+            {strictValidObjectWithKeys(user) &&
+            strictValidString(user.image) ? (
+              <ImageComponent
+                isURL
+                name={user.image}
+                height="80"
+                width="80"
+                radius={80}
+              />
+            ) : (
+              <ImageComponent
+                name="avatar"
+                height="80"
+                width="80"
+                radius={80}
+              />
+            )}
           </Block>
           <Block margin={[0, wp(4), 0, wp(4)]} flex={false}>
             <Text white bold>

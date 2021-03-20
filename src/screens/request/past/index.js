@@ -103,7 +103,7 @@ const PastRequest = () => {
   };
   return (
     <Block white middle>
-      {!refreshing && isLoad && <ActivityLoader />}
+      {isLoad && <ActivityLoader />}
       {strictValidObjectWithKeys(data) && (
         <FlatList
           refreshControl={

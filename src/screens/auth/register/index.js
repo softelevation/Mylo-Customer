@@ -9,6 +9,7 @@ import Otp from '../../../components/otp';
 import {Alert, Keyboard, KeyboardAvoidingView, Platform} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {registerRequest} from '../../../redux/action';
+import {pushTokenData} from '../../../utils/push-notification-service';
 
 const Register = ({
   route: {
@@ -34,6 +35,8 @@ const Register = ({
     const data = {
       otp: value,
       phone_no: phone_no,
+      social_type: 'N',
+      token: pushTokenData.token,
     };
     dispatch(registerRequest(data));
   };

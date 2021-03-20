@@ -38,9 +38,6 @@ import styled from 'styled-components';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MapViewDirections from 'react-native-maps-directions';
 
-const origin = {latitude: -33.8623719, longitude: 151.2211646};
-const destination = {latitude: -33.8729566, longitude: 151.1927314};
-const GOOGLE_MAPS_APIKEY = 'AIzaSyADePjPgnwznPmlGboEQlTFWLHZIxAIgaQ';
 const BookBroker = () => {
   const [action, setAction] = useState('');
   const [location, setlocation] = useState({
@@ -62,7 +59,7 @@ const BookBroker = () => {
   const mapRef = useRef();
   const [toggle, settoggle] = useState(true);
   const user = useSelector((state) => state.user.profile.user);
-
+  const [isload, setLoader] = useState(false);
   useEffect(() => {
     dispatch(brokerlistRequest());
     dispatch(profileRequest());
@@ -96,22 +93,35 @@ const BookBroker = () => {
       coords.latitude <= -31.083332
     );
   };
+  console.log(location);
   useEffect(() => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
+        const {latitude, longitude, accuracy} = position.coords;
+        const oneDegreeOfLatitudeInMeters = 2000.32 * 1000;
+        const latDelta = accuracy / oneDegreeOfLatitudeInMeters;
+        const longDelta =
+          accuracy /
+          (oneDegreeOfLatitudeInMeters * Math.cos(latitude * (Math.PI / 180)));
+
         if (user && !user.name) {
           Alert.alert('Please Update the Profile first');
         } else if (!isMapRegionSydney(position.coords)) {
           Alert.alert('You can book services only for an address in Sydney.');
-
+          setlocation({
+            longitude: 151.2099,
+            latitude: -33.865143,
+            latitudeDelta: latDelta,
+            longitudeDelta: longDelta,
+          });
           return;
         }
 
         let region = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          latitudeDelta: 0.00922 * 1.5,
-          longitudeDelta: 0.00421 * 1.5,
+          latitudeDelta: latDelta,
+          longitudeDelta: longDelta,
           // angle: position.coords.heading,
         };
         console.log(position, 'position');
@@ -149,12 +159,17 @@ const BookBroker = () => {
   // Call Book Now
 
   const bookNowBroker = async () => {
+    setLoader(true);
     const token = await AsyncStorage.getItem('token');
     socket.emit('book_now', token);
-    setAction('loading');
     setTimeout(() => {
-      modalizeRef.current?.close();
-    }, loaderTime);
+      setLoader(false);
+      Alert.alert('Please wait for the availability of the broker');
+    }, 2000);
+    // setAction('loading');
+    // setTimeout(() => {
+    //   modalizeRef.current?.close();
+    // }, loaderTime);
   };
 
   const getDefaultCoords = () => {
@@ -169,12 +184,12 @@ const BookBroker = () => {
   const renderAds = ({item}) => {
     return (
       <Block
+        borderRadius={10}
         row
-        shadow
         primary
         borderColorDeafult
         flex={false}
-        borderWidth={1}
+        borderWidth={2}
         margin={[t1, 0]}
         padding={[hp(3)]}>
         <Text style={{width: wp(65)}} semibold secondary>
@@ -192,9 +207,11 @@ const BookBroker = () => {
       <View style={styles.container}>
         <MapView
           ref={mapRef}
-          minZoomLevel={10}
-          maxZoomLevel={14}
+          minZoomLevel={2}
+          maxZoomLevel={8}
+          zoomControlEnabled
           showsUserLocation={true}
+          showsScale
           // provider="google"
           style={styles.map}
           initialRegion={location}
@@ -206,8 +223,8 @@ const BookBroker = () => {
                 setlocation({
                   longitude: 151.2099,
                   latitude: -33.865143,
-                  latitudeDelta: 0.09,
-                  longitudeDelta: 0.02,
+                  latitudeDelta: 0.0046,
+                  longitudeDelta: 0.0046,
                 });
                 mapRef &&
                   mapRef.current.animateToCoordinate(getDefaultCoords());
@@ -215,11 +232,9 @@ const BookBroker = () => {
               return;
             }
           }}>
-          <MapViewDirections
-            origin={origin}
-            destination={destination}
-            apikey={GOOGLE_MAPS_APIKEY}
-          />
+          <Marker title={'Me'} coordinate={location}>
+            <ImageComponent name={'customer_icon'} height="40" width="40" />
+          </Marker>
           {brokerData &&
             brokerData.map((item, index) => {
               const marker = {
@@ -274,7 +289,10 @@ const BookBroker = () => {
                 placeholder={'Search Destination'}
               />
             </Block>
-            <Button onPress={() => bookNowBroker()} color="secondary">
+            <Button
+              isLoading={isload}
+              onPress={() => bookNowBroker()}
+              color="secondary">
               Find a Mortgage Broker
             </Button>
             <FlatList
@@ -296,7 +314,7 @@ const BookBroker = () => {
 const styles = StyleSheet.create({
   container: {
     // ...StyleSheet.absoluteFillObject,
-    flex: 1,
+    flex: 0.5,
     justifyContent: 'flex-end',
     alignItems: 'center',
   },

@@ -135,7 +135,11 @@ const UpcomingRequest = () => {
             </Block>
             {item.status !== 'pending' && (
               <Text
-                onPress={() => navigation.navigate('TrackBroker')}
+                onPress={() =>
+                  navigation.navigate('TrackBroker', {
+                    item: item,
+                  })
+                }
                 size={12}
                 underline
                 margin={[t1, 0]}>
@@ -149,7 +153,7 @@ const UpcomingRequest = () => {
   };
   return (
     <Block white middle>
-      {!refreshing && isLoad && <ActivityLoader />}
+      {isLoad && <ActivityLoader />}
       {strictValidObjectWithKeys(data) && (
         <FlatList
           refreshControl={

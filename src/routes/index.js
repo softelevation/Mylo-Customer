@@ -24,6 +24,8 @@ const Routes = () => {
   }, []);
   return (
     <NavigationContainer ref={navigationRef}>
+      <StatusBar backgroundColor={light.secondary} barStyle="dark-content" />
+
       <SafeAreaView style={{flex: 1, backgroundColor: light.secondary}}>
         {strictValidObjectWithKeys(brokerDetails) && (
           <BrokerDetails
@@ -31,7 +33,6 @@ const Routes = () => {
             setBrokerDetails={() => setbrokerDetails({})}
           />
         )}
-        <StatusBar barStyle="light-content" />
         <RootStack.Navigator
           screenOptions={{
             cardStyleInterpolator:

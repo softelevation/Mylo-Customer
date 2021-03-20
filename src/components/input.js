@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Platform, StyleSheet, TextInput } from 'react-native';
+import React, {useState} from 'react';
+import {Platform, StyleSheet, TextInput} from 'react-native';
 import {
   heightPercentageToDP,
   widthPercentageToDP,
@@ -7,8 +7,8 @@ import {
 import Block from './Block';
 import Button from './CustomButton';
 import Text from './Text';
-import { light } from './theme/colors';
-import { t1 } from './theme/fontsize';
+import {light} from './theme/colors';
+import {t1} from './theme/fontsize';
 
 const componentStyles = () => {
   return StyleSheet.create({
@@ -69,8 +69,7 @@ const Input = ({
           style={styles.label}
           black={!error}
           accent={error}
-          color="#636363"
-        >
+          color="#636363">
           {label}
         </Text>
       ) : null}
@@ -84,8 +83,7 @@ const Input = ({
     return (
       <Button
         style={styles.toggle}
-        onPress={() => setToggleSecure({ toggleSecure: !toggleSecure })}
-      >
+        onPress={() => setToggleSecure({toggleSecure: !toggleSecure})}>
         {/* {rightLabel || (
           <Icon
             color={'#000'}
@@ -105,8 +103,7 @@ const Input = ({
     return (
       <Button
         style={[styles.toggle, rightStyle]}
-        onPress={() => onRightPress && onRightPress()}
-      >
+        onPress={() => onRightPress && onRightPress()}>
         {rightLabel}
       </Button>
     );
@@ -129,7 +126,7 @@ const Input = ({
       color: '#9c9c9c',
       borderColor: '#e9ecef',
     },
-    error && { borderColor: 'red',color:'red' },
+    error && {borderColor: 'red', color: 'red'},
     style,
   ];
   return (
