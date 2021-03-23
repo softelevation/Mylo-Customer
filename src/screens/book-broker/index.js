@@ -22,7 +22,17 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import {t1, t3, t5, w1, w2, w3, w4, w5} from '../../components/theme/fontsize';
+import {
+  t1,
+  t3,
+  t4,
+  t5,
+  w1,
+  w2,
+  w3,
+  w4,
+  w5,
+} from '../../components/theme/fontsize';
 import StarRating from 'react-native-star-rating';
 import {light} from '../../components/theme/colors';
 import {DrawerActions, useNavigation} from '@react-navigation/native';
@@ -37,27 +47,29 @@ import {FlatList} from 'react-native-gesture-handler';
 import styled from 'styled-components';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MapViewDirections from 'react-native-maps-directions';
+import {AdsData} from '../../utils/static-data';
+import AlertCompnent from '../../common/AlertCompnent';
 
 const BookBroker = () => {
   const [action, setAction] = useState('');
   const [location, setlocation] = useState({
     latitude: 0,
     longitude: 0,
-    latitudeDelta: 0.09,
-    longitudeDelta: 0.02,
+    latitudeDelta: 0.2556429502693618,
+    longitudeDelta: 0.3511001542210579,
   });
-  const {width, height} = Dimensions.get('window');
-  const [defaultHeight, setDefaultHeight] = useState(height / 3);
-  const [brokerDetails, setbrokerDetails] = useState({});
+  const [modal, setmodal] = useState(false);
+  const [alertdata, setAlert] = useState({
+    title: '',
+    description: '',
+  });
   const modalizeRef = useRef();
   const navigation = useNavigation();
-  const loaderTime = 1000;
   const dispatch = useDispatch();
   const loader = useSelector((state) => state.broker.list.loading);
   const brokerData = useSelector((state) => state.broker.list.broker.data);
   const socket = useSelector((state) => state.socket.data);
   const mapRef = useRef();
-  const [toggle, settoggle] = useState(true);
   const user = useSelector((state) => state.user.profile.user);
   const [isload, setLoader] = useState(false);
   useEffect(() => {
@@ -97,22 +109,22 @@ const BookBroker = () => {
   useEffect(() => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
-        const {latitude, longitude, accuracy} = position.coords;
-        const oneDegreeOfLatitudeInMeters = 2000.32 * 1000;
-        const latDelta = accuracy / oneDegreeOfLatitudeInMeters;
-        const longDelta =
-          accuracy /
-          (oneDegreeOfLatitudeInMeters * Math.cos(latitude * (Math.PI / 180)));
-
         if (user && !user.name) {
-          Alert.alert('Please Update the Profile first');
+          setAlert({
+            title: 'Message',
+            description: 'Please update the profile first',
+          });
         } else if (!isMapRegionSydney(position.coords)) {
-          Alert.alert('You can book services only for an address in Sydney.');
+          setmodal(true);
+          setAlert({
+            title: 'Message',
+            description: 'You can book services only for an address in Sydney.',
+          });
           setlocation({
             longitude: 151.2099,
             latitude: -33.865143,
-            latitudeDelta: latDelta,
-            longitudeDelta: longDelta,
+            latitudeDelta: 0.2556429502693618,
+            longitudeDelta: 0.3511001542210579,
           });
           return;
         }
@@ -120,8 +132,8 @@ const BookBroker = () => {
         let region = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          latitudeDelta: latDelta,
-          longitudeDelta: longDelta,
+          latitudeDelta: 0.2556429502693618,
+          longitudeDelta: 0.3511001542210579,
           // angle: position.coords.heading,
         };
         console.log(position, 'position');
@@ -164,7 +176,11 @@ const BookBroker = () => {
     socket.emit('book_now', token);
     setTimeout(() => {
       setLoader(false);
-      Alert.alert('Please wait for the availability of the broker');
+      setmodal(true);
+      setAlert({
+        title: 'Success',
+        description: 'Please wait for the availability of the broker',
+      });
     }, 2000);
     // setAction('loading');
     // setTimeout(() => {
@@ -176,8 +192,8 @@ const BookBroker = () => {
     return {
       longitude: 151.2099,
       latitude: -33.865143,
-      latitudeDelta: 0.09,
-      longitudeDelta: 0.02,
+      latitudeDelta: 0.2556429502693618,
+      longitudeDelta: 0.3511001542210579,
     };
   };
 
@@ -193,9 +209,9 @@ const BookBroker = () => {
         margin={[t1, 0]}
         padding={[hp(3)]}>
         <Text style={{width: wp(65)}} semibold secondary>
-          {item}
+          {item.name}
         </Text>
-        <ImageComponent name="run_icon" height={60} width={60} />
+        <ImageComponent name={item.image} height={60} width={60} />
       </Block>
     );
   };
@@ -204,13 +220,35 @@ const BookBroker = () => {
     <Block>
       <Header centerText="" />
       {loader && <ActivityLoader />}
+      <CustomButton
+        onPress={() => {
+          mapRef && mapRef.current.animateToCoordinate(location);
+        }}
+        primary
+        flex={false}
+        style={{
+          position: 'absolute',
+          top: hp(10),
+          right: w3,
+          zIndex: 99,
+          height: 50,
+          width: 50,
+          borderRadius: 50,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <ImageComponent
+          color={light.secondary}
+          name={'nav_icon'}
+          height="30"
+          width="30"
+        />
+      </CustomButton>
       <View style={styles.container}>
         <MapView
           ref={mapRef}
-          minZoomLevel={2}
-          maxZoomLevel={8}
           zoomControlEnabled
-          showsUserLocation={true}
+          // showsUserLocation={true}
           showsScale
           // provider="google"
           style={styles.map}
@@ -223,8 +261,8 @@ const BookBroker = () => {
                 setlocation({
                   longitude: 151.2099,
                   latitude: -33.865143,
-                  latitudeDelta: 0.0046,
-                  longitudeDelta: 0.0046,
+                  latitudeDelta: 0.2556429502693618,
+                  longitudeDelta: 0.3511001542210579,
                 });
                 mapRef &&
                   mapRef.current.animateToCoordinate(getDefaultCoords());
@@ -255,12 +293,12 @@ const BookBroker = () => {
       </View>
 
       <Modalize
-        modalStyle={{backgroundColor: '#fff', marginTop: hp(5)}}
+        modalStyle={{backgroundColor: '#fff'}}
         overlayStyle={{backgroundColor: 'transparent'}}
         handlePosition="inside"
         handleStyle={{backgroundColor: light.darkColor}}
-        alwaysOpen={350}
-        snapPoint={350}
+        alwaysOpen={360}
+        snapPoint={360}
         ref={modalizeRef}>
         {action === 'loading' && (
           <Block center middle style={{height: hp(30)}} flex={false}>
@@ -297,16 +335,22 @@ const BookBroker = () => {
             </Button>
             <FlatList
               scrollEnabled={false}
-              data={[
-                'Purchase your first home at 1.89%',
-                'Refinance at 1.94% and get 4k cashback with a major bank',
-                'Restructure your portfolio with a major.',
-              ]}
+              data={AdsData}
               renderItem={renderAds}
             />
           </Block>
         )}
       </Modalize>
+      <Block flex={false}>
+        <AlertCompnent
+          visible={modal}
+          title={alertdata.title}
+          description={alertdata.description}
+          buttonTitle="Ok"
+          onPress={() => setmodal(false)}
+          onRequestClose={() => setmodal(false)}
+        />
+      </Block>
     </Block>
   );
 };

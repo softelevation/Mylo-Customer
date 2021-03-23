@@ -25,6 +25,7 @@ import {light} from '../../../components/theme/colors';
 import AsyncStorage from '@react-native-community/async-storage';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {strictValidObjectWithKeys} from '../../../utils/commonUtils';
+import AlertCompnent from '../../../common/AlertCompnent';
 const initialState = {
   date: '',
   time: '',
@@ -48,19 +49,25 @@ const SelectDateTime = () => {
   const socket = useSelector((state) => state.socket.data);
   const [currentAddress, setCurrentAddress] = useState({});
   const [state, setState] = useState(initialMapState);
-
+  const [modal, setmodal] = useState(false);
+  const [alertdata, setAlert] = useState({
+    title: '',
+    description: '',
+  });
   const {waiting, searchAddress, searchAddressList} = state;
   const [location, setlocation] = useState({
     latitude: 0,
     longitude: 0,
-    latitudeDelta: 0.09,
-    longitudeDelta: 0.02,
+    latitudeDelta: 0.2556429502693618,
+    longitudeDelta: 0.3511001542210579,
   });
 
   const getDefaultCoords = () => {
     return {
       longitude: 151.2099,
       latitude: -33.865143,
+      latitudeDelta: 0.2556429502693618,
+      longitudeDelta: 0.3511001542210579,
     };
   };
 
@@ -79,7 +86,11 @@ const SelectDateTime = () => {
     socket.emit('book_now', token);
     setTimeout(() => {
       setLoader(false);
-      Alert.alert('Please wait for the availability of the broker');
+      setmodal(true);
+      setAlert({
+        title: 'Success',
+        description: 'Please wait for the availability of the broker',
+      });
     }, 2000);
   };
 
@@ -95,7 +106,6 @@ const SelectDateTime = () => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
         if (!isMapRegionSydney(position.coords)) {
-          // Alert.alert('You can book services only for an address in Sydney.');
           fetchCoordsAddress(
             position.coords.latitude + ',' + position.coords.longitude,
             true,
@@ -106,8 +116,8 @@ const SelectDateTime = () => {
         let region = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          latitudeDelta: 0.00922 * 1.5,
-          longitudeDelta: 0.00421 * 1.5,
+          latitudeDelta: 0.2556429502693618,
+          longitudeDelta: 0.3511001542210579,
           // angle: position.coords.heading,
         };
         fetchCoordsAddress(
@@ -391,6 +401,16 @@ const SelectDateTime = () => {
           </Block>
         </Block>
       </KeyboardAwareScrollView>
+      <Block flex={false}>
+        <AlertCompnent
+          visible={modal}
+          title={alertdata.title}
+          description={alertdata.description}
+          buttonTitle="Ok"
+          onPress={() => setmodal(false)}
+          onRequestClose={() => setmodal(false)}
+        />
+      </Block>
     </>
   );
 };

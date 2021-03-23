@@ -61,7 +61,12 @@ const Intro = () => {
             initWidth="370"
             borderRadius={20}
           />
-          <Text margin={[hp(5), 0, 0]} size={20} center regular>
+          <Text
+            style={{width: wp(90), alignSelf: 'center'}}
+            margin={[hp(5), 0, 0]}
+            size={16}
+            center
+            regular>
             {item.text}
           </Text>
         </Block>
@@ -88,10 +93,10 @@ const Intro = () => {
       />
       {activeSlide === 2 ? (
         <Block flex={false} padding={[0, w5]} row center space={'between'}>
-          <Button style={{width: wp(42)}} color="transparent">
+          {/* <Button style={{width: wp(42)}} color="transparent">
             Back
-          </Button>
-          {/* <Text style={{height: hp(10)}} /> */}
+          </Button> */}
+          <Text style={{height: hp(10)}} />
           <Button
             onPress={() => navigation.navigate('Login')}
             style={{width: wp(42)}}

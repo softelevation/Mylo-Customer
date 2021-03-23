@@ -33,11 +33,14 @@ const images = {
   background: require('./icons/gg.png'),
   home_icon: require('./icons/home.png'),
   run_icon: require('./icons/run.png'),
+  run_icon2: require('./icons/running-man2.png'),
+  run_icon3: require('./icons/running-man.png'),
   trash_icon: require('./icons/remove.png'),
   cancel_icon: require('./icons/cancel.png'),
   find_icon: require('./icons/find.png'),
   meet_icon: require('./icons/meeting.png'),
   met_icon: require('./icons/met.png'),
   down_icon: require('./icons/down-arrow.png'),
+  nav_icon: require('./icons/navigation.png'),
 };
 export default images;

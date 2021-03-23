@@ -1,3 +1,5 @@
+import images from '../assets';
+
 export const DrawerData = [
   {
     name: 'Home',
@@ -79,5 +81,19 @@ export const ChatData = [
       'Molly hadn’t seen the dead girl’s face swirl like smoke, to take on the wall between the bookcases, its distorted face sagging to',
     time: '24 Nov',
     noti: 0,
+  },
+];
+export const AdsData = [
+  {
+    name: 'Purchase your first home at 1.89%',
+    image: 'run_icon',
+  },
+  {
+    name: 'Refinance at 1.94% and get 4k cashback with a major bank',
+    image: 'run_icon2',
+  },
+  {
+    name: 'Restructure your portfolio with a major bank',
+    image: 'run_icon3',
   },
 ];
