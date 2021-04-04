@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -7,6 +7,7 @@ import {
   Platform,
   StyleSheet,
   Alert,
+  Keyboard,
 } from 'react-native';
 import Header from '../../common/header';
 import {
@@ -17,26 +18,27 @@ import {
   Input,
   Text,
 } from '../../components';
-import {Modalize} from 'react-native-modalize';
+import { Modalize } from 'react-native-modalize';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import {t1, t3, t5, w1, w2, w3, w4, w5} from '../../components/theme/fontsize';
+import { t1, t3, t5, w1, w2, w3, w4, w5 } from '../../components/theme/fontsize';
 import StarRating from 'react-native-star-rating';
-import {light} from '../../components/theme/colors';
-import {DrawerActions, useNavigation} from '@react-navigation/native';
-import MapView, {Marker} from 'react-native-maps';
-import {brokerlistRequest, profileRequest} from '../../redux/action';
-import {useDispatch, useSelector} from 'react-redux';
+import { light } from '../../components/theme/colors';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
+import MapView, { Marker } from 'react-native-maps';
+import { brokerlistRequest, profileRequest } from '../../redux/action';
+import { useDispatch, useSelector } from 'react-redux';
 import ActivityLoader from '../../components/activityLoader';
 import Geolocation from '@react-native-community/geolocation';
 import AsyncStorage from '@react-native-community/async-storage';
-import {strictValidObjectWithKeys} from '../../utils/commonUtils';
-import {FlatList} from 'react-native-gesture-handler';
+import { strictValidObjectWithKeys } from '../../utils/commonUtils';
+import { FlatList, ScrollView } from 'react-native-gesture-handler';
 import styled from 'styled-components';
 import Icon from 'react-native-vector-icons/Ionicons';
 import MapViewDirections from 'react-native-maps-directions';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 
 const BookBroker = () => {
   const [action, setAction] = useState('');
@@ -46,7 +48,7 @@ const BookBroker = () => {
     latitudeDelta: 0.09,
     longitudeDelta: 0.02,
   });
-  const {width, height} = Dimensions.get('window');
+  const { width, height } = Dimensions.get('window');
   const [defaultHeight, setDefaultHeight] = useState(height / 3);
   const [brokerDetails, setbrokerDetails] = useState({});
   const modalizeRef = useRef();
@@ -60,6 +62,11 @@ const BookBroker = () => {
   const [toggle, settoggle] = useState(true);
   const user = useSelector((state) => state.user.profile.user);
   const [isload, setLoader] = useState(false);
+  const locationRef = useRef();
+  const [selectedLocation, setSelectedLocation] = useState('Search Destination');
+  const [callFrom, setCallFrom] = useState('Region');
+
+
   useEffect(() => {
     dispatch(brokerlistRequest());
     dispatch(profileRequest());
@@ -97,7 +104,7 @@ const BookBroker = () => {
   useEffect(() => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
-        const {latitude, longitude, accuracy} = position.coords;
+        const { latitude, longitude, accuracy } = position.coords;
         const oneDegreeOfLatitudeInMeters = 2000.32 * 1000;
         const latDelta = accuracy / oneDegreeOfLatitudeInMeters;
         const longDelta =
@@ -172,6 +179,31 @@ const BookBroker = () => {
     // }, loaderTime);
   };
 
+
+  const sortValueChange = (data, value) => {
+    Keyboard.dismiss()
+
+    setCallFrom('GoogleAutoComplete')
+
+    setlocation({
+      longitude: value.geometry.location.lng,
+      latitude: value.geometry.location.lat,
+      latitudeDelta: 0.0046,
+      longitudeDelta: 0.0046,
+    });
+
+    mapRef &&
+      mapRef.current.animateToCoordinate({
+        longitude: value.geometry.location.lng,
+        latitude: value.geometry.location.lat,
+        latitudeDelta: 0.0046,
+        longitudeDelta: 0.0046,
+      });
+
+  }
+
+
+
   const getDefaultCoords = () => {
     return {
       longitude: 151.2099,
@@ -181,7 +213,7 @@ const BookBroker = () => {
     };
   };
 
-  const renderAds = ({item}) => {
+  const renderAds = ({ item }) => {
     return (
       <Block
         borderRadius={10}
@@ -192,7 +224,7 @@ const BookBroker = () => {
         borderWidth={2}
         margin={[t1, 0]}
         padding={[hp(3)]}>
-        <Text style={{width: wp(65)}} semibold secondary>
+        <Text style={{ width: wp(65) }} semibold secondary>
           {item}
         </Text>
         <ImageComponent name="run_icon" height={60} width={60} />
@@ -217,17 +249,29 @@ const BookBroker = () => {
           initialRegion={location}
           onRegionChangeComplete={async (coords) => {
             if (!isMapRegionSydney(coords)) {
+
               if (isMapRegionSydney(location)) {
                 mapRef && mapRef.current.animateToCoordinate(location);
               } else {
-                setlocation({
-                  longitude: 151.2099,
-                  latitude: -33.865143,
-                  latitudeDelta: 0.0046,
-                  longitudeDelta: 0.0046,
-                });
-                mapRef &&
-                  mapRef.current.animateToCoordinate(getDefaultCoords());
+
+
+                if (callFrom == 'Region') {
+                  setCallFrom('Regionss')
+
+                  setlocation({
+                    longitude: 151.2099,
+                    latitude: -33.865143,
+                    latitudeDelta: 0.0046,
+                    longitudeDelta: 0.0046,
+                  });
+                  mapRef &&
+                    mapRef.current.animateToCoordinate(getDefaultCoords());
+                }
+                else {
+                  setCallFrom('GoogleAutoComplete')
+                }
+
+
               }
               return;
             }
@@ -255,15 +299,15 @@ const BookBroker = () => {
       </View>
 
       <Modalize
-        modalStyle={{backgroundColor: '#fff', marginTop: hp(5)}}
-        overlayStyle={{backgroundColor: 'transparent'}}
+        modalStyle={{ backgroundColor: '#fff', marginTop: hp(5) }}
+        overlayStyle={{ backgroundColor: 'transparent' }}
         handlePosition="inside"
-        handleStyle={{backgroundColor: light.darkColor}}
+        handleStyle={{ backgroundColor: light.darkColor }}
         alwaysOpen={350}
         snapPoint={350}
         ref={modalizeRef}>
         {action === 'loading' && (
-          <Block center middle style={{height: hp(30)}} flex={false}>
+          <Block center middle style={{ height: hp(30) }} flex={false}>
             <ActivityIndicator size="large" color="#000" />
           </Block>
         )}
@@ -279,15 +323,73 @@ const BookBroker = () => {
               color="#F0F1F3"
               borderWidth={1}>
               <Icon
-                style={{paddingLeft: w4}}
+                style={{ paddingLeft: w4 }}
                 name="ios-search"
                 color={light.secondary}
                 size={30}
               />
-              <TextArea
+              {/* <TextArea
                 placeholderTextColor={'#00000091'}
                 placeholder={'Search Destination'}
-              />
+              /> */}
+                <GooglePlacesAutocomplete
+                  value={selectedLocation}
+                  placeholder={selectedLocation}
+                  placeholderTextColor="#a2a0a0"
+                  listViewDisplayed='false'
+                  returnKeyType={'done'}
+                  ref={locationRef}
+                  minLength={1}
+                  autoFocus={false}
+                  currentLocation={false}
+                  enablePoweredByContainer={false}
+                  clearButtonMode={'while-editing'}
+                  keyboardShouldPersistTaps={'handled'}
+                  onPress={(data, details = null) => {
+                    sortValueChange(data, details)
+                  }}
+
+                  fetchDetails={true}
+
+                  styles={{
+
+                    textInputContainer: {
+                      backgroundColor: '#fff',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      width: '100%',
+                      height: 50,
+                      borderTopColor: '#737373',
+                      borderTopWidth: 0.1,
+
+                    },
+
+                    container: {
+                      color: 'blue',
+
+                    },
+                    description: {
+                      color: '#a2a0a0',
+                    },
+                    textInput: {
+                      width: '100%',
+                      fontSize: 18,
+                      paddingLeft: 1,
+                      fontFamily: 'Calibri',
+                      alignItems: 'center',
+                      color: '#737373',
+                    },
+                    predefinedPlacesDescription: {
+                      color: '#6a6a6a'
+                    },
+                  }}
+                  query={{
+                    key: 'AIzaSyADePjPgnwznPmlGboEQlTFWLHZIxAIgaQ',
+                    language: 'en',
+                  }}
+
+                />
+
             </Block>
             <Button
               isLoading={isload}
