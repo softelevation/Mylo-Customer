@@ -1,66 +1,67 @@
+/* eslint-disable react-native/no-inline-styles */
 import React, {useEffect, useRef, useState} from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import {Platform, StyleSheet} from 'react-native';
+import {BackHandler, StyleSheet} from 'react-native';
 import Header from '../../../common/header';
 import {
   Block,
   Button,
   CustomButton,
   ImageComponent,
-  Input,
   Text,
 } from '../../../components';
-import {t1, t2, t3, w1, w3, w5} from '../../../components/theme/fontsize';
+import {t1, t2, w3, w5} from '../../../components/theme/fontsize';
 import DatePicker from '../../../common/date-time-picker';
 import styled from 'styled-components/native';
-import {useNavigation} from '@react-navigation/native';
 import MapView, {Marker} from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import {useSelector} from 'react-redux';
-import {Alert} from 'react-native';
 import {light} from '../../../components/theme/colors';
 import AsyncStorage from '@react-native-community/async-storage';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {strictValidObjectWithKeys} from '../../../utils/commonUtils';
 import AlertCompnent from '../../../common/AlertCompnent';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import moment from 'moment';
+import {handleBackPress} from '../../../utils/commonAppUtils';
 const initialState = {
   date: '',
   time: '',
   location: '',
 };
-
-const initialMapState = {
-  searchAddress: null,
-  waiting: false,
-  searchAddressList: [],
-};
 const SelectDateTime = () => {
-  const [details, setDetails] = useState(initialState);
-  const {date, time} = details;
+  const [dateAndtime, setDetails] = useState(initialState);
+  const {date, time} = dateAndtime;
   const mapRef = useRef();
-  const nav = useNavigation();
   const [type, settype] = useState('ASAP');
   const [toggle, setToggle] = useState(false);
   const [Loader, setLoader] = useState(false);
   const brokerData = useSelector((state) => state.broker.list.broker.data);
   const socket = useSelector((state) => state.socket.data);
   const [currentAddress, setCurrentAddress] = useState({});
-  const [state, setState] = useState(initialMapState);
   const [modal, setmodal] = useState(false);
+  const [selectLocation, setSelectLocation] = useState();
   const [alertdata, setAlert] = useState({
     title: '',
     description: '',
   });
-  const {waiting, searchAddress, searchAddressList} = state;
   const [location, setlocation] = useState({
     latitude: 0,
     longitude: 0,
     latitudeDelta: 0.2556429502693618,
     longitudeDelta: 0.3511001542210579,
   });
+
+  useEffect(() => {
+    const BackButton = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress,
+    );
+    return () => BackButton.remove();
+  }, []);
 
   const getDefaultCoords = () => {
     return {
@@ -83,7 +84,11 @@ const SelectDateTime = () => {
   const bookNowBroker = async () => {
     setLoader(true);
     const token = await AsyncStorage.getItem('token');
-    socket.emit('book_now', token);
+    socket.emit('book_now', {
+      token: token,
+      lat: location.latitude,
+      lng: location.longitude,
+    });
     setTimeout(() => {
       setLoader(false);
       setmodal(true);
@@ -94,11 +99,51 @@ const SelectDateTime = () => {
     }, 2000);
   };
 
-  const checkType = () => {
+  const formatViewDate = (d) => {
+    return moment(d).format('DD MMMM YYYY');
+  };
+  const formatViewTime = (a) => {
+    return moment(a).format('hh:mm a');
+  };
+  const formatSendDate = (b) => {
+    return moment(b).format('YYYY-MM-DD hh:mm:ss');
+  };
+  console.log(location, 'location');
+  const checkType = async () => {
     if (type === 'ASAP') {
       bookNowBroker();
     } else {
-      Alert.alert('Coming Soon');
+      if (!date) {
+        setmodal(true);
+        setAlert({
+          title: 'Error',
+          description: 'Please choose date from the date picker',
+        });
+      }
+      if (!time) {
+        setmodal(true);
+        setAlert({
+          title: 'Error',
+          description: 'Please choose time from the time picker',
+        });
+      } else {
+        setLoader(true);
+        const token = await AsyncStorage.getItem('token');
+        socket.emit('book_now', {
+          token: token,
+          assign_at: formatSendDate(date),
+          lat: location.latitude,
+          lng: location.longitude,
+        });
+        setTimeout(() => {
+          setLoader(false);
+          setmodal(true);
+          setAlert({
+            title: 'Success',
+            description: 'Please wait for the availability of the broker',
+          });
+        }, 2000);
+      }
     }
   };
 
@@ -135,9 +180,11 @@ const SelectDateTime = () => {
     );
 
     return () => Geolocation.clearWatch(watchId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchCoordsAddress = async (searchVal, inital, mapCoords) => {
+    console.log(mapCoords, 'mapcoords');
     // this.setState({currentLocationLoading: true});
     const {latitudeDelta, longitudeDelta} = mapCoords || location;
     try {
@@ -160,10 +207,6 @@ const SelectDateTime = () => {
             address: item.formatted_address,
           });
         }
-        // searchAddressNewList.push({
-        //   newLocation,
-        //   address: item.formatted_address,
-        // });
       });
 
       const coords = {
@@ -186,94 +229,37 @@ const SelectDateTime = () => {
         address,
       };
       if (inital) {
-        // this.setState({
-        //   coords,
-        //   selectedAddress,
-        //   currentLocation: selectedAddress,
-        //   latitudeDelta,
-        //   longitudeDelta,
-        //   currentLocationLoading: false,
-        // });
         setCurrentAddress(selectedAddress);
         setlocation(coords);
       } else {
-        // this.setState({
-        //   coords,
-        //   selectedAddress,
-        //   latitudeDelta,
-        //   longitudeDelta,
-        //   currentLocationLoading: false,
-        // });
       }
     } catch (e) {
       console.warn('error', e);
     }
   };
 
-  const fetchGoogleAddress = async (_searchAddressTxt) => {
-    if (!waiting && _searchAddressTxt && _searchAddressTxt.length > 3) {
-      const waitingPromise = new Promise((resolve) =>
-        setTimeout(() => resolve(), 300),
-      );
-      // this.setState({sea: _searchAddressTxt, waiting: true});
-      setState({
-        searchAddress: _searchAddressTxt,
-        waiting: true,
+  const changeLocation = async (data, details) => {
+    const longitude = details.geometry.location.lng;
+    const latitude = details.geometry.location.lat;
+    await setlocation({
+      latitude: latitude,
+      longitude: longitude,
+      latitudeDelta: 0.2556429502693618,
+      longitudeDelta: 0.3511001542210579,
+    });
+    (await mapRef) &&
+      mapRef.current.animateToCoordinate({
+        latitude: latitude,
+        longitude: longitude,
+        latitudeDelta: 0.2556429502693618,
+        longitudeDelta: 0.3511001542210579,
       });
-      await waitingPromise;
-      try {
-        const KEY = 'AIzaSyBV1ketkObRpPpeN5H9Ucj73SsZ8fIdQY0';
-        const encoddedAddress = encodeURI(searchAddress);
-        const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encoddedAddress}&key=${KEY}&sensor=false&components=country:FR`;
-        const res = await fetch(url);
-        const response = await res.json();
-        console.log(response, 'response');
-        const searchAddressVal = {};
-        response.results.forEach((item) => {
-          searchAddressVal[item.formatted_address] = {
-            address: item.formatted_address,
-            lat: item.geometry.location.lat,
-            lng: item.geometry.location.lng,
-          };
-        });
-        setState({
-          ...state,
-          searchAddress: _searchAddressTxt,
-          waiting: false,
-          searchAddressList: searchAddressVal,
-        });
-      } catch (e) {
-        console.warn('google address fetch error:', e);
-        setState({
-          ...state,
-          waiting: false,
-        });
-      }
-    } else if (!_searchAddressTxt) {
-      setState({
-        ...state,
-        waiting: false,
-        searchAddressList: {},
-        searchAddress: '',
-      });
-    } else {
-      setState({...state, searchAddress: _searchAddressTxt});
-    }
-  };
-  console.log(state, 'state');
-
-  const renderSearchAddress = () => {
-    return (
-      <>
-        {Object.values(searchAddressList).map((add) => {
-          return (
-            <Block flex={false}>
-              <Text>{add.address}</Text>
-            </Block>
-          );
-        })}
-      </>
-    );
+    const selectedAddress = {
+      lat: latitude,
+      lng: longitude,
+      address: data.description,
+    };
+    setCurrentAddress(selectedAddress);
   };
 
   return (
@@ -288,34 +274,85 @@ const SelectDateTime = () => {
             : 'Loading...'
         }
       />
-      <KeyboardAwareScrollView style={{backgroundColor: '#fff'}}>
+      <KeyboardAwareScrollView
+        keyboardShouldPersistTaps="always"
+        style={{backgroundColor: '#fff'}}>
         {toggle && (
           <Block padding={[t1, w3]} flex={false}>
-            <Input
-              value={searchAddress}
-              placeholder="Search Location"
-              onChangeText={(v) => fetchGoogleAddress(v)}
+            <GooglePlacesAutocomplete
+              value={selectLocation}
+              placeholder={'Search Location'}
+              placeholderTextColor="#a2a0a0"
+              listViewDisplayed="false"
+              returnKeyType={'done'}
+              // ref={locationRef}
+              minLength={1}
+              autoFocus={false}
+              currentLocation={false}
+              enablePoweredByContainer={false}
+              clearButtonMode={'while-editing'}
+              keyboardShouldPersistTaps={'handled'}
+              onPress={(data, details = null) => {
+                changeLocation(data, details);
+              }}
+              fetchDetails={true}
+              styles={{
+                textInputContainer: {
+                  marginTop: hp(0.8),
+                  marginBottom: hp(0.5),
+                  backgroundColor: '#fff',
+                  borderWidth: 1,
+                  borderColor: 'rgba(0,0,0,.2)',
+                  color: '#8A8E99',
+                  fontSize: 16,
+                },
+                textInput: {
+                  color: '#8A8E99',
+                  fontWeight: 'bold',
+                  fontSize: 16,
+                  backgroundColor: 'transparent',
+                },
+                description: {
+                  color: '#8A8E99',
+                  fontSize: 16,
+                  zIndex: 99,
+                },
+                listView: {
+                  color: '#8A8E99',
+                  fontSize: 14,
+                  zIndex: 1000, //To popover the component outwards,
+                },
+              }}
+              query={{
+                key: 'AIzaSyBf4G3qQTDy6-DN6Tb9m6WzgYCW598EoxU',
+                language: 'en',
+                components: 'country:Au',
+              }}
             />
-            {strictValidObjectWithKeys(searchAddressList) &&
-              renderSearchAddress()}
+            {/* {strictValidObjectWithKeys(searchAddressList) &&
+              renderSearchAddress()} */}
           </Block>
         )}
         <Block white>
           <Map center middle secondary flex={false}>
             <MapView
               ref={mapRef}
-              minZoomLevel={2}
-              maxZoomLevel={8}
-              showsUserLocation={true}
+              // showsUserLocation={true}
               provider="google"
               style={styles.map}
               initialRegion={location}
               onRegionChangeComplete={async (coords) => {
                 if (!isMapRegionSydney(coords)) {
-                  if (isMapRegionSydney(location)) {
+                  if (
+                    !strictValidObjectWithKeys(currentAddress) &&
+                    !currentAddress.address &&
+                    isMapRegionSydney(location)
+                  ) {
                     mapRef && mapRef.current.animateToCoordinate(location);
                   } else {
-                    mapRef &&
+                    !strictValidObjectWithKeys(currentAddress) &&
+                      !currentAddress.address &&
+                      mapRef &&
                       mapRef.current.animateToCoordinate(getDefaultCoords());
                   }
                   return;
@@ -328,6 +365,15 @@ const SelectDateTime = () => {
                   );
                 }
               }}>
+              <Marker
+                title={
+                  strictValidObjectWithKeys(currentAddress)
+                    ? currentAddress.address
+                    : ''
+                }
+                coordinate={location}>
+                <ImageComponent name={'customer_icon'} height="40" width="40" />
+              </Marker>
               {brokerData &&
                 brokerData.map((item, index) => {
                   const marker = {
@@ -335,7 +381,7 @@ const SelectDateTime = () => {
                     longitude: item.longitude,
                   };
                   return (
-                    <Marker title={item.name} coordinate={marker}>
+                    <Marker coordinate={marker}>
                       <ImageComponent
                         name={'map_person_icon'}
                         height="40"
@@ -375,18 +421,19 @@ const SelectDateTime = () => {
                 </Text>
               </CustomButton>
             </Block>
+            {console.log(date, 'date')}
             {type === 'LATER' && (
               <>
                 <DatePicker
                   mode="date"
-                  initialValue={date}
-                  setValue={(val) => setDetails({...details, date: val})}
+                  initialValue={date ? formatViewDate(date) : 'Select Date'}
+                  setValue={(val) => setDetails({...dateAndtime, date: val})}
                 />
                 <DatePicker
                   mode="time"
                   Title={'Time'}
-                  initialValue={time}
-                  setValue={(val) => setDetails({...details, time: val})}
+                  initialValue={time ? formatViewTime(time) : 'Select Time'}
+                  setValue={(val) => setDetails({...dateAndtime, time: val})}
                 />
               </>
             )}

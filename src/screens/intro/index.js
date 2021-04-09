@@ -1,5 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {StyleSheet} from 'react-native';
 
 import ResponsiveImage from 'react-native-responsive-image';
@@ -12,6 +12,7 @@ import {Block, Button, Text} from '../../components';
 import {light} from '../../components/theme/colors';
 import Carousel from 'react-native-snap-carousel';
 import {w5} from '../../components/theme/fontsize';
+import Geolocation from '@react-native-community/geolocation';
 
 const Intro = () => {
   const navigation = useNavigation();
@@ -47,6 +48,20 @@ const Intro = () => {
       backgroundColor: '#22bcb5',
     },
   ]);
+
+  useEffect(() => {
+    const watchId = Geolocation.getCurrentPosition(
+      (position) => {
+        console.log(position);
+      },
+      (error) => {
+        // See error code charts below.
+        console.log(error.code, error.message);
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+    );
+    return () => Geolocation.clearWatch(watchId);
+  }, []);
 
   const _renderItem = ({item}) => {
     return (

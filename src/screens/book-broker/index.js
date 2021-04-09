@@ -1,12 +1,11 @@
 import React, {useRef, useState, useEffect} from 'react';
 import {
   ActivityIndicator,
-  Dimensions,
   View,
-  Linking,
-  Platform,
   StyleSheet,
   Alert,
+  BackHandler,
+  FlatList,
   Keyboard,
 } from 'react-native';
 import Header from '../../common/header';
@@ -15,7 +14,6 @@ import {
   Button,
   CustomButton,
   ImageComponent,
-  Input,
   Text,
 } from '../../components';
 import {Modalize} from 'react-native-modalize';
@@ -23,8 +21,7 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import {t1, t3, t5, w1, w2, w3, w4, w5} from '../../components/theme/fontsize';
-import StarRating from 'react-native-star-rating';
+import {t1, t5, w3, w4, w5} from '../../components/theme/fontsize';
 import {light} from '../../components/theme/colors';
 import {DrawerActions, useNavigation} from '@react-navigation/native';
 import MapView, {Marker} from 'react-native-maps';
@@ -32,15 +29,13 @@ import {brokerlistRequest, profileRequest} from '../../redux/action';
 import {useDispatch, useSelector} from 'react-redux';
 import ActivityLoader from '../../components/activityLoader';
 import Geolocation from '@react-native-community/geolocation';
-import AsyncStorage from '@react-native-community/async-storage';
-import {strictValidObjectWithKeys} from '../../utils/commonUtils';
-import {FlatList, ScrollView} from 'react-native-gesture-handler';
 import styled from 'styled-components';
 import Icon from 'react-native-vector-icons/Ionicons';
-import MapViewDirections from 'react-native-maps-directions';
 import {AdsData} from '../../utils/static-data';
 import AlertCompnent from '../../common/AlertCompnent';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import {handleBackPress} from '../../utils/commonAppUtils';
+import {strictValidString} from '../../utils/commonUtils';
 
 const BookBroker = () => {
   const [action, setAction] = useState('');
@@ -55,29 +50,60 @@ const BookBroker = () => {
     title: '',
     description: '',
   });
-  const {width, height} = Dimensions.get('window');
-  const [defaultHeight, setDefaultHeight] = useState(height / 3);
-  const [brokerDetails, setbrokerDetails] = useState({});
+  const [defaultHeight, setDefaultHeight] = useState(350);
   const modalizeRef = useRef();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const loader = useSelector((state) => state.broker.list.loading);
   const brokerData = useSelector((state) => state.broker.list.broker.data);
-  const socket = useSelector((state) => state.socket.data);
   const mapRef = useRef();
   const user = useSelector((state) => state.user.profile.user);
   const [isload, setLoader] = useState(false);
   const locationRef = useRef();
-  const [selectedLocation, setSelectedLocation] = useState(
-    'Search Destination',
-  );
+  const [selectedLocation, setSelectedLocation] = useState('');
+
+  const [searching, setSearching] = useState({});
   const [callFrom, setCallFrom] = useState('Region');
 
   useEffect(() => {
-    dispatch(brokerlistRequest());
+    const BackButton = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress,
+    );
+    return () => BackButton.remove();
+  }, []);
+
+  useEffect(() => {
+    if (location.latitude !== 0) {
+      dispatch(
+        brokerlistRequest({
+          latitude: location.latitude,
+          longitude: location.longitude,
+        }),
+      );
+    }
     dispatch(profileRequest());
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setDefaultHeight(700);
+      },
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setDefaultHeight(350);
+      },
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
   }, []);
 
   useEffect(() => {
@@ -97,6 +123,7 @@ const BookBroker = () => {
     });
 
     return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const isMapRegionSydney = (coords) => {
     return (
@@ -110,13 +137,6 @@ const BookBroker = () => {
   useEffect(() => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
-        const {latitude, longitude, accuracy} = position.coords;
-        const oneDegreeOfLatitudeInMeters = 2000.32 * 1000;
-        const latDelta = accuracy / oneDegreeOfLatitudeInMeters;
-        const longDelta =
-          accuracy /
-          (oneDegreeOfLatitudeInMeters * Math.cos(latitude * (Math.PI / 180)));
-
         if (user && !user.name) {
           setAlert({
             title: 'Message',
@@ -156,6 +176,7 @@ const BookBroker = () => {
     );
 
     return () => Geolocation.clearWatch(watchId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -165,53 +186,35 @@ const BookBroker = () => {
     });
 
     return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const viewDetailsDialog = () => {
-    modalizeRef.current?.open();
-    setAction('brokerdetails');
-  };
 
   const onOpen = () => {
     modalizeRef.current?.open();
     setAction('schedulebroker');
   };
 
-  // Call Book Now
-
   const bookNowBroker = async () => {
-    setLoader(true);
-    const token = await AsyncStorage.getItem('token');
-    socket.emit('book_now', token);
-    setTimeout(() => {
-      setLoader(false);
-      setmodal(true);
-      setAlert({
-        title: 'Success',
-        description: 'Please wait for the availability of the broker',
-      });
-    }, 2000);
-    // setAction('loading');
-    // setTimeout(() => {
-    //   modalizeRef.current?.close();
-    // }, loaderTime);
-  };
-
-  const sortValueChange = (data, value) => {
-    Keyboard.dismiss();
-
     setCallFrom('GoogleAutoComplete');
-
-    setlocation({
-      longitude: value.geometry.location.lng,
-      latitude: value.geometry.location.lat,
+    await setlocation({
+      longitude: searching.geometry.location.lng,
+      latitude: searching.geometry.location.lat,
       latitudeDelta: 0.0046,
       longitudeDelta: 0.0046,
     });
+    if (location.latitude !== 0) {
+      dispatch(
+        brokerlistRequest({
+          latitude: searching.geometry.location.lat,
+          longitude: searching.geometry.location.lng,
+        }),
+      );
+    }
 
-    mapRef &&
+    (await mapRef) &&
       mapRef.current.animateToCoordinate({
-        longitude: value.geometry.location.lng,
-        latitude: value.geometry.location.lat,
+        longitude: searching.geometry.location.lng,
+        latitude: searching.geometry.location.lat,
         latitudeDelta: 0.0046,
         longitudeDelta: 0.0046,
       });
@@ -249,30 +252,19 @@ const BookBroker = () => {
     <Block>
       <Header centerText="" />
       {loader && <ActivityLoader />}
-      <CustomButton
+      <CurrentlocationView
         onPress={() => {
           mapRef && mapRef.current.animateToCoordinate(location);
         }}
         primary
-        flex={false}
-        style={{
-          position: 'absolute',
-          top: hp(10),
-          right: w3,
-          zIndex: 99,
-          height: 50,
-          width: 50,
-          borderRadius: 50,
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}>
+        flex={false}>
         <ImageComponent
           color={light.secondary}
           name={'nav_icon'}
           height="30"
           width="30"
         />
-      </CustomButton>
+      </CurrentlocationView>
       <View style={styles.container}>
         <MapView
           ref={mapRef}
@@ -287,7 +279,7 @@ const BookBroker = () => {
               if (isMapRegionSydney(location)) {
                 mapRef && mapRef.current.animateToCoordinate(location);
               } else {
-                if (callFrom == 'Region') {
+                if (callFrom === 'Region') {
                   setCallFrom('Regionss');
 
                   setlocation({
@@ -315,7 +307,7 @@ const BookBroker = () => {
                 longitude: JSON.parse(item.longitude),
               };
               return (
-                <Marker title={item.name} coordinate={marker}>
+                <Marker coordinate={marker}>
                   <ImageComponent
                     name={'map_person_icon'}
                     height="40"
@@ -330,10 +322,14 @@ const BookBroker = () => {
       <Modalize
         modalStyle={{backgroundColor: '#fff', marginTop: hp(5)}}
         overlayStyle={{backgroundColor: 'transparent'}}
+        scrollViewProps={{
+          showsVerticalScrollIndicator: false,
+          keyboardShouldPersistTaps: 'always',
+        }}
         handlePosition="inside"
         handleStyle={{backgroundColor: light.darkColor}}
-        alwaysOpen={350}
-        snapPoint={350}
+        alwaysOpen={defaultHeight}
+        snapPoint={defaultHeight}
         ref={modalizeRef}>
         {action === 'loading' && (
           <Block center middle style={{height: hp(30)}} flex={false}>
@@ -342,78 +338,72 @@ const BookBroker = () => {
         )}
         {action === 'schedulebroker' && (
           <Block margin={[t5, w5, t5, w5]} flex={false}>
-            <Block
-              row
-              center
-              space={'between'}
-              flex={false}
-              borderColorDeafult
-              padding={[t1, 0]}
-              color="#F0F1F3"
-              borderWidth={1}>
-              <Icon
-                style={{paddingLeft: w4}}
-                name="ios-search"
-                color={light.secondary}
-                size={30}
-              />
-              {/* <TextArea
-                placeholderTextColor={'#00000091'}
-                placeholder={'Search Destination'}
-              /> */}
-              <GooglePlacesAutocomplete
-                value={selectedLocation}
-                placeholder={selectedLocation}
-                placeholderTextColor="#a2a0a0"
-                listViewDisplayed="false"
-                returnKeyType={'done'}
-                ref={locationRef}
-                minLength={1}
-                autoFocus={false}
-                currentLocation={false}
-                enablePoweredByContainer={false}
-                clearButtonMode={'while-editing'}
-                keyboardShouldPersistTaps={'handled'}
-                onPress={(data, details = null) => {
-                  sortValueChange(data, details);;
-                }}
-                fetchDetails={true}
-                styles={{
-                  textInputContainer: {
-                    backgroundColor: '#fff',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%',
-                    height: 50,
-                    borderTopColor: '#737373',
-                    borderTopWidth: 0.1,
-                  },
+            <GooglePlacesAutocomplete
+              value={selectedLocation}
+              placeholder={'Search Destination'}
+              placeholderTextColor="#a2a0a0"
+              listViewDisplayed="false"
+              returnKeyType={'done'}
+              ref={locationRef}
+              minLength={1}
+              autoFocus={false}
+              currentLocation={false}
+              enablePoweredByContainer={false}
+              clearButtonMode={'while-editing'}
+              keyboardShouldPersistTaps={'handled'}
+              onPress={(data, details = null) => {
+                setSearching(details);
+              }}
+              styles={{
+                textInputContainer: {
+                  width: wp('90%%'),
+                  height: hp('7%'),
+                  borderWidth: 1,
+                  alignItems: 'center',
+                  borderRadius: 10,
+                  borderColor: '#0000001F',
+                },
+                textInput: {
+                  color: '#8A8E99',
+                  fontWeight: 'bold',
+                  fontSize: 16,
+                  backgroundColor: 'transparent',
+                  marginTop: hp(0.7),
+                },
+                description: {
+                  color: '#8A8E99',
+                  fontSize: 16,
+                  zIndex: 99,
+                },
+                listView: {
+                  color: '#8A8E99',
+                  fontSize: 14,
+                  zIndex: 1000, //To popover the component outwards,
+                },
+              }}
+              renderLeftButton={() => (
+                <Icon
+                  style={{paddingLeft: w4}}
+                  name="ios-search"
+                  color={light.secondary}
+                  size={30}
+                />
+              )}
+              textInputProps={{
+                // onFocus: () => setDefaultHeight(700),
+                // onBlur: () => setDefaultHeight(350),
+                onChangeText: (v) => setSelectedLocation(v),
+              }}
+              fetchDetails={true}
+              query={{
+                key: 'AIzaSyBf4G3qQTDy6-DN6Tb9m6WzgYCW598EoxU',
+                language: 'en',
+                components: 'country:Au',
+              }}
+            />
 
-                  container: {
-                    color: 'blue',
-                  },
-                  description: {
-                    color: '#a2a0a0',
-                  },
-                  textInput: {
-                    width: '100%',
-                    fontSize: 18,
-                    paddingLeft: 1,
-                    fontFamily: 'Calibri',
-                    alignItems: 'center',
-                    color: '#737373',
-                  },
-                  predefinedPlacesDescription: {
-                    color: '#6a6a6a',,
-                  },
-                }}
-                query={{
-                  key: 'AIzaSyADePjPgnwznPmlGboEQlTFWLHZIxAIgaQ',
-                  language: 'en',
-                }}
-              />
-            </Block>
             <Button
+              disabled={!strictValidString(selectedLocation)}
               isLoading={isload}
               onPress={() => bookNowBroker()}
               color="secondary">
@@ -452,12 +442,16 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
   },
 });
-const TextArea = styled(Input)({
-  borderWidth: 0,
-  padding: 0,
-  width: wp(75),
-  fontSize: 20,
-  backgroundColor: '#F0F1F3',
+const CurrentlocationView = styled(CustomButton)({
+  position: 'absolute',
+  top: hp(10),
+  right: w3,
+  zIndex: 99,
+  height: 50,
+  width: 50,
+  borderRadius: 50,
+  justifyContent: 'center',
+  alignItems: 'center',
 });
 
 export default BookBroker;

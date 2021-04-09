@@ -1,6 +1,6 @@
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect} from 'react';
-import {FlatList, Text, View} from 'react-native';
+import {BackHandler, FlatList, Text, View} from 'react-native';
 import {
   heightPercentageToDP,
   widthPercentageToDP,
@@ -11,6 +11,7 @@ import Header from '../../common/header';
 import {Block, CustomButton} from '../../components';
 import {brokerRequest} from '../../redux/requests/action';
 import io from 'socket.io-client';
+import {handleBackPress} from '../../utils/commonAppUtils';
 
 const Request = ({navigationState}) => {
   const {routes, index} = navigationState;
@@ -19,6 +20,15 @@ const Request = ({navigationState}) => {
   const socket = useSelector((state) => state.socket.data);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const BackButton = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress,
+    );
+    return () => BackButton.remove();
+  }, []);
+
   const getValues = (name) => {
     if (name === 'PastRequest') {
       return 'Past';

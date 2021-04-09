@@ -1,4 +1,4 @@
-import {Linking, Platform} from 'react-native';
+import {Alert, BackHandler, Linking, Platform} from 'react-native';
 import React from 'react';
 
 export const openMessage = (phone) => {
@@ -28,4 +28,17 @@ export const dialCall = (phone) => {
   }
 
   Linking.openURL(phoneNumber);
+};
+export const handleBackPress = () => {
+  Alert.alert('Exit Mylo', 'Do you want to exit the Mylo app?', [
+    {
+      text: 'Cancel',
+    },
+    {
+      text: 'Leave',
+      style: 'destructive',
+      onPress: () => BackHandler.exitApp(),
+    },
+  ]);
+  return true;
 };

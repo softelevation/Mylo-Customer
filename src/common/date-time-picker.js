@@ -17,13 +17,7 @@ const DatePicker = ({mode, Title, setValue, initialValue}) => {
   };
 
   const handleConfirm = (date) => {
-    if (mode === 'date') {
-      const returnDate = moment(date).format('DD-MMMM-YYYY');
-      setValue(returnDate);
-    } else {
-      const returnDate = moment(date).format('hh:mm a');
-      setValue(returnDate);
-    }
+    setValue(date);
     hideDatePicker();
   };
 

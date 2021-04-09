@@ -16,6 +16,7 @@ import {
   Alert,
   ImageBackground,
   Keyboard,
+  Platform,
 } from 'react-native';
 import {Formik} from 'formik';
 import * as yup from 'yup';
@@ -37,19 +38,35 @@ import {
   GraphRequestManager,
 } from 'react-native-fbsdk';
 import {pushTokenData} from '../../../utils/push-notification-service';
-
+import * as Animatable from 'react-native-animatable';
 const Login = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const [fbLoader, setFbLoader] = useState(false);
   const [googleLoader, setGoogleLoader] = useState(false);
   const isLoad = useSelector((state) => state.user.login.loading);
+
   const submitValues = (values, {resetForm}) => {
     dispatch(loginRequest(values.mobile));
     Keyboard.dismiss();
     setTimeout(() => {
       resetForm();
     }, 100);
+  };
+
+  const logoanimation = {
+    from: {
+      top: hp(50),
+      opacity: 0.5,
+      height: 60,
+      width: 60,
+    },
+    to: {
+      top: hp(8),
+      opacity: 1,
+      height: 100,
+      width: 100,
+    },
   };
 
   const handleFacebookLogin = () => {
@@ -112,20 +129,12 @@ const Login = () => {
   };
 
   const signIn = async () => {
+    await GoogleSignin.configure({
+      scopes: ['https://www.googleapis.com/auth/userinfo.profile'],
+    });
     setGoogleLoader(true);
     try {
-      await GoogleSignin.hasPlayServices();
-      try {
-        await GoogleSignin.configure({
-          webClientId:
-            '274162840428-v7tssdlskph9c4m2j7p21n87m26o4dq9.apps.googleusercontent.com',
-          hostedDomain: '',
-          forceConsentPrompt: true,
-        });
-        await GoogleSignin.signOut();
-      } catch (e) {
-        setGoogleLoader(false);
-      }
+      GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       setGoogleLoader(false);
       console.log(userInfo, 'user');
@@ -141,6 +150,7 @@ const Login = () => {
       console.log(data, 'data');
       dispatch(registerRequest(data));
     } catch (error) {
+      console.log(error, 'error');
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // sign in was cancelled
         setGoogleLoader(false);
@@ -196,11 +206,21 @@ const Login = () => {
                   alignItems: 'center',
                 }}>
                 <Block flex={false} margin={[t3, 0, 0]}>
-                  <ImageComponent
+                  {/* <ImageComponent
                     name="logo"
                     height={100}
                     width={100}
                     radius={20}
+                  /> */}
+                  <Animatable.Image
+                    // onAnimationEnd={() => this.setState({SlideImage: true})}
+                    animation={logoanimation}
+                    delay={500}
+                    duration={1200}
+                    source={images.logo}
+                    style={{
+                      borderRadius: 20,
+                    }}
                   />
                 </Block>
               </ImageBackground>

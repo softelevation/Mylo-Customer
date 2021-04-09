@@ -12,13 +12,21 @@ import {Formik} from 'formik';
 import * as yup from 'yup';
 import ActivityLoader from '../../../components/activityLoader';
 import {strictValidString} from '../../../utils/commonUtils';
+import {BackHandler} from 'react-native';
+import {handleBackPress} from '../../../utils/commonAppUtils';
 const Profile = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.profile.user);
   const isLoad = useSelector((state) => state.user.profile.loading);
 
+  useEffect(() => {
+    const BackButton = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress,
+    );
+    return () => BackButton.remove();
+  }, []);
   const submitValues = (values) => {
-    console.log('hit');
     const data = {
       name: values.name,
       address: values.address,
