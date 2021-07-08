@@ -131,7 +131,6 @@ const Intro = () => {
           {/* <Button style={{width: wp(42)}} color="transparent">
             Back
           </Button> */}
-
           <Text style={{height: hp(10)}} />
           <Button
             onPress={() => navigation.navigate('Login')}

@@ -14,6 +14,8 @@ import {
   strictValidObjectWithKeys,
   strictValidString,
 } from '../utils/commonUtils';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import {LoginManager} from 'react-native-fbsdk';
 const DrawerScreen = ({state}) => {
   const nav = useNavigation();
   const dispatch = useDispatch();
@@ -47,7 +49,16 @@ const DrawerScreen = ({state}) => {
         return 17.5;
     }
   };
+
   const onLogout = async () => {
+    try {
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+      await LoginManager.logOut();
+      this.setState({user: null}); // Remember to remove the user from your app's state as well
+    } catch (error) {
+      console.error(error);
+    }
     const keys = await AsyncStorage.getAllKeys();
     await AsyncStorage.multiRemove(keys);
     dispatch(loginSuccess(''));

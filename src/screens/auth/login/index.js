@@ -26,18 +26,16 @@ import images from '../../../assets';
 import {t3, w1, w3} from '../../../components/theme/fontsize';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {useNavigation} from '@react-navigation/core';
+import messaging from '@react-native-firebase/messaging';
 import {
   GoogleSignin,
-  GoogleSigninButton,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import {
   LoginManager,
-  AccessToken,
   GraphRequest,
   GraphRequestManager,
 } from 'react-native-fbsdk';
-import {pushTokenData} from '../../../utils/push-notification-service';
 import * as Animatable from 'react-native-animatable';
 const Login = () => {
   const dispatch = useDispatch();
@@ -69,8 +67,12 @@ const Login = () => {
     },
   };
 
-  const handleFacebookLogin = () => {
+  const handleFacebookLogin = async () => {
+    const fcmToken = await messaging().getToken();
     setFbLoader(true);
+    if (Platform.OS === 'android') {
+      LoginManager.setLoginBehavior('web_only');
+    }
     LoginManager.logInWithPermissions(['public_profile']).then(
       function (result) {
         if (result.isCancelled) {
@@ -90,7 +92,7 @@ const Login = () => {
                 social_token: result.id,
                 name: result.name,
                 email: result.email,
-                token: pushTokenData.token,
+                token: fcmToken,
                 image: result.picture.data.url || null,
                 // mobile: result.email,
               };
@@ -129,6 +131,8 @@ const Login = () => {
   };
 
   const signIn = async () => {
+    const fcmToken = await messaging().getToken();
+
     await GoogleSignin.configure({
       scopes: ['https://www.googleapis.com/auth/userinfo.profile'],
     });
@@ -144,7 +148,7 @@ const Login = () => {
         social_token: id,
         name: name || '',
         email: email,
-        token: pushTokenData.token,
+        token: fcmToken,
         image: photo || null,
       };
       console.log(data, 'data');
