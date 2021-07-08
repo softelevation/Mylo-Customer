@@ -9,7 +9,7 @@ import Otp from '../../../components/otp';
 import {Alert, Keyboard, KeyboardAvoidingView, Platform} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import {registerRequest} from '../../../redux/action';
-import {pushTokenData} from '../../../utils/push-notification-service';
+import messaging from '@react-native-firebase/messaging';
 
 const Register = ({
   route: {
@@ -31,15 +31,17 @@ const Register = ({
     return () => clearInterval(timer);
   }, [counter]);
 
-  const verifyOtp = () => {
+  const verifyOtp = async () => {
+    const fcmToken = await messaging().getToken();
     const data = {
       otp: value,
       phone_no: phone_no,
       social_type: 'N',
-      token: pushTokenData.token,
+      token: fcmToken,
     };
     dispatch(registerRequest(data));
   };
+
   return (
     <KeyboardAvoidingView
       keyboardVerticalOffset={hp(5)}

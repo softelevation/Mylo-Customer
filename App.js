@@ -16,10 +16,10 @@ const sagaMiddleware = createSagaMiddleware();
 const store = createStore(rootreducer, applyMiddleware(sagaMiddleware, logger));
 sagaMiddleware.run(rootSaga);
 const App = () => {
-  useEffect(() => {
-    configurePush();
-    toastLocalNotification();
-  });
+  // useEffect(() => {
+  //   configurePush();
+  //   toastLocalNotification();
+  // });
   return (
     <Provider store={store}>
       <Routes />
