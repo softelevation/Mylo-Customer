@@ -17,6 +17,8 @@ import {
   Text,
 } from '../../components';
 import {Modalize} from 'react-native-modalize';
+import ResponsiveImage from 'react-native-responsive-image';
+
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -36,6 +38,7 @@ import AlertCompnent from '../../common/AlertCompnent';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import {handleBackPress} from '../../utils/commonAppUtils';
 import {strictValidString} from '../../utils/commonUtils';
+import images from '../../assets';
 
 const BookBroker = () => {
   const [action, setAction] = useState('');
@@ -199,8 +202,8 @@ const BookBroker = () => {
     await setlocation({
       longitude: searching.geometry.location.lng,
       latitude: searching.geometry.location.lat,
-      latitudeDelta: 0.0046,
-      longitudeDelta: 0.0046,
+      latitudeDelta: 0.00922 * 1.5,
+      longitudeDelta: 0.00421 * 1.5,
     });
     if (location.latitude !== 0) {
       dispatch(
@@ -215,8 +218,8 @@ const BookBroker = () => {
       mapRef.current.animateToCoordinate({
         longitude: searching.geometry.location.lng,
         latitude: searching.geometry.location.lat,
-        latitudeDelta: 0.0046,
-        longitudeDelta: 0.0046,
+        latitudeDelta: 0.00922 * 1.5,
+        longitudeDelta: 0.00421 * 1.5,
       });
   };
 
@@ -243,7 +246,14 @@ const BookBroker = () => {
         <Text style={{width: wp(65)}} semibold secondary>
           {item.name}
         </Text>
-        <ImageComponent name={item.image} height={60} width={60} />
+        <ResponsiveImage
+          style={
+            item.image === 'run_icon2' && {transform: [{rotateY: '180deg'}]}
+          }
+          source={images[item.image]}
+          initHeight={60}
+          initWidth={60}
+        />
       </Block>
     );
   };
@@ -320,7 +330,7 @@ const BookBroker = () => {
       </View>
 
       <Modalize
-        modalStyle={{backgroundColor: '#fff', marginTop: hp(5)}}
+        modalStyle={{backgroundColor: '#fff', flexGrow: 1}}
         overlayStyle={{backgroundColor: 'transparent'}}
         scrollViewProps={{
           showsVerticalScrollIndicator: false,
@@ -399,6 +409,12 @@ const BookBroker = () => {
                 key: 'AIzaSyBf4G3qQTDy6-DN6Tb9m6WzgYCW598EoxU',
                 language: 'en',
                 components: 'country:Au',
+                // types: 'geocode', // default: 'geocode
+                // types: '(Sydney)',
+                // default: 'geocode'
+                // location: '-33.865143, 151.2099',
+                // radius: '12000', //12 km
+                // strictbounds: true,
               }}
             />
 
