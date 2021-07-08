@@ -69,8 +69,10 @@ const Login = () => {
 
   const handleFacebookLogin = async () => {
     const fcmToken = await messaging().getToken();
-
     setFbLoader(true);
+    if (Platform.OS === 'android') {
+      LoginManager.setLoginBehavior('web_only');
+    }
     LoginManager.logInWithPermissions(['public_profile']).then(
       function (result) {
         if (result.isCancelled) {
