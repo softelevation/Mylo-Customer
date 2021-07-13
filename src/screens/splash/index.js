@@ -8,6 +8,8 @@ import {loginSuccess, socketConnection} from '../../redux/action';
 import {strictValidString} from '../../utils/commonUtils';
 import io from 'socket.io-client';
 import messaging from '@react-native-firebase/messaging';
+import {BackHandler, PermissionsAndroid, Platform} from 'react-native';
+import Geolocation from '@react-native-community/geolocation';
 
 const Splash = () => {
   const navigation = useNavigation();
@@ -34,10 +36,8 @@ const Splash = () => {
   useEffect(() => {
     callAuthApi();
     const socket = io('http://104.131.39.110:3000');
-    console.log('Connecting socket...');
     socket.on('connect', (a) => {
       dispatch(socketConnection(socket));
-      console.log('true', socket.connected); // true
     });
     // initiateSocket();
   }, []);
@@ -66,7 +66,52 @@ const Splash = () => {
       console.log('Failed', 'No token received');
     }
   };
+  const getLocation = () => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        console.log(position);
+      },
+      (error) => {},
+      {
+        enableHighAccuracy: false,
+        timeout: 15000,
+      },
+    );
+  };
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'MyloPro App Location Permission',
+          message:
+            'MyloPro App App needs access to your location ' +
+            'so you can access the geolocation service.',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        console.log('You can use the location');
+        getLocation();
+      } else {
+        if (Platform.OS === 'android') {
+          BackHandler.exitApp();
+        }
+        console.log('Location permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
 
+  useEffect(() => {
+    if (Platform.OS === 'ios') {
+      getLocation();
+    } else {
+      requestCameraPermission();
+    }
+  }, []);
   return (
     <Block safearea center middle secondary>
       <Block flex={false} borderWidth={3} borderRadius={10}>

@@ -4,17 +4,19 @@ import Header from '../../common/header';
 import {BackHandler, FlatList} from 'react-native';
 import {t2, t1, w3, w5} from '../../components/theme/fontsize';
 import {heightPercentageToDP} from 'react-native-responsive-screen';
-import {handleBackPress} from '../../utils/commonAppUtils';
+// import {handleBackPress} from '../../utils/commonAppUtils';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import useHardwareBack from '../../components/usehardwareBack';
 // import { Container } from './styles';
 
 const Notifications = () => {
-  useEffect(() => {
-    const BackButton = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackPress,
-    );
-    return () => BackButton.remove();
-  }, []);
+  const navigation = useNavigation();
+  const handleBack = () => {
+    navigation.navigate('Maps');
+    return true;
+  };
+
+  useHardwareBack(handleBack);
   const _renderItem = ({item}) => {
     return (
       <>

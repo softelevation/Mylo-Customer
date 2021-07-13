@@ -76,28 +76,27 @@ const Login = () => {
     LoginManager.logInWithPermissions(['public_profile']).then(
       function (result) {
         if (result.isCancelled) {
-          console.log('Login cancelled');
           setFbLoader(false);
         } else {
-          const _responseInfoCallback = (error: ?Object, result) => {
+          const _responseInfoCallback = async (error: ?Object, result) => {
             if (error) {
-              console.log('Error fetching data: ' + error.toString());
               setFbLoader(false);
             } else {
               setFbLoader(false);
-              console.log(result, 'user');
 
-              const data = {
-                social_type: 'F',
-                social_token: result.id,
-                name: result.name,
-                email: result.email,
-                token: fcmToken,
-                image: result.picture.data.url || null,
-                // mobile: result.email,
-              };
-              console.log('Success fetching data: ', data);
-              dispatch(registerRequest(data));
+              if (result) {
+                const data = {
+                  social_type: 'F',
+                  social_token: result.id,
+                  name: result.name,
+                  email: result.email,
+                  token: fcmToken,
+                  image: result.picture.data.url || null,
+                  // mobile: result.email,
+                };
+                dispatch(registerRequest(data));
+                await LoginManager.logOut();
+              }
             }
           };
           // Create a graph request asking for user information with a callback to handle the response.
@@ -113,21 +112,24 @@ const Login = () => {
             },
             _responseInfoCallback,
           );
-          console.log(infoRequest, 'infoRequest');
           // Start the graph request.
           const res = new GraphRequestManager().addRequest(infoRequest).start();
-          console.log(
-            'Login success with permissions: ' +
-              result.grantedPermissions.toString(),
-          );
-          console.log(result, 'result', res);
         }
       },
       function (error) {
-        console.log('Login fail with error: ' + error);
         setFbLoader(false);
       },
     );
+  };
+  const googleSignOut = async () => {
+    try {
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+      console.log('Sign out successfully!');
+      return true;
+    } catch (error) {
+      return false;
+    }
   };
 
   const signIn = async () => {
@@ -140,21 +142,21 @@ const Login = () => {
     try {
       GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
-      setGoogleLoader(false);
-      console.log(userInfo, 'user');
-      const {email, name, id, photo} = userInfo.user;
-      const data = {
-        social_type: 'G',
-        social_token: id,
-        name: name || '',
-        email: email,
-        token: fcmToken,
-        image: photo || null,
-      };
-      console.log(data, 'data');
-      dispatch(registerRequest(data));
+      if (userInfo) {
+        setGoogleLoader(false);
+        const {email, name, id, photo} = userInfo.user;
+        const data = {
+          social_type: 'G',
+          social_token: id,
+          name: name || '',
+          email: email,
+          token: fcmToken,
+          image: photo || null,
+        };
+        dispatch(registerRequest(data));
+        await googleSignOut();
+      }
     } catch (error) {
-      console.log(error, 'error');
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         // sign in was cancelled
         setGoogleLoader(false);

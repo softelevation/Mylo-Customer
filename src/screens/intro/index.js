@@ -1,6 +1,5 @@
 import {useNavigation} from '@react-navigation/native';
-import React, {useEffect, useRef, useState} from 'react';
-import {StyleSheet} from 'react-native';
+import React, {useRef, useState} from 'react';
 
 import ResponsiveImage from 'react-native-responsive-image';
 import {
@@ -9,14 +8,12 @@ import {
 } from 'react-native-responsive-screen';
 import images from '../../assets';
 import {Block, Button, Text} from '../../components';
-import {light} from '../../components/theme/colors';
 import Carousel, {Pagination} from 'react-native-snap-carousel';
 import {w5} from '../../components/theme/fontsize';
-import Geolocation from '@react-native-community/geolocation';
 
 const Intro = () => {
   const navigation = useNavigation();
-  const [activeSlide, setActiveSlide] = useState();
+  const [activeSlide, setActiveSlide] = useState(0);
   const carouselRef = useRef();
   const [slides, setstate] = useState([
     {
@@ -51,35 +48,18 @@ const Intro = () => {
     },
   ]);
 
-  useEffect(() => {
-    const watchId = Geolocation.getCurrentPosition(
-      (position) => {
-        console.log(position);
-      },
-      (error) => {
-        // See error code charts below.
-        console.log(error.code, error.message);
-      },
-      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
-    );
-    return () => Geolocation.clearWatch(watchId);
-  }, []);
-
   const _renderItem = ({item}) => {
     return (
       <Block primary>
         <Block flex={0.9} middle center primary>
-          {/* <Text color="#57B957" margin={[hp(5), 0]} size={25} center bold> */}
           <Text
+            margin={[hp(7), 0, 0]}
+            size={25}
             style={{
               color: '#57B957',
               fontWeight: 'bold',
-              fontSize: 25,
-              marginHorizontal: 60,
               textAlign: 'center',
-              paddingTop: 10,
-              margin: 5,
-              padding: 3,
+              width: wp(80),
             }}>
             {item.header}
           </Text>
@@ -88,17 +68,18 @@ const Intro = () => {
             initHeight="210"
             initWidth="230"
             borderRadius={20}
-            style={{marginTop: 30, marginLeft: -5}}
+            style={{marginTop: hp(8), marginLeft: -5}}
           />
           <Text
             style={{
-              width: wp(90),
+              width: wp(80),
               alignSelf: 'center',
               color: '#263238',
               marginHorizontal: 15,
             }}
             margin={[hp(7), 0, 0]}
-            size={15}
+            size={17}
+            height={30}
             bold
             center
             regular>
@@ -136,7 +117,6 @@ const Intro = () => {
           borderRadius: 9,
           marginHorizontal: -3,
           backgroundColor: '#F0F0F0',
-
           //   // backgroundColor: 'rgba(255, 255, 255, 0.92)',
         }}
         inactiveDotStyle={{

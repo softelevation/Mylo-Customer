@@ -13,19 +13,22 @@ import * as yup from 'yup';
 import ActivityLoader from '../../../components/activityLoader';
 import {strictValidString} from '../../../utils/commonUtils';
 import {BackHandler} from 'react-native';
-import {handleBackPress} from '../../../utils/commonAppUtils';
+// import {handleBackPress} from '../../../utils/commonAppUtils';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import useHardwareBack from '../../../components/usehardwareBack';
 const Profile = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.profile.user);
   const isLoad = useSelector((state) => state.user.profile.loading);
+  const navigation = useNavigation();
 
-  useEffect(() => {
-    const BackButton = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackPress,
-    );
-    return () => remove();
-  }, []);
+  const handleBack = () => {
+    navigation.navigate('Maps');
+    return true;
+  };
+
+  useHardwareBack(handleBack);
+
   const submitValues = (values) => {
     const data = {
       name: values.name,
@@ -64,7 +67,6 @@ const Profile = () => {
             dirty,
             isValid,
           }) => {
-            console.log(values, 'values');
             return (
               <>
                 <Block padding={[hp(3), wp(3), 0]} center flex={false}>

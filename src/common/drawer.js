@@ -1,5 +1,5 @@
 import React from 'react';
-import {Alert, FlatList, TouchableOpacity} from 'react-native';
+import {Alert, BackHandler, FlatList, TouchableOpacity} from 'react-native';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
@@ -16,6 +16,7 @@ import {
 } from '../utils/commonUtils';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import {LoginManager} from 'react-native-fbsdk';
+import {handleBackPress} from '../utils/commonAppUtils';
 const DrawerScreen = ({state}) => {
   const nav = useNavigation();
   const dispatch = useDispatch();
@@ -51,14 +52,6 @@ const DrawerScreen = ({state}) => {
   };
 
   const onLogout = async () => {
-    try {
-      await GoogleSignin.revokeAccess();
-      await GoogleSignin.signOut();
-      await LoginManager.logOut();
-      this.setState({user: null}); // Remember to remove the user from your app's state as well
-    } catch (error) {
-      console.error(error);
-    }
     const keys = await AsyncStorage.getAllKeys();
     await AsyncStorage.multiRemove(keys);
     dispatch(loginSuccess(''));
@@ -92,6 +85,27 @@ const DrawerScreen = ({state}) => {
       });
     }
   };
+  const navigateToRoute = () => {
+    nav.goBack('BookBroker');
+  };
+  React.useEffect(() => {
+    if (state.index === 0) {
+      const BackButton = BackHandler.addEventListener(
+        'hardwareBackPress',
+        handleBackPress,
+      );
+      return () => BackButton.remove();
+    }
+  }, [state.index]);
+  React.useEffect(() => {
+    if (state.index === 4) {
+      const BackButton = BackHandler.addEventListener(
+        'hardwareBackPress',
+        navigateToRoute,
+      );
+      return () => BackButton.remove();
+    }
+  }, [state.index]);
 
   const _renderItem = ({item, index}) => {
     return (

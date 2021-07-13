@@ -12,6 +12,7 @@ import moment from 'moment';
 import {strictValidObjectWithKeys} from '../../../utils/commonUtils';
 import ActivityLoader from '../../../components/activityLoader';
 import {brokerRequest} from '../../../redux/requests/action';
+import EmptyFile from '../../../components/emptyFile';
 const PastRequest = () => {
   const navigation = useNavigation();
   const isLoad = useSelector((state) => state.request.list.loading);
@@ -20,7 +21,6 @@ const PastRequest = () => {
   const dispatch = useDispatch();
 
   const {completed} = data;
-  console.log(data);
   const formatDate = (v) => {
     return moment(v).format('DD, MMM YYYY');
   };
@@ -70,19 +70,19 @@ const PastRequest = () => {
             <Block margin={[t1, 0]} row center flex={false}>
               <ImageComponent name="clock_icon" height="13.5" width="13.5" />
               <Text margin={[0, w3]} grey body>
-                {formatTime(item.created_at)}
+                {formatTime(item.assign_at)}
               </Text>
             </Block>
             <Block margin={[t1, 0]} row center flex={false}>
               <ImageComponent name="calendar_icon" height="14" width="12.25" />
               <Text margin={[0, w3]} grey body>
-                {formatDate(item.created_at)}
+                {formatDate(item.assign_at)}
               </Text>
             </Block>
             <Block margin={[t1, 0]} row center flex={false}>
               <ImageComponent name="location_icon" height="14" width="14" />
               <Text margin={[0, w3]} grey body>
-                {item.address}
+                {item.location}
               </Text>
             </Block>
           </Block>
@@ -101,6 +101,7 @@ const PastRequest = () => {
       </CustomButton>
     );
   };
+  console.log(data, 'data');
   return (
     <Block white middle>
       {isLoad && <ActivityLoader />}
@@ -109,10 +110,11 @@ const PastRequest = () => {
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          contentContainerStyle={{paddingBottom: hp(2)}}
+          contentContainerStyle={{paddingBottom: hp(2), flexGrow: 1}}
           data={completed}
           showsVerticalScrollIndicator={false}
           renderItem={_renderItem}
+          ListEmptyComponent={<EmptyFile />}
         />
       )}
     </Block>

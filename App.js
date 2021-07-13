@@ -7,14 +7,20 @@ import {Provider} from 'react-redux';
 import {logger} from 'redux-logger';
 import rootreducer from './src/redux/reducer';
 import rootSaga from './src/redux/saga';
-import {BackHandler, DeviceEventEmitter} from 'react-native';
+import {Alert, BackHandler, DeviceEventEmitter} from 'react-native';
 import LocationServicesDialogBox from 'react-native-android-location-services-dialog-box';
+import FlashMessage from 'react-native-flash-message';
+import {debounce} from 'lodash';
+import {Alerts} from './src/utils/commonUtils';
+import {light} from './src/components/theme/colors';
+
 const sagaMiddleware = createSagaMiddleware();
 
 const store = createStore(rootreducer, applyMiddleware(sagaMiddleware, logger));
 sagaMiddleware.run(rootSaga);
 const App = () => {
-  useEffect(() => {
+  const [status, setStatus] = React.useState(false);
+  const checkGps = () => {
     LocationServicesDialogBox.checkLocationServicesIsEnabled({
       message:
         "<h2>Use Location ?</h2>This app wants to change your device settings:<br/><br/>Use GPS, Wi-Fi, and cell network for location<br/><br/><a href='#'>Learn more</a>",
@@ -27,19 +33,16 @@ const App = () => {
       preventBackClick: false, //true => To prevent the location services popup from closing when it is clicked back button
       providerListener: true, // true ==> Trigger "locationProviderStatusChange" listener when the location state changes
     })
-      .then(
-        function (success) {
-          // success => {alreadyEnabled: true, enabled: true, status: "enabled"}
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              let initialPosition = JSON.stringify(position);
-              this.setState({initialPosition});
-            },
-            (error) => console.log(error),
-            {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
-          );
-        }.bind(this),
-      )
+      .then(function (success) {
+        // success => {alreadyEnabled: true, enabled: true, status: "enabled"}
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            let initialPosition = JSON.stringify(position);
+          },
+          (error) => console.log(error),
+          {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
+        );
+      })
       .catch((error) => {
         console.log(error.message);
       });
@@ -47,24 +50,56 @@ const App = () => {
       //(optional) you can use it if you need it
       //do not use this method if you are using navigation."preventBackClick: false" is already doing the same thing.
       LocationServicesDialogBox.forceCloseDialog();
+      BackHandler.exitApp();
     });
 
     DeviceEventEmitter.addListener(
       'locationProviderStatusChange',
       function (status) {
         // only trigger when "providerListener" is enabled
-        console.log(status); //  status => {enabled: false, status: "disabled"} or {enabled: true, status: "enabled"}
+        console.log(status);
+        setStatus(status.enabled);
+        if (status.enabled) {
+          Alerts('Success', 'Gps status changed to active', light.secondary);
+        } else {
+          // Alert.alert(
+          //   'Error',
+          //   'Gps Location is Disabled Please activate your gps services',
+          //   [
+          //     {
+          //       text: 'Cancel',
+          //     },
+          //     {
+          //       text: 'Enable Gps',
+          //       style: 'destructive',
+          //       onPress: () => checkGps(),
+          //     },
+          //   ],
+          // );
+          Alerts('Error', 'Gps status changed to inactive', light.warning);
+        }
       },
     );
+
+    // DeviceEventEmitter.addListener(
+    //   'locationProviderStatusChange',
+    //   debounce(checkGps()),
+    // );
+  };
+  useEffect(() => {
+    checkGps();
     return () => {
       LocationServicesDialogBox.stopListener();
     };
-  }, []);
+  }, [status]);
 
   return (
-    <Provider store={store}>
-      <Routes />
-    </Provider>
+    <>
+      <Provider store={store}>
+        <Routes />
+      </Provider>
+      <FlashMessage position="top" />
+    </>
   );
 };
 

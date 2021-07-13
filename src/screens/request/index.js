@@ -12,22 +12,23 @@ import {Block, CustomButton} from '../../components';
 import {brokerRequest} from '../../redux/requests/action';
 import io from 'socket.io-client';
 import {handleBackPress} from '../../utils/commonAppUtils';
+import useHardwareBack from '../../components/usehardwareBack';
 
 const Request = ({navigationState}) => {
   const {routes, index} = navigationState;
   const selected = index;
-  const navigation = useNavigation();
   const socket = useSelector((state) => state.socket.data);
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    const BackButton = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackPress,
-    );
-    return () => BackButton.remove();
-  }, []);
+  const navigation = useNavigation();
+
+  const handleBack = () => {
+    navigation.navigate('Maps');
+    return true;
+  };
+
+  useHardwareBack(handleBack);
 
   const getValues = (name) => {
     if (name === 'PastRequest') {
@@ -42,7 +43,6 @@ const Request = ({navigationState}) => {
       if (msg.type === 'book_broker') {
         dispatch(brokerRequest());
       }
-      console.log('Websocket event received!', msg);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

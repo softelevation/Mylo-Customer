@@ -20,7 +20,6 @@ const Register = ({
   const [counter, setCounter] = useState(59);
   const [value, setValue] = useState('');
   const dispatch = useDispatch();
-  console.log(phone_no, 'phone_no');
   const isLoad = useSelector((state) => state.user.register.loading);
 
   // First Attempts

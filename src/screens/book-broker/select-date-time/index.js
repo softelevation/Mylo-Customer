@@ -27,6 +27,8 @@ import AlertCompnent from '../../../common/AlertCompnent';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import moment from 'moment';
 import {handleBackPress} from '../../../utils/commonAppUtils';
+import {useNavigation} from '@react-navigation/native';
+import useHardwareBack from '../../../components/usehardwareBack';
 const initialState = {
   date: '',
   time: '',
@@ -55,13 +57,14 @@ const SelectDateTime = () => {
     longitudeDelta: 0.3511001542210579,
   });
 
-  useEffect(() => {
-    const BackButton = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackPress,
-    );
-    return () => BackButton.remove();
-  }, []);
+  const navigation = useNavigation();
+
+  const handleBack = () => {
+    navigation.navigate('Maps');
+    return true;
+  };
+
+  useHardwareBack(handleBack);
 
   const getDefaultCoords = () => {
     return {
@@ -87,6 +90,7 @@ const SelectDateTime = () => {
       token: token,
       lat: location.latitude,
       lng: location.longitude,
+      location: currentAddress.address,
     });
     setTimeout(() => {
       setLoader(false);
@@ -108,7 +112,6 @@ const SelectDateTime = () => {
   const formatSendDate = (b) => {
     return moment(b).format('YYYY-MM-DD hh:mm:ss');
   };
-  console.log(location, 'location');
   const checkType = async () => {
     if (type === 'ASAP') {
       bookNowBroker();
@@ -134,6 +137,7 @@ const SelectDateTime = () => {
           assign_at: formatSendDate(date),
           lat: location.latitude,
           lng: location.longitude,
+          location: currentAddress.address,
         });
         setTimeout(() => {
           setLoader(false);
@@ -185,7 +189,6 @@ const SelectDateTime = () => {
   }, []);
 
   const fetchCoordsAddress = async (searchVal, inital, mapCoords) => {
-    console.log(mapCoords, 'mapcoords');
     // this.setState({currentLocationLoading: true});
     const {latitudeDelta, longitudeDelta} = mapCoords || location;
     try {
@@ -424,7 +427,6 @@ const SelectDateTime = () => {
                 </Text>
               </CustomButton>
             </Block>
-            {console.log(date, 'date')}
 
             {type === 'LATER' && (
               <>

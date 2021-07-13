@@ -42,5 +42,6 @@ const images = {
   met_icon: require('./icons/met.png'),
   down_icon: require('./icons/down-arrow.png'),
   nav_icon: require('./icons/navigation.png'),
+  empty_icon: require('./icons/empty.png'),
 };
 export default images;

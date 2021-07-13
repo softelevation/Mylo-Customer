@@ -22,6 +22,7 @@ const Routes = () => {
       setbrokerDetails(msg);
     });
   }, []);
+
   return (
     <NavigationContainer ref={navigationRef}>
       <StatusBar backgroundColor={light.secondary} barStyle="dark-content" />

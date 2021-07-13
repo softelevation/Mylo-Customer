@@ -10,7 +10,7 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import {Block, CustomButton, ImageComponent, Text} from '../../../components';
 import ActivityLoader from '../../../components/activityLoader';
-import {light} from '../../../components/theme/colors';
+import EmptyFile from '../../../components/emptyFile';
 import {t1, t2, w3} from '../../../components/theme/fontsize';
 import {brokerRequest} from '../../../redux/requests/action';
 import {strictValidObjectWithKeys} from '../../../utils/commonUtils';
@@ -31,7 +31,7 @@ const UpcomingRequest = () => {
     return moment(v).format('hh:mm a');
   };
 
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true);
     setTimeout(() => {
       setRefreshing(false);
@@ -107,19 +107,19 @@ const UpcomingRequest = () => {
             <Block margin={[t1, 0]} row center flex={false}>
               <ImageComponent name="clock_icon" height="13.5" width="13.5" />
               <Text margin={[0, w3]} grey body>
-                {formatTime(item.created_at)}
+                {formatTime(item.assign_at)}
               </Text>
             </Block>
             <Block margin={[t1, 0]} row center flex={false}>
               <ImageComponent name="calendar_icon" height="14" width="12.25" />
               <Text margin={[0, w3]} grey body>
-                {formatDate(item.created_at)}
+                {formatDate(item.assign_at)}
               </Text>
             </Block>
             <Block margin={[t1, 0]} row center flex={false}>
               <ImageComponent name="location_icon" height="14" width="14" />
               <Text margin={[0, w3]} grey body>
-                {item.address}
+                {item.location}
               </Text>
             </Block>
           </Block>
@@ -163,6 +163,7 @@ const UpcomingRequest = () => {
           contentContainerStyle={{paddingBottom: hp(2)}}
           showsVerticalScrollIndicator={false}
           renderItem={_renderItem}
+          ListEmptyComponent={<EmptyFile />}
         />
       )}
     </Block>

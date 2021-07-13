@@ -39,8 +39,9 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import {handleBackPress} from '../../utils/commonAppUtils';
 import {strictValidString} from '../../utils/commonUtils';
 import images from '../../assets';
+import AsyncStorage from '@react-native-community/async-storage';
 
-const BookBroker = () => {
+const BookBroker = (props) => {
   const [action, setAction] = useState('');
   const [location, setlocation] = useState({
     latitude: 0,
@@ -64,18 +65,19 @@ const BookBroker = () => {
   const [isload, setLoader] = useState(false);
   const locationRef = useRef();
   const [selectedLocation, setSelectedLocation] = useState('');
-
+  const socket = useSelector((state) => state.socket.data);
   const [searching, setSearching] = useState({});
   const [callFrom, setCallFrom] = useState('Region');
+  const [locationAddress, setLocationAddress] = useState('');
 
-  useEffect(() => {
-    const BackButton = BackHandler.addEventListener(
-      'hardwareBackPress',
-      handleBackPress,
-    );
-    return () => BackButton.remove();
-  }, []);
-
+  // useEffect(() => {
+  //   const BackButton = BackHandler.addEventListener(
+  //     'hardwareBackPress',
+  //     handleBackPress,
+  //   );
+  //   return () => BackButton.remove();
+  // }, []);
+  console.log(location, 'location');
   useEffect(() => {
     if (location.latitude !== 0) {
       dispatch(
@@ -136,7 +138,6 @@ const BookBroker = () => {
       coords.latitude <= -31.083332
     );
   };
-  console.log(location);
   useEffect(() => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
@@ -167,7 +168,6 @@ const BookBroker = () => {
           longitudeDelta: 0.3511001542210579,
           // angle: position.coords.heading,
         };
-        console.log(position, 'position');
 
         setlocation(region);
       },
@@ -196,15 +196,29 @@ const BookBroker = () => {
     modalizeRef.current?.open();
     setAction('schedulebroker');
   };
+  console.log(locationAddress, 'selectedLocation');
+  const bookNowBrokerScreen = async (lat, lng) => {
+    const token = await AsyncStorage.getItem('token');
+    socket.emit('book_now', {
+      token: token,
+      lat: lat,
+      lng: lng,
+      location: locationAddress,
+    });
+    setTimeout(() => {
+      setLoader(false);
+      setmodal(true);
+      setAlert({
+        title: 'Success',
+        description:
+          'Your request has been submitted. Please wait for the broker to confirm.',
+      });
+    }, 2000);
+  };
 
   const bookNowBroker = async () => {
+    setLoader(true);
     setCallFrom('GoogleAutoComplete');
-    await setlocation({
-      longitude: searching.geometry.location.lng,
-      latitude: searching.geometry.location.lat,
-      latitudeDelta: 0.00922 * 1.5,
-      longitudeDelta: 0.00421 * 1.5,
-    });
     if (location.latitude !== 0) {
       dispatch(
         brokerlistRequest({
@@ -212,14 +226,27 @@ const BookBroker = () => {
           longitude: searching.geometry.location.lng,
         }),
       );
+      bookNowBrokerScreen(
+        searching.geometry.location.lat,
+        searching.geometry.location.lng,
+      );
     }
+  };
+  const setLocationByPlaceholder = async (details) => {
+    setSearching(details);
+    await setlocation({
+      longitude: details.geometry.location.lng,
+      latitude: details.geometry.location.lat,
+      latitudeDelta: 0.008045066951822832,
+      longitudeDelta: 0.012168176472187042,
+    });
 
     (await mapRef) &&
       mapRef.current.animateToCoordinate({
-        longitude: searching.geometry.location.lng,
-        latitude: searching.geometry.location.lat,
-        latitudeDelta: 0.00922 * 1.5,
-        longitudeDelta: 0.00421 * 1.5,
+        longitude: details.geometry.location.lng,
+        latitude: details.geometry.location.lat,
+        latitudeDelta: 0.008045066951822832,
+        longitudeDelta: 0.012168176472187042,
       });
   };
 
@@ -279,24 +306,22 @@ const BookBroker = () => {
         <MapView
           ref={mapRef}
           zoomControlEnabled
-          // showsUserLocation={true}
           showsScale
-          // provider="google"
           style={styles.map}
           initialRegion={location}
           onRegionChangeComplete={async (coords) => {
+            console.log(coords, 'coords');
             if (!isMapRegionSydney(coords)) {
               if (isMapRegionSydney(location)) {
                 mapRef && mapRef.current.animateToCoordinate(location);
               } else {
                 if (callFrom === 'Region') {
                   setCallFrom('Regionss');
-
                   setlocation({
                     longitude: 151.2099,
                     latitude: -33.865143,
-                    latitudeDelta: 0.0046,
-                    longitudeDelta: 0.0046,
+                    latitudeDelta: 0.008045066951822832,
+                    longitudeDelta: 0.012168176472187042,
                   });
                   mapRef &&
                     mapRef.current.animateToCoordinate(getDefaultCoords());
@@ -365,7 +390,8 @@ const BookBroker = () => {
               clearButtonMode={'while-editing'}
               keyboardShouldPersistTaps={'handled'}
               onPress={(data, details = null) => {
-                setSearching(details);
+                setLocationAddress(data.description);
+                setLocationByPlaceholder(details);
               }}
               styles={{
                 textInputContainer: {
@@ -416,7 +442,7 @@ const BookBroker = () => {
                 // types: '(Sydney)',
                 // default: 'geocode'
                 // location: '-33.865143, 151.2099',
-                // radius: '12000', //12 km
+                // radius: '1200', //12 km
                 // strictbounds: true,
               }}
             />
