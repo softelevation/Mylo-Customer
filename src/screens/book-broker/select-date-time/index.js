@@ -425,6 +425,7 @@ const SelectDateTime = () => {
               </CustomButton>
             </Block>
             {console.log(date, 'date')}
+
             {type === 'LATER' && (
               <>
                 <DatePicker

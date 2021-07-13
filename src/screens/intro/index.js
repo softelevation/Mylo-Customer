@@ -24,26 +24,28 @@ const Intro = () => {
       header: 'Find your Local Mortgage Broker',
       text:
         'Tell us where you d like to meet,and Mylo will search through its data base of expert Mylo Brokers to find the one closest to you!',
-      image: images.find_icon,
+      // image: images.find_icon,
+      image: require('../../../android/c2.png'),
       subtitle: 'Find your Local Mortgage Broker',
       backgroundColor: '#59b2ab',
     },
     {
       key: 2,
-      header: 'Schedule a Meeting',
+      header: 'Schedule a Meeting with Broker',
       text:
         'Find the Right time & Place for you and your Mylo Broker.If you need to reschedule-No Problem! you can do so throught the app. ',
-      image: images.meet_icon,
+      // image: images.meet_icon,
+      image: require('../../../android/c3.png'),
       subtitle: 'Schedule a Meeting',
       backgroundColor: '#febe29',
     },
     {
       key: 3,
-      header: 'Have your needs met!',
+      header: 'Have your Needs Met with Our Broker',
       text:
         'Sit back and relax as our expert Mylo Broker handles all you loan needs! ',
 
-      image: images.met_icon,
+      image: require('../../../android/c4.png'),
       subtitle: 'Have your needs met!',
       backgroundColor: '#22bcb5',
     },
@@ -67,19 +69,37 @@ const Intro = () => {
     return (
       <Block primary>
         <Block flex={0.9} middle center primary>
-          <Text color="secondary" margin={[hp(5), 0]} size={25} center bold>
+          {/* <Text color="#57B957" margin={[hp(5), 0]} size={25} center bold> */}
+          <Text
+            style={{
+              color: '#57B957',
+              fontWeight: 'bold',
+              fontSize: 25,
+              marginHorizontal: 60,
+              textAlign: 'center',
+              paddingTop: 10,
+              margin: 5,
+              padding: 3,
+            }}>
             {item.header}
           </Text>
           <ResponsiveImage
             source={item.image}
-            initHeight="260"
-            initWidth="370"
+            initHeight="210"
+            initWidth="230"
             borderRadius={20}
+            style={{marginTop: 30, marginLeft: -5}}
           />
           <Text
-            style={{width: wp(90), alignSelf: 'center'}}
-            margin={[hp(5), 0, 0]}
-            size={16}
+            style={{
+              width: wp(90),
+              alignSelf: 'center',
+              color: '#263238',
+              marginHorizontal: 15,
+            }}
+            margin={[hp(7), 0, 0]}
+            size={15}
+            bold
             center
             regular>
             {item.text}
@@ -114,17 +134,17 @@ const Intro = () => {
           width: 12,
           height: 12,
           borderRadius: 9,
-          marginHorizontal: 8,
-          backgroundColor: '#53c653',
+          marginHorizontal: -3,
+          backgroundColor: '#F0F0F0',
 
           //   // backgroundColor: 'rgba(255, 255, 255, 0.92)',
         }}
         inactiveDotStyle={{
           // Define styles for inactive dots here
-          backgroundColor: '#d3d3d3',
+          backgroundColor: '#57B957',
         }}
-        inactiveDotOpacity={0.4}
-        inactiveDotScale={0.6}
+        inactiveDotOpacity={0.9}
+        inactiveDotScale={0.9}
       />
       {activeSlide === 2 ? (
         <Block flex={false} padding={[0, w5]} row center space={'between'}>

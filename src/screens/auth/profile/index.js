@@ -24,7 +24,7 @@ const Profile = () => {
       'hardwareBackPress',
       handleBackPress,
     );
-    return () => BackButton.remove();
+    return () => remove();
   }, []);
   const submitValues = (values) => {
     const data = {

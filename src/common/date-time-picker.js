@@ -46,6 +46,7 @@ const DatePicker = ({mode, Title, setValue, initialValue}) => {
         mode={mode}
         onConfirm={handleConfirm}
         onCancel={hideDatePicker}
+        minimumDate={new Date()}
       />
     </Block>
   );
