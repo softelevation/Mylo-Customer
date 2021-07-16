@@ -12,9 +12,7 @@ import {Formik} from 'formik';
 import * as yup from 'yup';
 import ActivityLoader from '../../../components/activityLoader';
 import {strictValidString} from '../../../utils/commonUtils';
-import {BackHandler} from 'react-native';
-// import {handleBackPress} from '../../../utils/commonAppUtils';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import useHardwareBack from '../../../components/usehardwareBack';
 const Profile = () => {
   const dispatch = useDispatch();
@@ -55,7 +53,7 @@ const Profile = () => {
           validationSchema={yup.object().shape({
             name: yup.string().min(2).max(15),
             email: yup.string().email(),
-            address: yup.string().min(2).max(40),
+            address: yup.string().min(2).max(200),
           })}>
           {({
             values,

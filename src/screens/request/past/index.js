@@ -101,7 +101,6 @@ const PastRequest = () => {
       </CustomButton>
     );
   };
-  console.log(data, 'data');
   return (
     <Block white middle>
       {isLoad && <ActivityLoader />}

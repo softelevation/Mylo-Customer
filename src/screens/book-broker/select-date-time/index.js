@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from 'react-native-responsive-screen';
-import {BackHandler, StyleSheet} from 'react-native';
+import {PermissionsAndroid, Platform, StyleSheet} from 'react-native';
 import Header from '../../../common/header';
 import {
   Block,
@@ -15,19 +16,17 @@ import {
 } from '../../../components';
 import {t1, t2, w3, w5} from '../../../components/theme/fontsize';
 import DatePicker from '../../../common/date-time-picker';
-import styled from 'styled-components/native';
 import MapView, {Marker} from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import {useSelector} from 'react-redux';
 import {light} from '../../../components/theme/colors';
 import AsyncStorage from '@react-native-community/async-storage';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {strictValidObjectWithKeys} from '../../../utils/commonUtils';
+import {Alerts, strictValidObjectWithKeys} from '../../../utils/commonUtils';
 import AlertCompnent from '../../../common/AlertCompnent';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import moment from 'moment';
-import {handleBackPress} from '../../../utils/commonAppUtils';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import useHardwareBack from '../../../components/usehardwareBack';
 const initialState = {
   date: '',
@@ -43,6 +42,7 @@ const SelectDateTime = () => {
   const [Loader, setLoader] = useState(false);
   const brokerData = useSelector((state) => state.broker.list.broker.data);
   const socket = useSelector((state) => state.socket.data);
+  const locationReducer = useSelector((state) => state.location.data);
   const [currentAddress, setCurrentAddress] = useState({});
   const [modal, setmodal] = useState(false);
   const [selectLocation, setSelectLocation] = useState();
@@ -51,12 +51,11 @@ const SelectDateTime = () => {
     description: '',
   });
   const [location, setlocation] = useState({
-    latitude: 0,
-    longitude: 0,
-    latitudeDelta: 0.2556429502693618,
-    longitudeDelta: 0.3511001542210579,
+    latitude: locationReducer.latitude,
+    longitude: locationReducer.longitude,
+    latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
+    longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
   });
-
   const navigation = useNavigation();
 
   const handleBack = () => {
@@ -106,8 +105,19 @@ const SelectDateTime = () => {
   const formatViewDate = (d) => {
     return moment(d).format('DD MMMM YYYY');
   };
+  const formatCheckDate = (d) => {
+    //1995, 11, 17
+    return moment(d).format('DD MM YYYY');
+  };
   const formatViewTime = (a) => {
     return moment(a).format('hh:mm a');
+  };
+  const formatViewTimeBy24 = (a) => {
+    const convertedTime = moment(a).format('HH:mm:ss: A');
+    return moment(convertedTime, 'HH:mm:ss: A').diff(
+      moment().startOf('day'),
+      'seconds',
+    );
   };
   const formatSendDate = (b) => {
     return moment(b).format('YYYY-MM-DD hh:mm:ss');
@@ -152,8 +162,8 @@ const SelectDateTime = () => {
     }
   };
 
-  useEffect(() => {
-    const watchId = Geolocation.getCurrentPosition(
+  const getLocation = () => {
+    Geolocation.getCurrentPosition(
       (position) => {
         if (!isMapRegionSydney(position.coords)) {
           fetchCoordsAddress(
@@ -179,14 +189,43 @@ const SelectDateTime = () => {
       },
       (error) => console.log(error),
       {
-        enableHighAccuracy: true,
+        enableHighAccuracy: false,
         timeout: 15000,
       },
     );
-
-    return () => Geolocation.clearWatch(watchId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
+  const requestCameraPermission = async () => {
+    try {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+        {
+          title: 'Mylo App Location Permission',
+          message:
+            'Mylo App App needs access to your location ' +
+            'so you can access the geolocation service.',
+          buttonNeutral: 'Ask Me Later',
+          buttonNegative: 'Cancel',
+          buttonPositive: 'OK',
+        },
+      );
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+        getLocation();
+      } else {
+        console.log('Camera permission denied');
+      }
+    } catch (err) {
+      console.warn(err);
+    }
+  };
+  useFocusEffect(
+    React.useCallback(() => {
+      if (Platform.OS === 'ios') {
+        getLocation();
+      } else {
+        requestCameraPermission();
+      }
+    }, []),
+  );
 
   const fetchCoordsAddress = async (searchVal, inital, mapCoords) => {
     // this.setState({currentLocationLoading: true});
@@ -239,6 +278,44 @@ const SelectDateTime = () => {
       }
     } catch (e) {
       console.warn('error', e);
+    }
+  };
+
+  const checkTimeVal = (val) => {
+    const selectedTime = formatViewTimeBy24(val);
+    const afterOneHour = formatViewTimeBy24(
+      new Date(new Date().setHours(new Date().getHours() + 1)),
+    );
+    const selectedDate = formatCheckDate(date);
+    const currentDate = formatCheckDate(new Date());
+
+    if (selectedTime >= afterOneHour && selectedDate === currentDate) {
+      setDetails({...dateAndtime, time: val});
+    } else if (selectedDate !== currentDate) {
+      setDetails({...dateAndtime, time: val});
+    } else {
+      setDetails({...dateAndtime, time: ''});
+      Alerts(
+        'Error',
+        'Please select time after 1 hour from the current time',
+        light.warning,
+      );
+    }
+  };
+
+  const checkDate = (val) => {
+    const selectedDate = formatCheckDate(val);
+    const currentDate = formatCheckDate(new Date());
+    const selectedTime = formatViewTimeBy24(time);
+    const afterOneHour = formatViewTimeBy24(
+      new Date(new Date().setHours(new Date().getHours() + 1)),
+    );
+    if (selectedDate === currentDate && selectedTime >= afterOneHour) {
+      setDetails({...dateAndtime, date: val});
+    } else if (selectedDate === currentDate && selectedTime < afterOneHour) {
+      setDetails({...dateAndtime, date: val, time: ''});
+    } else {
+      setDetails({...dateAndtime, date: val});
     }
   };
 
@@ -333,12 +410,15 @@ const SelectDateTime = () => {
                 components: 'country:Au',
               }}
             />
-            {/* {strictValidObjectWithKeys(searchAddressList) &&
-              renderSearchAddress()} */}
           </Block>
         )}
         <Block white>
-          <Map center middle secondary flex={false}>
+          <Block
+            style={styles.MapContainer}
+            center
+            middle
+            secondary
+            flex={false}>
             <MapView
               ref={mapRef}
               // showsUserLocation={true}
@@ -395,7 +475,7 @@ const SelectDateTime = () => {
                   );
                 })}
             </MapView>
-          </Map>
+          </Block>
           <Block padding={[t2]} flex={false}>
             <Block row middle center flex={false}>
               <CustomButton
@@ -433,13 +513,13 @@ const SelectDateTime = () => {
                 <DatePicker
                   mode="date"
                   initialValue={date ? formatViewDate(date) : 'Select Date'}
-                  setValue={(val) => setDetails({...dateAndtime, date: val})}
+                  setValue={(val) => checkDate(val)}
                 />
                 <DatePicker
                   mode="time"
                   Title={'Time'}
                   initialValue={time ? formatViewTime(time) : 'Select Time'}
-                  setValue={(val) => setDetails({...dateAndtime, time: val})}
+                  setValue={(val) => checkTimeVal(val)}
                 />
               </>
             )}
@@ -448,6 +528,7 @@ const SelectDateTime = () => {
             <Button
               isLoading={Loader}
               onPress={() => checkType()}
+              disabled={type === 'ASAP' ? false : !time || !date}
               color="secondary">
               {type === 'ASAP' ? 'Book Now' : 'Schedule Now'}
             </Button>
@@ -467,15 +548,9 @@ const SelectDateTime = () => {
     </>
   );
 };
-const Map = styled(Block)({
-  height: hp(34),
-  borderBottomLeftRadius: 20,
-  borderBottomRightRadius: 20,
-});
 
 const styles = StyleSheet.create({
   container: {
-    // ...StyleSheet.absoluteFillObject,
     flex: 0.5,
     justifyContent: 'flex-end',
     alignItems: 'center',
@@ -483,6 +558,11 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
     height: 380,
+  },
+  MapContainer: {
+    height: hp(34),
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
 });
 export default SelectDateTime;

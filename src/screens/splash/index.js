@@ -4,11 +4,15 @@ import {useNavigation} from '@react-navigation/native';
 import React, {useEffect} from 'react';
 import {useDispatch} from 'react-redux';
 import {Block, ImageComponent, Text} from '../../components';
-import {loginSuccess, socketConnection} from '../../redux/action';
+import {
+  locationRequest,
+  loginSuccess,
+  socketConnection,
+} from '../../redux/action';
 import {strictValidString} from '../../utils/commonUtils';
 import io from 'socket.io-client';
 import messaging from '@react-native-firebase/messaging';
-import {BackHandler, PermissionsAndroid, Platform} from 'react-native';
+import {Alert, BackHandler, PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
 const Splash = () => {
@@ -44,16 +48,15 @@ const Splash = () => {
 
   useEffect(() => {
     requestUserPermission();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const requestUserPermission = async () => {
     const authStatus = await messaging().requestPermission();
-
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
     if (enabled) {
       getFcmToken();
     }
@@ -69,11 +72,11 @@ const Splash = () => {
   const getLocation = () => {
     Geolocation.getCurrentPosition(
       (position) => {
-        console.log(position);
+        dispatch(locationRequest(position.coords));
       },
       (error) => {},
       {
-        enableHighAccuracy: false,
+        enableHighAccuracy: true,
         timeout: 15000,
       },
     );
@@ -92,7 +95,6 @@ const Splash = () => {
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('You can use the location');
         getLocation();
       } else {
         if (Platform.OS === 'android') {

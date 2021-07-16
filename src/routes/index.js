@@ -5,13 +5,14 @@ import {
   createStackNavigator,
 } from '@react-navigation/stack';
 import {PostLoginScreen, PreLaunchScreen, PreLoginScreen} from './sub-routes';
-import {SafeAreaView, StatusBar} from 'react-native';
+import {Alert, SafeAreaView, StatusBar} from 'react-native';
 import {light} from '../components/theme/colors';
 import {navigationRef} from './NavigationService';
 import BrokerDetails from '../common/dialog/broker_details';
 import io from 'socket.io-client';
-import {strictValidObjectWithKeys} from '../utils/commonUtils';
+import {Alerts, strictValidObjectWithKeys} from '../utils/commonUtils';
 const RootStack = createStackNavigator();
+import messaging from '@react-native-firebase/messaging';
 
 const Routes = () => {
   const [brokerDetails, setbrokerDetails] = React.useState({});
@@ -21,6 +22,21 @@ const Routes = () => {
     socket.on('broker_details', (msg) => {
       setbrokerDetails(msg);
     });
+  }, []);
+
+  React.useEffect(() => {
+    const unsubscribe = messaging().onMessage(async (remoteMessage) => {
+      // Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+      console.log(remoteMessage);
+      Alerts(
+        remoteMessage.notification.title,
+        remoteMessage.notification.body,
+        light.secondary,
+      );
+    });
+    return unsubscribe;
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

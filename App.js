@@ -10,9 +10,10 @@ import rootSaga from './src/redux/saga';
 import {Alert, BackHandler, DeviceEventEmitter} from 'react-native';
 import LocationServicesDialogBox from 'react-native-android-location-services-dialog-box';
 import FlashMessage from 'react-native-flash-message';
-import {debounce} from 'lodash';
 import {Alerts} from './src/utils/commonUtils';
 import {light} from './src/components/theme/colors';
+import NetInfo from '@react-native-community/netinfo';
+import Geolocation from '@react-native-community/geolocation';
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -35,13 +36,13 @@ const App = () => {
     })
       .then(function (success) {
         // success => {alreadyEnabled: true, enabled: true, status: "enabled"}
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            let initialPosition = JSON.stringify(position);
-          },
-          (error) => console.log(error),
-          {enableHighAccuracy: false, timeout: 20000, maximumAge: 1000},
-        );
+        // Geolocation.getCurrentPosition(
+        //   (position) => {
+        //     let initialPosition = JSON.stringify(position);
+        //   },
+        //   (error) => console.log(error),
+        //   {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
+        // );
       })
       .catch((error) => {
         console.log(error.message);
@@ -57,34 +58,14 @@ const App = () => {
       'locationProviderStatusChange',
       function (status) {
         // only trigger when "providerListener" is enabled
-        console.log(status);
         setStatus(status.enabled);
         if (status.enabled) {
           Alerts('Success', 'Gps status changed to active', light.secondary);
         } else {
-          // Alert.alert(
-          //   'Error',
-          //   'Gps Location is Disabled Please activate your gps services',
-          //   [
-          //     {
-          //       text: 'Cancel',
-          //     },
-          //     {
-          //       text: 'Enable Gps',
-          //       style: 'destructive',
-          //       onPress: () => checkGps(),
-          //     },
-          //   ],
-          // );
           Alerts('Error', 'Gps status changed to inactive', light.warning);
         }
       },
     );
-
-    // DeviceEventEmitter.addListener(
-    //   'locationProviderStatusChange',
-    //   debounce(checkGps()),
-    // );
   };
   useEffect(() => {
     checkGps();
@@ -92,6 +73,26 @@ const App = () => {
       LocationServicesDialogBox.stopListener();
     };
   }, [status]);
+
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      handleFirstConnectivityChange(state.isConnected);
+    });
+
+    // Unsubscribe
+    return () => unsubscribe();
+  }, []);
+
+  const handleFirstConnectivityChange = (isConnected) => {
+    if (isConnected === false) {
+      Alerts('Error', 'You are offline!', light.warning);
+      Alert.alert(
+        'It seems that you are offline. Please check your internet connection',
+      );
+    } else {
+      // Alerts('Success', 'You are online!', light.success);
+    }
+  };
 
   return (
     <>

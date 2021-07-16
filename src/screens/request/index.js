@@ -6,7 +6,6 @@ import {
   widthPercentageToDP,
 } from 'react-native-responsive-screen';
 import {useDispatch, useSelector} from 'react-redux';
-import styled from 'styled-components';
 import Header from '../../common/header';
 import {Block, CustomButton} from '../../components';
 import {brokerRequest} from '../../redux/requests/action';
@@ -61,43 +60,45 @@ const Request = ({navigationState}) => {
         keyExtractor={(item) => item.key}
         renderItem={({item, index}) => {
           return (
-            <ButtonStyle
+            <CustomButton
               activeOpacity={1}
               flex={false}
               secondary
-              style={
+              style={[
+                ButtonStyle,
                 selected === index
                   ? {
                       borderBottomColor: '#231F20',
                       borderBottomWidth: 4,
                     }
-                  : {borderBottomColor: 'transparent', borderBottomWidth: 4}
-              }
+                  : {borderBottomColor: 'transparent', borderBottomWidth: 4},
+              ]}
               onPress={() => navigation.navigate(item.name)}>
-              <CustomText
-                style={
+              <Text
+                style={[
+                  CustomText,
                   selected === index && {
                     color: '#231F20',
                     fontWeight: '500',
-                  }
-                }>
+                  },
+                ]}>
                 {getValues(item.name)}
-              </CustomText>
-            </ButtonStyle>
+              </Text>
+            </CustomButton>
           );
         }}
       />
     </Block>
   );
 };
-const CustomText = styled.Text({
+const CustomText = {
   color: '#fff',
   fontSize: 16,
-});
-const ButtonStyle = styled(CustomButton)({
+};
+const ButtonStyle = {
   paddingVertical: heightPercentageToDP(2),
   width: widthPercentageToDP(50),
   justifyContent: 'center',
   alignItems: 'center',
-});
+};
 export default Request;

@@ -125,7 +125,6 @@ const Login = () => {
     try {
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
-      console.log('Sign out successfully!');
       return true;
     } catch (error) {
       return false;

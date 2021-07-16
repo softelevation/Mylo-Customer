@@ -3,8 +3,6 @@ import {
   ActivityIndicator,
   View,
   StyleSheet,
-  Alert,
-  BackHandler,
   FlatList,
   Keyboard,
 } from 'react-native';
@@ -27,27 +25,29 @@ import {t1, t5, w3, w4, w5} from '../../components/theme/fontsize';
 import {light} from '../../components/theme/colors';
 import {DrawerActions, useNavigation} from '@react-navigation/native';
 import MapView, {Marker} from 'react-native-maps';
-import {brokerlistRequest, profileRequest} from '../../redux/action';
+import {
+  brokerlistRequest,
+  locationRequest,
+  profileRequest,
+} from '../../redux/action';
 import {useDispatch, useSelector} from 'react-redux';
-import ActivityLoader from '../../components/activityLoader';
 import Geolocation from '@react-native-community/geolocation';
-import styled from 'styled-components';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {AdsData} from '../../utils/static-data';
 import AlertCompnent from '../../common/AlertCompnent';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
-import {handleBackPress} from '../../utils/commonAppUtils';
 import {strictValidString} from '../../utils/commonUtils';
 import images from '../../assets';
 import AsyncStorage from '@react-native-community/async-storage';
 
 const BookBroker = (props) => {
+  const locationReducer = useSelector((state) => state.location.data);
   const [action, setAction] = useState('');
   const [location, setlocation] = useState({
-    latitude: 0,
-    longitude: 0,
-    latitudeDelta: 0.2556429502693618,
-    longitudeDelta: 0.3511001542210579,
+    latitude: locationReducer.latitude,
+    longitude: locationReducer.longitude,
+    latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
+    longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
   });
   const [modal, setmodal] = useState(false);
   const [alertdata, setAlert] = useState({
@@ -77,7 +77,6 @@ const BookBroker = (props) => {
   //   );
   //   return () => BackButton.remove();
   // }, []);
-  console.log(location, 'location');
   useEffect(() => {
     if (location.latitude !== 0) {
       dispatch(
@@ -141,7 +140,7 @@ const BookBroker = (props) => {
   useEffect(() => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
-        if (user && !user.name) {
+        if ((user && !user.name) || (user && !user.phone_no)) {
           setAlert({
             title: 'Message',
             description: 'Please update the profile first',
@@ -158,6 +157,14 @@ const BookBroker = (props) => {
             latitudeDelta: 0.2556429502693618,
             longitudeDelta: 0.3511001542210579,
           });
+          dispatch(
+            locationRequest({
+              longitude: 151.2099,
+              latitude: -33.865143,
+              latitudeDelta: 0.2556429502693618,
+              longitudeDelta: 0.3511001542210579,
+            }),
+          );
           return;
         }
 
@@ -168,7 +175,7 @@ const BookBroker = (props) => {
           longitudeDelta: 0.3511001542210579,
           // angle: position.coords.heading,
         };
-
+        dispatch(locationRequest(position.coords));
         setlocation(region);
       },
       (error) => console.log(error),
@@ -192,11 +199,16 @@ const BookBroker = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // useEffect(() => {
+  //   if (!loader && !strictValidArrayWithLength(brokerData)) {
+  //     Alerts('Error', 'Brokers are not available in your area', light.warning);
+  //   }
+  // }, [brokerData, loader]);
+
   const onOpen = () => {
     modalizeRef.current?.open();
     setAction('schedulebroker');
   };
-  console.log(locationAddress, 'selectedLocation');
   const bookNowBrokerScreen = async (lat, lng) => {
     const token = await AsyncStorage.getItem('token');
     socket.emit('book_now', {
@@ -288,8 +300,9 @@ const BookBroker = (props) => {
   return (
     <Block style={{backgroundColor: '#fff'}}>
       <Header centerText="" />
-      {loader && <ActivityLoader />}
-      <CurrentlocationView
+      {/* {loader && <ActivityLoader />} */}
+      <CustomButton
+        style={styles.customLocation}
         onPress={() => {
           mapRef && mapRef.current.animateToCoordinate(location);
         }}
@@ -301,7 +314,7 @@ const BookBroker = (props) => {
           height="30"
           width="30"
         />
-      </CurrentlocationView>
+      </CustomButton>
       <View style={styles.container}>
         <MapView
           ref={mapRef}
@@ -310,7 +323,6 @@ const BookBroker = (props) => {
           style={styles.map}
           initialRegion={location}
           onRegionChangeComplete={async (coords) => {
-            console.log(coords, 'coords');
             if (!isMapRegionSydney(coords)) {
               if (isMapRegionSydney(location)) {
                 mapRef && mapRef.current.animateToCoordinate(location);
@@ -486,17 +498,16 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
+  customLocation: {
+    position: 'absolute',
+    top: hp(10),
+    right: w3,
+    zIndex: 99,
+    height: 50,
+    width: 50,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
-const CurrentlocationView = styled(CustomButton)({
-  position: 'absolute',
-  top: hp(10),
-  right: w3,
-  zIndex: 99,
-  height: 50,
-  width: 50,
-  borderRadius: 50,
-  justifyContent: 'center',
-  alignItems: 'center',
-});
-
 export default BookBroker;

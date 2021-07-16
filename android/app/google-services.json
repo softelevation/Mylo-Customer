@@ -1,20 +1,20 @@
 {
   "project_info": {
-    "project_number": "274162840428",
-    "project_id": "mylo-customer-a6803",
-    "storage_bucket": "mylo-customer-a6803.appspot.com"
+    "project_number": "637350181008",
+    "project_id": "mylo-customer-4709e",
+    "storage_bucket": "mylo-customer-4709e.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:274162840428:android:3fd39f4ac6242d35787949",
+        "mobilesdk_app_id": "1:637350181008:android:89993db68d73018c608015",
         "android_client_info": {
           "package_name": "com.brokerapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "274162840428-ou3f30oevqgcimlf2augek1mhk9maf7j.apps.googleusercontent.com",
+          "client_id": "637350181008-7nvf8c1iauhuc29cm4fan282ce88lm25.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.brokerapp",
@@ -22,20 +22,20 @@
           }
         },
         {
-          "client_id": "274162840428-v7tssdlskph9c4m2j7p21n87m26o4dq9.apps.googleusercontent.com",
+          "client_id": "637350181008-ie54bms655da27s0fssp49patnif3gv6.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAWmcuRR9vI7oqdoJqPERuzkDWdsNOKLOQ"
+          "current_key": "AIzaSyCLrUOWT7HH4AZh-SswSzonRmVxGMj8vFc"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "274162840428-v7tssdlskph9c4m2j7p21n87m26o4dq9.apps.googleusercontent.com",
+              "client_id": "637350181008-ie54bms655da27s0fssp49patnif3gv6.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
