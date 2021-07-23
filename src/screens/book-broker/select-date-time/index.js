@@ -28,6 +28,7 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import moment from 'moment';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import useHardwareBack from '../../../components/usehardwareBack';
+import TimeZone from 'react-native-timezone';
 const initialState = {
   date: '',
   time: '',
@@ -123,6 +124,7 @@ const SelectDateTime = () => {
     return moment(b).format('YYYY-MM-DD hh:mm:ss');
   };
   const checkType = async () => {
+    const timeZone = await TimeZone.getTimeZone().then(zone => zone);
     if (type === 'ASAP') {
       bookNowBroker();
     } else {
@@ -148,6 +150,7 @@ const SelectDateTime = () => {
           lat: location.latitude,
           lng: location.longitude,
           location: currentAddress.address,
+          time_zone:timeZone,
         });
         setTimeout(() => {
           setLoader(false);

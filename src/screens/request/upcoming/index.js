@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import moment from 'moment';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Alert, FlatList, RefreshControl, TouchableOpacity} from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -14,6 +14,7 @@ import EmptyFile from '../../../components/emptyFile';
 import {t1, t2, w3} from '../../../components/theme/fontsize';
 import {brokerRequest} from '../../../redux/requests/action';
 import {strictValidObjectWithKeys} from '../../../utils/commonUtils';
+import TimeZone from 'react-native-timezone';
 
 const UpcomingRequest = () => {
   const navigation = useNavigation();
@@ -22,7 +23,12 @@ const UpcomingRequest = () => {
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
   const socket = useSelector((state) => state.socket.data);
+   
+  useEffect(() => {
+   getTimeZone()
 
+ 
+  }, [])
   const {upcoming} = data;
   const formatDate = (v) => {
     return moment(v).format('DD, MMM YYYY');
@@ -31,12 +37,18 @@ const UpcomingRequest = () => {
     return moment(v).format('hh:mm a');
   };
 
+  const getTimeZone = async() => {
+    const timeZone = await TimeZone.getTimeZone().then(zone => zone);
+    console.log( timeZone );
+   }
+
   const onRefresh = async () => {
     setRefreshing(true);
     setTimeout(() => {
       setRefreshing(false);
     }, 2000);
     dispatch(brokerRequest());
+
   };
 
   const onhandleDelete = async (id, status) => {
