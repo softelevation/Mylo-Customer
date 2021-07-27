@@ -286,9 +286,6 @@ const BookBroker = (props) => {
           {item.name}
         </Text>
         <ResponsiveImage
-          style={
-            item.image === 'run_icon2' && {transform: [{rotateY: '180deg'}]}
-          }
           source={images[item.image]}
           initHeight={60}
           initWidth={60}
