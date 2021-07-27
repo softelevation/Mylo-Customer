@@ -45,7 +45,7 @@ const Login = () => {
   const isLoad = useSelector((state) => state.user.login.loading);
 
   const submitValues = (values, {resetForm}) => {
-    dispatch(loginRequest(values.mobile));
+    dispatch(loginRequest(`+61${values.mobile}`));
     Keyboard.dismiss();
     setTimeout(() => {
       resetForm();
@@ -235,7 +235,7 @@ const Login = () => {
                 flex={false}>
                 <Input
                   placeholder="Sign Up with Mobile"
-                  keyboardType="number-pad"
+                  keyboardType="phone-pad"
                   value={values.mobile}
                   maxLength={10}
                   onChangeText={handleChange('mobile')}

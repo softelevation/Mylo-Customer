@@ -1,15 +1,15 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import axios from 'axios';
-import { config } from '../../utils/config';
+import {config} from '../../utils/config';
 import TimeZone from 'react-native-timezone';
 
 export const Api = async () => {
   const token = await AsyncStorage.getItem('token');
-  const timeZone = await TimeZone.getTimeZone().then(zone => zone);
+  const timeZone = await TimeZone.getTimeZone().then((zone) => zone);
   const headers = {
     'Content-Type': 'application/json',
     Authorization: `${token}`,
-    time_zone:timeZone,
+    time_zone: timeZone,
   };
   return axios({
     method: 'get',

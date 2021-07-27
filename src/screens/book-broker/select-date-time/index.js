@@ -46,14 +46,14 @@ const SelectDateTime = () => {
   const locationReducer = useSelector((state) => state.location.data);
   const [currentAddress, setCurrentAddress] = useState({});
   const [modal, setmodal] = useState(false);
-  const [selectLocation, setSelectLocation] = useState();
+  const [selectLocation, setSelectLocation] = useState('');
   const [alertdata, setAlert] = useState({
     title: '',
     description: '',
   });
   const [location, setlocation] = useState({
-    latitude: locationReducer.latitude,
-    longitude: locationReducer.longitude,
+    latitude: locationReducer.latitude || 151.2099,
+    longitude: locationReducer.longitude || -33.865143,
     latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
     longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
   });
@@ -101,6 +101,15 @@ const SelectDateTime = () => {
           'Your request has been submitted. Please wait for the broker to confirm.',
       });
     }, 2000);
+    setlocation({
+      latitude: locationReducer.latitude,
+      longitude: locationReducer.longitude,
+      latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
+      longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
+    });
+    requestCameraPermission();
+    setSelectLocation('');
+    setToggle(false);
   };
 
   const formatViewDate = (d) => {
@@ -124,7 +133,7 @@ const SelectDateTime = () => {
     return moment(b).format('YYYY-MM-DD hh:mm:ss');
   };
   const checkType = async () => {
-    const timeZone = await TimeZone.getTimeZone().then(zone => zone);
+    const timeZone = await TimeZone.getTimeZone().then((zone) => zone);
     if (type === 'ASAP') {
       bookNowBroker();
     } else {
@@ -150,7 +159,7 @@ const SelectDateTime = () => {
           lat: location.latitude,
           lng: location.longitude,
           location: currentAddress.address,
-          time_zone:timeZone,
+          time_zone: timeZone,
         });
         setTimeout(() => {
           setLoader(false);
@@ -162,6 +171,20 @@ const SelectDateTime = () => {
           });
         }, 2000);
       }
+      setDetails({
+        date: '',
+        time: '',
+        location: '',
+      });
+      setlocation({
+        latitude: locationReducer.latitude,
+        longitude: locationReducer.longitude,
+        latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
+        longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
+      });
+      requestCameraPermission();
+      setSelectLocation('');
+      setToggle(false);
     }
   };
 
@@ -169,9 +192,17 @@ const SelectDateTime = () => {
     Geolocation.getCurrentPosition(
       (position) => {
         if (!isMapRegionSydney(position.coords)) {
+          let region = {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude,
+            latitudeDelta: 0.2556429502693618,
+            longitudeDelta: 0.3511001542210579,
+            // angle: position.coords.heading,
+          };
           fetchCoordsAddress(
             position.coords.latitude + ',' + position.coords.longitude,
             true,
+            region,
           );
           return;
         }
@@ -229,8 +260,9 @@ const SelectDateTime = () => {
       }
     }, []),
   );
-
+  console.log(currentAddress, 'currrAddress');
   const fetchCoordsAddress = async (searchVal, inital, mapCoords) => {
+    console.log(searchVal, inital, mapCoords);
     // this.setState({currentLocationLoading: true});
     const {latitudeDelta, longitudeDelta} = mapCoords || location;
     try {
@@ -239,9 +271,18 @@ const SelectDateTime = () => {
       const res = await fetch(url);
       const response = await res.json();
       const searchAddressNewList = [];
-
+      console.log(response, 'response');
       response.results.forEach((item) => {
         const newLocation = item.geometry.location;
+        const defaultlocation = {
+          lat: -33.8650229,
+          lng: 151.2099088,
+        };
+        console.log(
+          newLocation,
+          item.formatted_address,
+          'item.formatted_address',
+        );
         if (
           isMapRegionSydney({
             latitude: newLocation.lat,
@@ -251,6 +292,14 @@ const SelectDateTime = () => {
           searchAddressNewList.push({
             newLocation,
             address: item.formatted_address,
+          });
+        } else {
+          searchAddressNewList.push({
+            newLocation: {
+              lat: -33.8650229,
+              lng: 151.2099088,
+            },
+            address: "12 O'Connell St, Sydney NSW 2000, Australia",
           });
         }
       });
@@ -274,6 +323,7 @@ const SelectDateTime = () => {
         lng: coords.longitude,
         address,
       };
+      (await mapRef) && mapRef.current.animateToCoordinate(coords);
       if (inital) {
         setCurrentAddress(selectedAddress);
         setlocation(coords);

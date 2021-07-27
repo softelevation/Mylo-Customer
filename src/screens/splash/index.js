@@ -96,6 +96,10 @@ const Splash = () => {
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         getLocation();
+      } else if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+        if (Platform.OS === 'android') {
+          BackHandler.exitApp();
+        }
       } else {
         if (Platform.OS === 'android') {
           BackHandler.exitApp();

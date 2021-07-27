@@ -23,12 +23,10 @@ const UpcomingRequest = () => {
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
   const socket = useSelector((state) => state.socket.data);
-   
-  useEffect(() => {
-   getTimeZone()
 
- 
-  }, [])
+  useEffect(() => {
+    getTimeZone();
+  }, []);
   const {upcoming} = data;
   const formatDate = (v) => {
     return moment(v).format('DD, MMM YYYY');
@@ -37,10 +35,10 @@ const UpcomingRequest = () => {
     return moment(v).format('hh:mm a');
   };
 
-  const getTimeZone = async() => {
-    const timeZone = await TimeZone.getTimeZone().then(zone => zone);
-    console.log( timeZone );
-   }
+  const getTimeZone = async () => {
+    const timeZone = await TimeZone.getTimeZone().then((zone) => zone);
+    console.log(timeZone);
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -48,7 +46,6 @@ const UpcomingRequest = () => {
       setRefreshing(false);
     }, 2000);
     dispatch(brokerRequest());
-
   };
 
   const onhandleDelete = async (id, status) => {
@@ -172,7 +169,7 @@ const UpcomingRequest = () => {
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
           data={upcoming}
-          contentContainerStyle={{paddingBottom: hp(2)}}
+          contentContainerStyle={{paddingBottom: t2, flexGrow: 1}}
           showsVerticalScrollIndicator={false}
           renderItem={_renderItem}
           ListEmptyComponent={<EmptyFile />}

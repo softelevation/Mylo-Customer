@@ -1,59 +1,37 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Block, ImageComponent, Text} from '../../components';
 import Header from '../../common/header';
-import {BackHandler, FlatList} from 'react-native';
+import {FlatList} from 'react-native';
 import {t2, t1, w3, w5} from '../../components/theme/fontsize';
 import {heightPercentageToDP} from 'react-native-responsive-screen';
-// import {handleBackPress} from '../../utils/commonAppUtils';
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import useHardwareBack from '../../components/usehardwareBack';
-// import { Container } from './styles';
+import {useDispatch, useSelector} from 'react-redux';
+import {notificationRequest} from '../../redux/notification/action';
+import EmptyFile from '../../components/emptyFile';
 
 const Notifications = () => {
   const navigation = useNavigation();
+  const [data, loading] = useSelector((v) => [
+    v.notification.data,
+    v.notification.loading,
+  ]);
+  const dispatch = useDispatch();
   const handleBack = () => {
     navigation.navigate('Maps');
     return true;
   };
-
+  console.log(data, loading, 'data, loading');
+  useFocusEffect(
+    React.useCallback(() => {
+      dispatch(notificationRequest());
+    }, []),
+  );
   useHardwareBack(handleBack);
   const _renderItem = ({item}) => {
     return (
       <>
-        {item === 'Message' && (
-          <Block
-            borderRadius={10}
-            shadow
-            white
-            flex={false}
-            margin={[t1, w5]}
-            padding={[t2]}>
-            <Block flex={false} row>
-              <ImageComponent
-                name="avatar"
-                height="50"
-                width="50"
-                radius={50}
-              />
-              <Block margin={[0, w3, 0, w3]}>
-                <Text header semibold>
-                  Addison
-                </Text>
-                <Text
-                  margin={[heightPercentageToDP(0.5), 0, 0, 0]}
-                  grey
-                  caption>
-                  11:00 • 29/07/2020
-                </Text>
-                <Text margin={[t1, 0, 0, 0]} grey body>
-                  I have arrived at the location. Could you please open the
-                  door?
-                </Text>
-              </Block>
-            </Block>
-          </Block>
-        )}
-        {item === 'Accepted' && (
+        {item.status === 'accepted' && (
           <Block
             borderRadius={10}
             shadow
@@ -67,22 +45,22 @@ const Notifications = () => {
               </Block>
               <Block margin={[0, w3, 0, w3]}>
                 <Text secondary body semibold>
-                  Booking #1121 accepted
+                  Booking #{item.booking_id} accepted
                 </Text>
-                <Text
+                {/* <Text
                   margin={[heightPercentageToDP(0.5), 0, 0, 0]}
                   grey
                   caption>
                   10:44 • 29/07/2020
-                </Text>
+                </Text> */}
                 <Text margin={[t1, 0, 0, 0]} grey body>
-                  Addison Mccray accepted your request
+                  {item.message}
                 </Text>
               </Block>
             </Block>
           </Block>
         )}
-        {item === 'Accepted' && (
+        {item.status !== 'accepted' && (
           <Block
             borderRadius={10}
             shadow
@@ -95,7 +73,7 @@ const Notifications = () => {
 
               <Block margin={[0, w3, 0, w3]}>
                 <Text accent body semibold>
-                  Booking #1122 rejected
+                  Booking #{item.booking_id} rejected
                 </Text>
                 <Text
                   margin={[heightPercentageToDP(0.5), 0, 0, 0]}
@@ -118,17 +96,10 @@ const Notifications = () => {
       <Header centerText={'Notifications'} />
       <FlatList
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: t2}}
-        data={[
-          'Message',
-          'Accepted',
-          'Rejected',
-          'Message',
-          'Accepted',
-          'Message',
-          'Rejected',
-        ]}
+        contentContainerStyle={{paddingBottom: t2, flexGrow: 1}}
+        data={data}
         renderItem={_renderItem}
+        ListEmptyComponent={<EmptyFile text="No Notifications" />}
       />
     </Block>
   );

@@ -43,5 +43,6 @@ const images = {
   down_icon: require('./icons/down-arrow.png'),
   nav_icon: require('./icons/navigation.png'),
   empty_icon: require('./icons/empty.png'),
+  search_icon: require('./icons/search.png'),
 };
 export default images;

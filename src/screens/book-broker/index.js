@@ -36,7 +36,10 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import {AdsData} from '../../utils/static-data';
 import AlertCompnent from '../../common/AlertCompnent';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
-import {strictValidString} from '../../utils/commonUtils';
+import {
+  strictValidArrayWithLength,
+  strictValidString,
+} from '../../utils/commonUtils';
 import images from '../../assets';
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -44,11 +47,12 @@ const BookBroker = (props) => {
   const locationReducer = useSelector((state) => state.location.data);
   const [action, setAction] = useState('');
   const [location, setlocation] = useState({
-    latitude: locationReducer.latitude,
-    longitude: locationReducer.longitude,
+    latitude: locationReducer.latitude || 151.2099,
+    longitude: locationReducer.longitude || -33.865143,
     latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
     longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
   });
+  console.log(location);
   const [modal, setmodal] = useState(false);
   const [alertdata, setAlert] = useState({
     title: '',
@@ -69,7 +73,7 @@ const BookBroker = (props) => {
   const [searching, setSearching] = useState({});
   const [callFrom, setCallFrom] = useState('Region');
   const [locationAddress, setLocationAddress] = useState('');
-
+  console.log(selectedLocation, 'selectedLocation');
   // useEffect(() => {
   //   const BackButton = BackHandler.addEventListener(
   //     'hardwareBackPress',
@@ -140,7 +144,7 @@ const BookBroker = (props) => {
   useEffect(() => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
-        if ((user && !user.name) || (user && !user.phone_no)) {
+        if (user && !user.name && user && !user.phone_no) {
           setAlert({
             title: 'Message',
             description: 'Please update the profile first',
@@ -173,14 +177,13 @@ const BookBroker = (props) => {
           longitude: position.coords.longitude,
           latitudeDelta: 0.2556429502693618,
           longitudeDelta: 0.3511001542210579,
-          // angle: position.coords.heading,
         };
         dispatch(locationRequest(position.coords));
         setlocation(region);
       },
-      (error) => console.log(error),
+      (error) => console.log('error => ', error),
       {
-        enableHighAccuracy: true,
+        enableHighAccuracy: false,
         timeout: 15000,
       },
     );
@@ -230,6 +233,7 @@ const BookBroker = (props) => {
 
   const bookNowBroker = async () => {
     setLoader(true);
+    locationRef.current?.setAddressText('');
     setCallFrom('GoogleAutoComplete');
     if (location.latitude !== 0) {
       dispatch(
@@ -430,12 +434,14 @@ const BookBroker = (props) => {
                 },
               }}
               renderLeftButton={() => (
-                <Icon
-                  style={{paddingLeft: w4}}
-                  name="ios-search"
-                  color={light.secondary}
-                  size={30}
-                />
+                <View style={{paddingLeft: w4}}>
+                  <ImageComponent
+                    name="search_icon"
+                    height={25}
+                    width={25}
+                    color={light.secondary}
+                  />
+                </View>
               )}
               textInputProps={{
                 // onFocus: () => setDefaultHeight(700),
@@ -447,17 +453,14 @@ const BookBroker = (props) => {
                 key: 'AIzaSyBf4G3qQTDy6-DN6Tb9m6WzgYCW598EoxU',
                 language: 'en',
                 components: 'country:Au',
-                // types: 'geocode', // default: 'geocode
-                // types: '(Sydney)',
-                // default: 'geocode'
-                // location: '-33.865143, 151.2099',
-                // radius: '1200', //12 km
-                // strictbounds: true,
               }}
             />
 
             <Button
-              disabled={!strictValidString(selectedLocation)}
+              disabled={
+                !strictValidString(selectedLocation) ||
+                !strictValidArrayWithLength(brokerData)
+              }
               isLoading={isload}
               onPress={() => bookNowBroker()}
               color="secondary">
