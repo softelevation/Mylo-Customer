@@ -1,6 +1,6 @@
 import React from 'react';
 import {StyleSheet, ActivityIndicator} from 'react-native';
-import { light } from './theme/colors';
+import {light} from './theme/colors';
 
 const styles = StyleSheet.create({
   loader: {
@@ -18,7 +18,11 @@ const styles = StyleSheet.create({
 
 const ActivityLoader = () => {
   return (
-    <ActivityIndicator size="large" color={light.secondary} style={styles.loader} />
+    <ActivityIndicator
+      size="large"
+      color={light.secondary}
+      style={styles.loader}
+    />
   );
 };
 

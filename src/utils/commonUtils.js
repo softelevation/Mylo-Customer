@@ -1,6 +1,7 @@
 import React, {useCallback, useEffect} from 'react';
 import config from './config';
 import {showMessage} from 'react-native-flash-message';
+import {light} from '../components/theme/colors';
 
 /**
  * Checks if a valid string;
@@ -340,7 +341,7 @@ export const Alerts = (message, description, color) => {
     message,
     description,
     type: 'success',
-    backgroundColor: color || '#3F51B5', // background color
+    backgroundColor: color || light.secondary, // background color
     color: '#fff', // text color
     duration: 1800,
   });

@@ -44,5 +44,6 @@ const images = {
   nav_icon: require('./icons/navigation.png'),
   empty_icon: require('./icons/empty.png'),
   search_icon: require('./icons/search.png'),
+  close_icon: require('./icons/close.png'),
 };
 export default images;

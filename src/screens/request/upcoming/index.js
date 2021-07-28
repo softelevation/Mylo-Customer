@@ -15,6 +15,7 @@ import {t1, t2, w3} from '../../../components/theme/fontsize';
 import {brokerRequest} from '../../../redux/requests/action';
 import {strictValidObjectWithKeys} from '../../../utils/commonUtils';
 import TimeZone from 'react-native-timezone';
+import io from 'socket.io-client';
 
 const UpcomingRequest = () => {
   const navigation = useNavigation();
@@ -22,7 +23,6 @@ const UpcomingRequest = () => {
   const data = useSelector((state) => state.request.list.data);
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
-  const socket = useSelector((state) => state.socket.data);
 
   useEffect(() => {
     getTimeZone();
@@ -49,6 +49,8 @@ const UpcomingRequest = () => {
   };
 
   const onhandleDelete = async (id, status) => {
+    const socket = io('http://104.131.39.110:3000');
+
     const token = await AsyncStorage.getItem('token');
     socket.emit('request', {id, status, token});
   };

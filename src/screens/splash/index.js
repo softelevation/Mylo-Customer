@@ -9,10 +9,16 @@ import {
   loginSuccess,
   socketConnection,
 } from '../../redux/action';
-import {strictValidString} from '../../utils/commonUtils';
+import {Alerts, strictValidString} from '../../utils/commonUtils';
 import io from 'socket.io-client';
 import messaging from '@react-native-firebase/messaging';
-import {Alert, BackHandler, PermissionsAndroid, Platform} from 'react-native';
+import {
+  Alert,
+  BackHandler,
+  Linking,
+  PermissionsAndroid,
+  Platform,
+} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
 const Splash = () => {
@@ -41,6 +47,7 @@ const Splash = () => {
     callAuthApi();
     const socket = io('http://104.131.39.110:3000');
     socket.on('connect', (a) => {
+      console.log(socket, 'socket');
       dispatch(socketConnection(socket));
     });
     // initiateSocket();
@@ -97,16 +104,32 @@ const Splash = () => {
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
         getLocation();
       } else if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
-        if (Platform.OS === 'android') {
-          BackHandler.exitApp();
-        }
+        console.log('never ask again');
+        // if (Platform.OS === 'android') {
+        //   BackHandler.exitApp();
+        // }
+        Alerts(
+          "You can't acess the Geolocation Service",
+          'Please give access to Location service from the app settings',
+        );
+        setTimeout(() => {
+          Linking.openSettings();
+        }, 2000);
+        // requestCameraPermission();
       } else {
-        if (Platform.OS === 'android') {
-          BackHandler.exitApp();
-        }
+        console.log('never ask again 2');
+        Alerts(
+          "You can't acess the Geolocation Service",
+          'Please give access to Location service',
+        );
+        requestCameraPermission();
+        // if (Platform.OS === 'android') {
+        //   BackHandler.exitApp();
+        // }
         console.log('Location permission denied');
       }
     } catch (err) {
+      console.log('never ask again 3', err);
       console.warn(err);
     }
   };

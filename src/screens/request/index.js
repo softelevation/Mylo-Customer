@@ -1,4 +1,4 @@
-import {useNavigation} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import React, {useEffect} from 'react';
 import {BackHandler, FlatList, Text, View} from 'react-native';
 import {
@@ -17,6 +17,7 @@ const Request = ({navigationState}) => {
   const {routes, index} = navigationState;
   const selected = index;
   const socket = useSelector((state) => state.socket.data);
+  const userId = useSelector((state) => state.user.profile.user.id);
 
   const dispatch = useDispatch();
 
@@ -37,14 +38,19 @@ const Request = ({navigationState}) => {
   };
 
   useEffect(() => {
-    dispatch(brokerRequest());
-    socket.on('refresh_feed', (msg) => {
-      if (msg.type === 'book_broker') {
-        dispatch(brokerRequest());
-      }
-    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      dispatch(brokerRequest());
+      socket.on(`refresh_feed_${userId}`, (msg) => {
+        if (msg.type === 'book_broker') {
+          dispatch(brokerRequest());
+        }
+      });
+    }, []),
+  );
   return (
     <Block safearea flex={false}>
       <Header centerText={'Requests'} />

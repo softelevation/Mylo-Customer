@@ -5,7 +5,7 @@ import {
   createStackNavigator,
 } from '@react-navigation/stack';
 import {PostLoginScreen, PreLaunchScreen, PreLoginScreen} from './sub-routes';
-import {Alert, SafeAreaView, StatusBar} from 'react-native';
+import {SafeAreaView, StatusBar} from 'react-native';
 import {light} from '../components/theme/colors';
 import {navigationRef} from './NavigationService';
 import BrokerDetails from '../common/dialog/broker_details';
@@ -13,13 +13,14 @@ import io from 'socket.io-client';
 import {Alerts, strictValidObjectWithKeys} from '../utils/commonUtils';
 const RootStack = createStackNavigator();
 import messaging from '@react-native-firebase/messaging';
+import {useSelector} from 'react-redux';
 
 const Routes = () => {
   const [brokerDetails, setbrokerDetails] = React.useState({});
-
+  const userId = useSelector((state) => state.user.profile.user.id);
   React.useEffect(() => {
     const socket = io('http://104.131.39.110:3000');
-    socket.on('broker_details', (msg) => {
+    socket.on(`broker_details_${userId}`, (msg) => {
       setbrokerDetails(msg);
     });
   }, []);

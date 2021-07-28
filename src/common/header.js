@@ -11,6 +11,7 @@ import {
   StackActions,
   useNavigation,
 } from '@react-navigation/native';
+import {strictValidString} from '../utils/commonUtils';
 const Header = ({
   leftIcon,
   centerText,
@@ -55,21 +56,28 @@ const Header = ({
         <Text
           size={16}
           semibold
-          style={{width: wp(80)}}
+          style={rightText ? {width: wp(60)} : {width: wp(80)}}
           transform="uppercase"
           center
           white>
           {centerText}
         </Text>
       </Block>
-      <CustomButton onPress={rightPress} right middle>
-        <ImageComponent
-          name={rightIcon}
-          height="25"
-          width="25"
-          color={rightColor}
-        />
-      </CustomButton>
+      {strictValidString(rightIcon) && (
+        <CustomButton onPress={rightPress} right middle>
+          <ImageComponent
+            name={rightIcon}
+            height="25"
+            width="25"
+            color={rightColor}
+          />
+        </CustomButton>
+      )}
+      {strictValidString(rightText) && (
+        <CustomButton onPress={rightPress} flex={false} right middle>
+          <Text white>{rightText}</Text>
+        </CustomButton>
+      )}
     </Block>
   );
 };

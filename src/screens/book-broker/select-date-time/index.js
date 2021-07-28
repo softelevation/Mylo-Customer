@@ -29,6 +29,8 @@ import moment from 'moment';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import useHardwareBack from '../../../components/usehardwareBack';
 import TimeZone from 'react-native-timezone';
+import io from 'socket.io-client';
+
 const initialState = {
   date: '',
   time: '',
@@ -42,7 +44,6 @@ const SelectDateTime = () => {
   const [toggle, setToggle] = useState(false);
   const [Loader, setLoader] = useState(false);
   const brokerData = useSelector((state) => state.broker.list.broker.data);
-  const socket = useSelector((state) => state.socket.data);
   const locationReducer = useSelector((state) => state.location.data);
   const [currentAddress, setCurrentAddress] = useState({});
   const [modal, setmodal] = useState(false);
@@ -84,6 +85,8 @@ const SelectDateTime = () => {
     );
   };
   const bookNowBroker = async () => {
+    const socket = io('http://104.131.39.110:3000');
+
     setLoader(true);
     const token = await AsyncStorage.getItem('token');
     socket.emit('book_now', {
@@ -112,6 +115,12 @@ const SelectDateTime = () => {
     setToggle(false);
   };
 
+  const formatDate = (a) => {
+    return moment(a).format('YYYY-MM-DD');
+  };
+  const formatTime = (a) => {
+    return moment(a).format('HH:mm:ss');
+  };
   const formatViewDate = (d) => {
     return moment(d).format('DD MMMM YYYY');
   };
@@ -134,6 +143,8 @@ const SelectDateTime = () => {
   };
   const checkType = async () => {
     const timeZone = await TimeZone.getTimeZone().then((zone) => zone);
+    const socket = io('http://104.131.39.110:3000');
+
     if (type === 'ASAP') {
       bookNowBroker();
     } else {
@@ -155,7 +166,15 @@ const SelectDateTime = () => {
         const token = await AsyncStorage.getItem('token');
         socket.emit('book_now', {
           token: token,
-          assign_at: formatSendDate(date),
+          assign_at: `${formatDate(date)} ${formatTime(time)}`,
+          lat: location.latitude,
+          lng: location.longitude,
+          location: currentAddress.address,
+          time_zone: timeZone,
+        });
+        console.log({
+          token: token,
+          assign_at: `${formatDate(date)} ${formatTime(time)}`,
           lat: location.latitude,
           lng: location.longitude,
           location: currentAddress.address,
