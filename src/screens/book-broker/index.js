@@ -228,12 +228,12 @@ const BookBroker = (props) => {
         description:
           'Your request has been submitted. Please wait for the broker to confirm.',
       });
+      locationRef.current?.setAddressText('');
     }, 2000);
   };
 
   const bookNowBroker = async () => {
     setLoader(true);
-    locationRef.current?.setAddressText('');
     setCallFrom('GoogleAutoComplete');
     if (location.latitude !== 0) {
       dispatch(

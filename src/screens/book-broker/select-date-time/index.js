@@ -104,15 +104,17 @@ const SelectDateTime = () => {
           'Your request has been submitted. Please wait for the broker to confirm.',
       });
     }, 2000);
-    setlocation({
-      latitude: locationReducer.latitude,
-      longitude: locationReducer.longitude,
-      latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
-      longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
-    });
-    requestCameraPermission();
-    setSelectLocation('');
-    setToggle(false);
+    setTimeout(() => {
+      setlocation({
+        latitude: locationReducer.latitude,
+        longitude: locationReducer.longitude,
+        latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
+        longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
+      });
+      requestCameraPermission();
+      setSelectLocation('');
+      setToggle(false);
+    }, 2200);
   };
 
   const formatDate = (a) => {
@@ -190,20 +192,22 @@ const SelectDateTime = () => {
           });
         }, 2000);
       }
-      setDetails({
-        date: '',
-        time: '',
-        location: '',
-      });
-      setlocation({
-        latitude: locationReducer.latitude,
-        longitude: locationReducer.longitude,
-        latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
-        longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
-      });
-      requestCameraPermission();
-      setSelectLocation('');
-      setToggle(false);
+      setTimeout(() => {
+        setDetails({
+          date: '',
+          time: '',
+          location: '',
+        });
+        setlocation({
+          latitude: locationReducer.latitude,
+          longitude: locationReducer.longitude,
+          latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
+          longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
+        });
+        requestCameraPermission();
+        setSelectLocation('');
+        setToggle(false);
+      }, 2200);
     }
   };
 
