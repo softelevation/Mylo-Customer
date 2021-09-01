@@ -14,9 +14,8 @@ import {
   strictValidObjectWithKeys,
   strictValidString,
 } from '../utils/commonUtils';
-import {GoogleSignin} from '@react-native-google-signin/google-signin';
-import {LoginManager} from 'react-native-fbsdk';
 import {handleBackPress} from '../utils/commonAppUtils';
+import {config} from '../utils/config';
 const DrawerScreen = ({state}) => {
   const nav = useNavigation();
   const dispatch = useDispatch();
@@ -68,10 +67,10 @@ const DrawerScreen = ({state}) => {
           'Are you sure you want to log out ?',
           [
             {
-              text: 'Cancel',
+              text: 'No',
             },
             {
-              text: 'Yes, do it',
+              text: 'Yes',
               onPress: () => onLogout(),
               style: 'cancel',
             },
@@ -155,7 +154,7 @@ const DrawerScreen = ({state}) => {
             strictValidString(user.image) ? (
               <ImageComponent
                 isURL
-                name={user.image}
+                name={`${config.Api_Url}/${user.image}`}
                 height="80"
                 width="80"
                 radius={80}

@@ -104,17 +104,6 @@ const SelectDateTime = () => {
           'Your request has been submitted. Please wait for the broker to confirm.',
       });
     }, 2000);
-    setTimeout(() => {
-      setlocation({
-        latitude: locationReducer.latitude,
-        longitude: locationReducer.longitude,
-        latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
-        longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
-      });
-      requestCameraPermission();
-      setSelectLocation('');
-      setToggle(false);
-    }, 2200);
   };
 
   const formatDate = (a) => {
@@ -192,22 +181,6 @@ const SelectDateTime = () => {
           });
         }, 2000);
       }
-      setTimeout(() => {
-        setDetails({
-          date: '',
-          time: '',
-          location: '',
-        });
-        setlocation({
-          latitude: locationReducer.latitude,
-          longitude: locationReducer.longitude,
-          latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
-          longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
-        });
-        requestCameraPermission();
-        setSelectLocation('');
-        setToggle(false);
-      }, 2200);
     }
   };
 
@@ -283,7 +256,6 @@ const SelectDateTime = () => {
       }
     }, []),
   );
-  console.log(currentAddress, 'currrAddress');
   const fetchCoordsAddress = async (searchVal, inital, mapCoords) => {
     console.log(searchVal, inital, mapCoords);
     // this.setState({currentLocationLoading: true});
@@ -617,8 +589,26 @@ const SelectDateTime = () => {
           title={alertdata.title}
           description={alertdata.description}
           buttonTitle="OK"
-          onPress={() => setmodal(false)}
-          onRequestClose={() => setmodal(false)}
+          onPress={() => {
+            setDetails({
+              date: '',
+              time: '',
+              location: '',
+            });
+            setlocation({
+              latitude: locationReducer.latitude,
+              longitude: locationReducer.longitude,
+              latitudeDelta:
+                locationReducer.latitudeDelta || 0.2556429502693618,
+              longitudeDelta:
+                locationReducer.longitudeDelta || 0.3511001542210579,
+            });
+            requestCameraPermission();
+            setSelectLocation('');
+            setToggle(false);
+            setmodal(false);
+          }}
+          // onRequestClose={() => setmodal(false)}
         />
       </Block>
     </>

@@ -54,6 +54,7 @@ const BookBroker = (props) => {
   });
   console.log(location);
   const [modal, setmodal] = useState(false);
+  const [initialModal, setInitialmodal] = useState(false);
   const [alertdata, setAlert] = useState({
     title: '',
     description: '',
@@ -73,14 +74,7 @@ const BookBroker = (props) => {
   const [searching, setSearching] = useState({});
   const [callFrom, setCallFrom] = useState('Region');
   const [locationAddress, setLocationAddress] = useState('');
-  console.log(selectedLocation, 'selectedLocation');
-  // useEffect(() => {
-  //   const BackButton = BackHandler.addEventListener(
-  //     'hardwareBackPress',
-  //     handleBackPress,
-  //   );
-  //   return () => BackButton.remove();
-  // }, []);
+
   useEffect(() => {
     if (location.latitude !== 0) {
       dispatch(
@@ -145,16 +139,18 @@ const BookBroker = (props) => {
     const watchId = Geolocation.getCurrentPosition(
       (position) => {
         if (user && !user.name && user && !user.phone_no) {
+          setInitialmodal(true);
           setAlert({
             title: 'Message',
             description: 'Please update the profile first',
           });
         } else if (!isMapRegionSydney(position.coords)) {
-          setmodal(true);
           setAlert({
             title: 'Message',
             description: 'You can book services only for an address in Sydney.',
           });
+          setInitialmodal(true);
+
           setlocation({
             longitude: 151.2099,
             latitude: -33.865143,
@@ -228,7 +224,6 @@ const BookBroker = (props) => {
         description:
           'Your request has been submitted. Please wait for the broker to confirm.',
       });
-      locationRef.current?.setAddressText('');
     }, 2000);
   };
 
@@ -480,8 +475,22 @@ const BookBroker = (props) => {
           title={alertdata.title}
           description={alertdata.description}
           buttonTitle="OK"
-          onPress={() => setmodal(false)}
-          onRequestClose={() => setmodal(false)}
+          onPress={() => {
+            setmodal(false);
+            locationRef.current?.setAddressText('');
+            navigation.navigate('Request');
+          }}
+          // onRequestClose={() => setmodal(false)}
+        />
+        <AlertCompnent
+          visible={initialModal}
+          title={alertdata.title}
+          description={alertdata.description}
+          buttonTitle="OK"
+          onPress={() => {
+            setInitialmodal(false);
+          }}
+          // onRequestClose={() => setmodal(false)}
         />
       </Block>
     </Block>

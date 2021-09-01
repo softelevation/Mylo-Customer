@@ -16,11 +16,11 @@ import AsyncStorage from '@react-native-community/async-storage';
 import io from 'socket.io-client';
 import {strictValidArrayWithLength} from '../../utils/commonUtils';
 import ActivityLoader from '../../components/activityLoader';
+import {config} from '../../utils/config';
 
 const Notifications = () => {
   const navigation = useNavigation();
   const userId = useSelector((state) => state.user.profile.user.id);
-
   const [refreshing, setrefreshing] = useState(false);
   const [data, loading] = useSelector((v) => [
     v.notification.data,
@@ -41,14 +41,15 @@ const Notifications = () => {
 
   const onhandleDelete = async (id, status) => {
     setrefreshing(true);
-    const socket = io('http://104.131.39.110:3000');
+    const socket = io(config.Api_Url);
     const token = await AsyncStorage.getItem('token');
     socket.emit('notification_badge', {token: token, id: id});
     setrefreshing(false);
   };
   useEffect(() => {
-    const socket = io('http://104.131.39.110:3000');
+    const socket = io(config.Api_Url);
     socket.on(`refresh_feed_${userId}`, (msg) => {
+      console.log(msg, 'check notificaton');
       if (msg.type === 'notification') {
         dispatch(notificationRequest());
       }
