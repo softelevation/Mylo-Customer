@@ -21,20 +21,15 @@ export const DrawerData = [
     icon: 'noti_icon',
     nav: 'Notifications',
   },
-  // {
-  //   name: 'Become a Broker',
-  //   icon: 'become_broker_icon',
-  //   nav: 'BecomeBroker',
-  // },
   {
     name: 'Privacy Policy',
     icon: 'privacy_icon',
-    nav: '',
+    nav: 'Privacy',
   },
   {
     name: 'Terms & Conditions',
     icon: 'terms_icon',
-    nav: '',
+    nav: 'Terms',
   },
   {
     name: 'Logout',

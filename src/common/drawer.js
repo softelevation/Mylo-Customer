@@ -16,6 +16,8 @@ import {
 } from '../utils/commonUtils';
 import {handleBackPress} from '../utils/commonAppUtils';
 import {config} from '../utils/config';
+import messaging from '@react-native-firebase/messaging';
+
 const DrawerScreen = ({state}) => {
   const nav = useNavigation();
   const dispatch = useDispatch();
@@ -53,6 +55,7 @@ const DrawerScreen = ({state}) => {
   const onLogout = async () => {
     const keys = await AsyncStorage.getAllKeys();
     await AsyncStorage.multiRemove(keys);
+    await messaging().deleteToken(undefined, '*');
     dispatch(loginSuccess(''));
     nav.reset({
       routes: [{name: 'Auth'}],
@@ -125,14 +128,14 @@ const DrawerScreen = ({state}) => {
         <Text size={16} semibold margin={[0, wp(8), 0, wp(5)]}>
           {item.name}
         </Text>
-        {index === state.index && (
+        {/* {index === state.index && (
           <Block
             flex={false}
             secondary
             borderRadius={10}
             style={{height: 10, width: 10}}
           />
-        )}
+        )} */}
       </CustomButton>
     );
   };

@@ -58,7 +58,7 @@ const componentStyles = () => {
   });
 };
 
-const Block = ({
+const CustomButton = ({
   safearea,
   padding,
   margin,
@@ -88,6 +88,7 @@ const Block = ({
   borderColorDeafult,
   alignSelf,
   baseline,
+  onPress,
   ...rest
 }) => {
   const styles = componentStyles();
@@ -295,25 +296,15 @@ const Block = ({
     style, // rewrite predefined styles
   ];
 
-  if (animated) {
-    return (
-      <Animated.View {...rest} style={blockStyles}>
-        {children}
-      </Animated.View>
-    );
-  }
-  if (safearea) {
-    return (
-      <SafeAreaView {...rest} style={[blockStyles]}>
-        {children}
-      </SafeAreaView>
-    );
-  }
   return (
-    <TouchableOpacity activeOpacity={1} {...rest} style={blockStyles}>
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={1}
+      {...rest}
+      style={blockStyles}>
       {children}
     </TouchableOpacity>
   );
 };
 
-export default Block;
+export default CustomButton;

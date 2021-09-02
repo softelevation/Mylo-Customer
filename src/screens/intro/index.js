@@ -19,8 +19,7 @@ const Intro = () => {
     {
       key: 1,
       header: 'Find your Local Mortgage Broker',
-      text:
-        'Tell us where you d like to meet,and Mylo will search through its data base of expert Mylo Brokers to find the one closest to you!',
+      text: 'Tell us where you d like to meet,and Mylo will search through its data base of expert Mylo Brokers to find the one closest to you!',
       // image: images.find_icon,
       image: require('../../../android/c2.png'),
       subtitle: 'Find your Local Mortgage Broker',
@@ -29,8 +28,7 @@ const Intro = () => {
     {
       key: 2,
       header: 'Schedule a Meeting with Broker',
-      text:
-        'Find the Right time & Place for you and your Mylo Broker.If you need to reschedule-No Problem! you can do so throught the app. ',
+      text: 'Find the Right time & Place for you and your Mylo Broker.If you need to reschedule-No Problem! you can do so throught the app. ',
       // image: images.meet_icon,
       image: require('../../../android/c3.png'),
       subtitle: 'Schedule a Meeting',
@@ -39,8 +37,7 @@ const Intro = () => {
     {
       key: 3,
       header: 'Have your Needs Met with Our Broker',
-      text:
-        'Sit back and relax as our expert Mylo Broker handles all you loan needs! ',
+      text: 'Sit back and relax as our expert Mylo Broker handles all you loan needs! ',
 
       image: require('../../../android/c4.png'),
       subtitle: 'Have your needs met!',
@@ -133,7 +130,11 @@ const Intro = () => {
           </Button> */}
           <Text style={{height: hp(10)}} />
           <Button
-            onPress={() => navigation.navigate('Login')}
+            onPress={() =>
+              navigation.reset({
+                routes: [{name: 'Auth'}],
+              })
+            }
             style={{width: wp(42)}}
             color="secondary">
             Continue

@@ -15,7 +15,6 @@ import {light} from '../../../components/theme/colors';
 import {t1, t2, w1, w2, w3, w4, w5} from '../../../components/theme/fontsize';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {
-  strictValidArray,
   strictValidArrayWithLength,
   strictValidString,
 } from '../../../utils/commonUtils';

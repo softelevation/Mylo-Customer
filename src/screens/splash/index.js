@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import React, {useEffect} from 'react';
 import {useDispatch} from 'react-redux';
-import {Block, ImageComponent, Text} from '../../components';
+import {Block, ImageComponent} from '../../components';
 import {
   locationRequest,
   loginSuccess,
@@ -12,13 +12,7 @@ import {
 import {Alerts, strictValidString} from '../../utils/commonUtils';
 import io from 'socket.io-client';
 import messaging from '@react-native-firebase/messaging';
-import {
-  Alert,
-  BackHandler,
-  Linking,
-  PermissionsAndroid,
-  Platform,
-} from 'react-native';
+import {Linking, PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
 const Splash = () => {
@@ -38,7 +32,7 @@ const Splash = () => {
     } else {
       setTimeout(() => {
         navigation.reset({
-          routes: [{name: 'Auth'}],
+          routes: [{name: 'Intro'}],
         });
       }, 3000);
     }

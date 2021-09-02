@@ -109,7 +109,7 @@ const Profile = () => {
   };
   const renderProfile = () => {
     return (
-      <Block alignSelf="center" flex={false}>
+      <Block center flex={false}>
         <ImageComponent
           isURL={renderProfileImagePath() !== 'default_icon'}
           name={renderProfileImagePath()}

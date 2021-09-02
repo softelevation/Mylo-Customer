@@ -56,7 +56,9 @@ const Header = ({
         <Text
           size={16}
           semibold
-          style={rightText ? {width: wp(60)} : {width: wp(80)}}
+          style={
+            rightText ? {width: wp(60)} : {width: wp(80), marginRight: wp(5)}
+          }
           transform="uppercase"
           center
           white>

@@ -26,7 +26,7 @@ const App = () => {
       message:
         "<h2>Use Location ?</h2>This app wants to change your device settings:<br/><br/>Use GPS, Wi-Fi, and cell network for location<br/><br/><a href='#'>Learn more</a>",
       ok: 'YES',
-      cancel: 'NO',
+      // cancel: 'NO',
       enableHighAccuracy: true, // true => GPS AND NETWORK PROVIDER, false => GPS OR NETWORK PROVIDER
       showDialog: true, // false => Opens the Location access page directly
       openLocationServices: true, // false => Directly catch method is called if location services are turned off

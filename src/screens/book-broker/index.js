@@ -478,6 +478,7 @@ const BookBroker = (props) => {
           onPress={() => {
             setmodal(false);
             locationRef.current?.setAddressText('');
+            setSelectedLocation('');
             navigation.navigate('Request');
           }}
           // onRequestClose={() => setmodal(false)}

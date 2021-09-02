@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
-import {Block, ImageComponent, Text} from '../../components';
+import {Block, CustomButton, ImageComponent, Text} from '../../components';
 import Header from '../../common/header';
 import {Alert, FlatList, RefreshControl} from 'react-native';
 import {t2, t1, w3, w5} from '../../components/theme/fontsize';
@@ -125,7 +125,12 @@ const Notifications = () => {
         {(item.status === 'accepted' ||
           item.status === 'pending' ||
           item.status === 'in_progress') && (
-          <Block
+          <CustomButton
+            onPress={() =>
+              navigation.navigate('RequestDetails', {
+                item: item.booking_detail,
+              })
+            }
             borderRadius={10}
             shadow
             white
@@ -146,10 +151,15 @@ const Notifications = () => {
               </Block>
               {renderCloseIcon(item)}
             </Block>
-          </Block>
+          </CustomButton>
         )}
         {(item.status === 'rejected' || item.status === 'cancelled') && (
-          <Block
+          <CustomButton
+            onPress={() =>
+              navigation.navigate('RequestDetails', {
+                item: item.booking_detail,
+              })
+            }
             borderRadius={10}
             shadow
             white
@@ -168,7 +178,7 @@ const Notifications = () => {
               </Block>
               {renderCloseIcon()}
             </Block>
-          </Block>
+          </CustomButton>
         )}
       </>
     );
@@ -201,6 +211,6 @@ const Notifications = () => {
     </Block>
   );
 };
-const containerStyle = {paddingBottom: t2, flexGrow: 1};
+const containerStyle = {paddingBottom: t2, flexGrow: 1, paddingTop: t1};
 
 export default Notifications;

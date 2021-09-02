@@ -19,11 +19,12 @@ import Notifications from '../screens/notifications';
 import BookBroker from '../screens/book-broker';
 import RequestDetails from '../screens/request/details';
 import SelectDateTime from '../screens/book-broker/select-date-time';
-import Chat from '../screens/chat';
 import ChatDetails from '../screens/chat/detail';
 import Feedback from '../screens/feedback';
 import Intro from '../screens/intro';
 import TrackBroker from '../screens/track';
+import Privacy from '../screens/help/privacy';
+import Terms from '../screens/help/terms';
 
 const Tab = createMaterialTopTabNavigator();
 const PostLoginStack = createStackNavigator();
@@ -44,18 +45,18 @@ export const PreLaunchScreen = () => (
       }}
       component={Splash}
     />
+    <PostLoginStack.Screen
+      name="Intro"
+      options={transition}
+      component={Intro}
+    />
   </PostLoginStack.Navigator>
 );
 export const PreLoginScreen = () => (
   <PostLoginStack.Navigator
     headerMode="none"
     mode="card"
-    initialRouteName="Intro">
-    <PostLoginStack.Screen
-      name="Intro"
-      options={transition}
-      component={Intro}
-    />
+    initialRouteName="Login">
     <PostLoginStack.Screen
       name="Login"
       options={transition}
@@ -147,16 +148,20 @@ const RequestStack = () => (
     />
   </PostLoginStack.Navigator>
 );
-const ChatStack = () => (
+const NotificationsStack = () => (
   <PostLoginStack.Navigator
     headerMode="none"
     mode="card"
-    initialRouteName="Chat">
-    <PostLoginStack.Screen name="Chat" options={transition} component={Chat} />
+    initialRouteName="Notifications">
     <PostLoginStack.Screen
-      name="ChatDetails"
+      name="Notifications"
       options={transition}
-      component={ChatDetails}
+      component={Notifications}
+    />
+    <PostLoginStack.Screen
+      name="RequestDetails"
+      options={transition}
+      component={RequestDetails}
     />
   </PostLoginStack.Navigator>
 );
@@ -173,7 +178,9 @@ function HomeDrawer() {
         component={SelectDateTime}
       />
       <Drawer.Screen name="Request" component={RequestStack} />
-      <Drawer.Screen name="Notifications" component={Notifications} />
+      <Drawer.Screen name="Notifications" component={NotificationsStack} />
+      <Drawer.Screen name="Privacy" component={Privacy} />
+      <Drawer.Screen name="Terms" component={Terms} />
       <Drawer.Screen name="Profile" component={Profile} />
     </Drawer.Navigator>
   );
