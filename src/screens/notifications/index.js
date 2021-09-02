@@ -11,7 +11,6 @@ import {useDispatch, useSelector} from 'react-redux';
 import {notificationRequest} from '../../redux/notification/action';
 import EmptyFile from '../../components/emptyFile';
 import {light} from '../../components/theme/colors';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 import AsyncStorage from '@react-native-community/async-storage';
 import io from 'socket.io-client';
 import {strictValidArrayWithLength} from '../../utils/commonUtils';
@@ -31,7 +30,6 @@ const Notifications = () => {
     navigation.navigate('Maps');
     return true;
   };
-  console.log(data, loading, 'data, loading');
   useFocusEffect(
     React.useCallback(() => {
       dispatch(notificationRequest());
@@ -92,14 +90,14 @@ const Notifications = () => {
   };
   const renderCloseIcon = (item) => {
     return (
-      <TouchableOpacity onPress={() => cancelRequest(item)}>
+      <CustomButton onPress={() => cancelRequest(item)}>
         <ImageComponent
           name="close_icon"
-          height={14}
-          width={14}
+          height={17}
+          width={17}
           color={light.warning}
         />
-      </TouchableOpacity>
+      </CustomButton>
     );
   };
 
@@ -126,6 +124,7 @@ const Notifications = () => {
           item.status === 'pending' ||
           item.status === 'in_progress') && (
           <CustomButton
+            disabled={item.status === 'pending'}
             onPress={() =>
               navigation.navigate('RequestDetails', {
                 item: item.booking_detail,

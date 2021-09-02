@@ -39,6 +39,7 @@ const Profile = () => {
       cropping: true,
       includeBase64: true,
       cropperCircleOverlay: true,
+      compressImageQuality: 0.5,
     }).then((v) => {
       console.log(v);
       setImage(v);
@@ -52,6 +53,7 @@ const Profile = () => {
       includeBase64: true,
       useFrontCamera: true,
       cropping: true,
+      compressImageQuality: 0.5,
     }).then((v) => {
       console.log(v);
       setImage(v);

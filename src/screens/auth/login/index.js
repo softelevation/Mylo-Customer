@@ -247,6 +247,7 @@ const Login = () => {
               </Block>
               <Block margin={[0, w1]} flex={false} row space={'around'}>
                 <CustomButton
+                  flex={1}
                   onPress={() => signIn()}
                   shadow
                   borderRadius={10}
@@ -272,6 +273,7 @@ const Login = () => {
                   )}
                 </CustomButton>
                 <CustomButton
+                  flex={1}
                   borderRadius={10}
                   onPress={() => handleFacebookLogin()}
                   shadow

@@ -17,6 +17,7 @@ import {
 import {handleBackPress} from '../utils/commonAppUtils';
 import {config} from '../utils/config';
 import messaging from '@react-native-firebase/messaging';
+import axios from 'axios';
 
 const DrawerScreen = ({state}) => {
   const nav = useNavigation();
@@ -53,13 +54,27 @@ const DrawerScreen = ({state}) => {
   };
 
   const onLogout = async () => {
-    const keys = await AsyncStorage.getAllKeys();
-    await AsyncStorage.multiRemove(keys);
-    await messaging().deleteToken(undefined, '*');
-    dispatch(loginSuccess(''));
-    nav.reset({
-      routes: [{name: 'Auth'}],
+    const token = await AsyncStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: token,
+    };
+    const res = await axios({
+      method: 'get',
+      url: `${config.Api_Url}/user/log-out`,
+      headers,
     });
+    if (res.data.status === 1) {
+      const keys = await AsyncStorage.getAllKeys();
+      await AsyncStorage.multiRemove(keys);
+      await messaging().deleteToken(undefined, '*');
+      dispatch(loginSuccess(''));
+      nav.reset({
+        routes: [{name: 'Auth'}],
+      });
+    } else {
+      alert('invalid ');
+    }
   };
 
   const navigateHelpers = async (val) => {
