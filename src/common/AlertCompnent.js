@@ -22,9 +22,7 @@ const AlertCompnent = ({
         animationType="slide"
         transparent={true}
         visible={visible}
-        onRequestClose={() => {
-          Alert.alert('Modal has been closed.');
-        }}>
+        onRequestClose={onPress}>
         <TouchableOpacity
           activeOpacity={1}
           onPress={onRequestClose}

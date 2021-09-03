@@ -42,6 +42,7 @@ import {
 } from '../../utils/commonUtils';
 import images from '../../assets';
 import AsyncStorage from '@react-native-community/async-storage';
+import messaging from '@react-native-firebase/messaging';
 
 const BookBroker = (props) => {
   const locationReducer = useSelector((state) => state.location.data);
@@ -74,6 +75,33 @@ const BookBroker = (props) => {
   const [searching, setSearching] = useState({});
   const [callFrom, setCallFrom] = useState('Region');
   const [locationAddress, setLocationAddress] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Assume a message-notification contains a "type" property in the data payload of the screen to open
+
+    messaging().onNotificationOpenedApp((remoteMessage) => {
+      console.log(remoteMessage, 'remoteMessage');
+      console.log(
+        'Notification caused app to open from background state:',
+        remoteMessage.notification,
+      );
+      navigation.navigate('Notifications');
+    });
+
+    // Check whether an initial notification is available
+    messaging()
+      .getInitialNotification()
+      .then((remoteMessage) => {
+        if (remoteMessage) {
+          console.log(
+            'Notification caused app to open from quit state:',
+            remoteMessage.notification,
+          );
+        }
+        setLoading(false);
+      });
+  }, []);
 
   useEffect(() => {
     if (location.latitude !== 0) {
@@ -198,12 +226,6 @@ const BookBroker = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   if (!loader && !strictValidArrayWithLength(brokerData)) {
-  //     Alerts('Error', 'Brokers are not available in your area', light.warning);
-  //   }
-  // }, [brokerData, loader]);
-
   const onOpen = () => {
     modalizeRef.current?.open();
     setAction('schedulebroker');
@@ -292,7 +314,9 @@ const BookBroker = (props) => {
       </Block>
     );
   };
-
+  if (loading) {
+    return null;
+  }
   return (
     <Block style={{backgroundColor: '#fff'}}>
       <Header centerText="" />
