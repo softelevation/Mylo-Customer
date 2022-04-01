@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import * as React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {
@@ -19,7 +20,7 @@ const Routes = () => {
   const [brokerDetails, setbrokerDetails] = React.useState({});
   const userId = useSelector((state) => state.user.profile.user.id);
   React.useEffect(() => {
-    const socket = io('http://104.131.39.110:3000');
+    const socket = io('http://3.235.91.25:3000');
     socket.on(`broker_details_${userId}`, (msg) => {
       setbrokerDetails(msg);
     });

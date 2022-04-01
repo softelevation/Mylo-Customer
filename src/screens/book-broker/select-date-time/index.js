@@ -85,7 +85,7 @@ const SelectDateTime = () => {
     );
   };
   const bookNowBroker = async () => {
-    const socket = io('http://104.131.39.110:3000');
+    const socket = io('http://3.235.91.25:3000');
 
     setLoader(true);
     const token = await AsyncStorage.getItem('token');
@@ -134,7 +134,7 @@ const SelectDateTime = () => {
   };
   const checkType = async () => {
     const timeZone = await TimeZone.getTimeZone().then((zone) => zone);
-    const socket = io('http://104.131.39.110:3000');
+    const socket = io('http://3.235.91.25:3000');
 
     if (type === 'ASAP') {
       bookNowBroker();

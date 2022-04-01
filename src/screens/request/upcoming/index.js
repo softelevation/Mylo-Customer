@@ -49,7 +49,7 @@ const UpcomingRequest = () => {
   };
 
   const onhandleDelete = async (id, status) => {
-    const socket = io('http://104.131.39.110:3000');
+    const socket = io('http://3.235.91.25:3000');
 
     const token = await AsyncStorage.getItem('token');
     socket.emit('request', {id, status, token});
