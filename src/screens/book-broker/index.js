@@ -39,6 +39,7 @@ import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete'
 import {
   strictValidArrayWithLength,
   strictValidString,
+  strictValidObjectWithKeys,
 } from '../../utils/commonUtils';
 import images from '../../assets';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -71,6 +72,7 @@ const BookBroker = (props) => {
   const [isload, setLoader] = useState(false);
   const locationRef = useRef();
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [currentAddress, setCurrentAddress] = useState({});
   const socket = useSelector((state) => state.socket.data);
   const [searching, setSearching] = useState({});
   const [callFrom, setCallFrom] = useState('Region');
@@ -193,6 +195,10 @@ const BookBroker = (props) => {
               longitudeDelta: 0.3511001542210579,
             }),
           );
+          fetchCoordsAddress(
+            position.coords.latitude + ',' + position.coords.longitude,
+            true,
+          );
           return;
         }
 
@@ -203,8 +209,13 @@ const BookBroker = (props) => {
           longitudeDelta: 0.3511001542210579,
         };
         dispatch(locationRequest(position.coords));
+        fetchCoordsAddress(
+          position.coords.latitude + ',' + position.coords.longitude,
+          true,
+        );
         setlocation(region);
       },
+
       (error) => console.log('error => ', error),
       {
         enableHighAccuracy: false,
@@ -292,6 +303,79 @@ const BookBroker = (props) => {
     };
   };
 
+  const fetchCoordsAddress = async (searchVal, inital, mapCoords) => {
+    console.log(searchVal, inital, mapCoords);
+    // this.setState({currentLocationLoading: true});
+    const {latitudeDelta, longitudeDelta} = mapCoords || location;
+    try {
+      const KEY = 'AIzaSyBV1ketkObRpPpeN5H9Ucj73SsZ8fIdQY0';
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${searchVal}&key=${KEY}`;
+      const res = await fetch(url);
+      const response = await res.json();
+      const searchAddressNewList = [];
+      console.log(response, 'response');
+      response.results.forEach((item) => {
+        const newLocation = item.geometry.location;
+        const defaultlocation = {
+          lat: -33.8650229,
+          lng: 151.2099088,
+        };
+        console.log(
+          newLocation,
+          item.formatted_address,
+          'item.formatted_address',
+        );
+        if (
+          isMapRegionSydney({
+            latitude: newLocation.lat,
+            longitude: newLocation.lng,
+          })
+        ) {
+          searchAddressNewList.push({
+            newLocation,
+            address: item.formatted_address,
+          });
+        } else {
+          searchAddressNewList.push({
+            newLocation: {
+              lat: -33.8650229,
+              lng: 151.2099088,
+            },
+            address: "12 O'Connell St, Sydney NSW 2000, Australia",
+          });
+        }
+      });
+
+      const coords = {
+        latitude:
+          searchAddressNewList.length > 0
+            ? searchAddressNewList[0].newLocation.lat
+            : (mapCoords || location || getDefaultCoords()).latitude,
+        longitude:
+          searchAddressNewList.length > 0
+            ? searchAddressNewList[0].newLocation.lng
+            : (mapCoords || location || getDefaultCoords()).longitude,
+        latitudeDelta,
+        longitudeDelta,
+      };
+      const address =
+        searchAddressNewList.length > 0 ? searchAddressNewList[0].address : '';
+      const selectedAddress = {
+        lat: coords.latitude,
+        lng: coords.longitude,
+        address,
+      };
+      (await mapRef) && mapRef.current.animateToCoordinate(coords);
+      if (inital) {
+        setCurrentAddress(selectedAddress);
+        // setlocation(coords);
+      } else {
+      }
+    } catch (e) {
+      console.warn('error', e);
+    }
+  };
+
   const renderAds = ({item}) => {
     return (
       <Block
@@ -319,7 +403,14 @@ const BookBroker = (props) => {
   }
   return (
     <Block style={{backgroundColor: '#fff'}}>
-      <Header centerText="" />
+      <Header
+        // centerText=""
+        centerText={
+          strictValidObjectWithKeys(currentAddress)
+            ? currentAddress.address
+            : 'Loading...'
+        }
+      />
       {/* {loader && <ActivityLoader />} */}
       <CustomButton
         style={styles.customLocation}
@@ -422,8 +513,16 @@ const BookBroker = (props) => {
               clearButtonMode={'while-editing'}
               keyboardShouldPersistTaps={'handled'}
               onPress={(data, details = null) => {
+                 const longitude = details.geometry.location.lng;
+                 const latitude = details.geometry.location.lat;
                 setLocationAddress(data.description);
                 setLocationByPlaceholder(details);
+                   const selectedAddress = {
+                     lat: latitude,
+                     lng: longitude,
+                     address: data.description,
+                   };
+                   setCurrentAddress(selectedAddress);
               }}
               styles={{
                 textInputContainer: {

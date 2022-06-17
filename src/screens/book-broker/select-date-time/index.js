@@ -30,6 +30,7 @@ import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import useHardwareBack from '../../../components/usehardwareBack';
 import TimeZone from 'react-native-timezone';
 import io from 'socket.io-client';
+import {config} from '../../../utils/config';
 
 const initialState = {
   date: '',
@@ -85,7 +86,7 @@ const SelectDateTime = () => {
     );
   };
   const bookNowBroker = async () => {
-    const socket = io('http://3.235.91.25:3000');
+    const socket = io(config.Api_Url);
 
     setLoader(true);
     const token = await AsyncStorage.getItem('token');
@@ -134,7 +135,7 @@ const SelectDateTime = () => {
   };
   const checkType = async () => {
     const timeZone = await TimeZone.getTimeZone().then((zone) => zone);
-    const socket = io('http://3.235.91.25:3000');
+    const socket = io(config.Api_Url);
 
     if (type === 'ASAP') {
       bookNowBroker();

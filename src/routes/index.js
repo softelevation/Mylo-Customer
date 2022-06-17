@@ -15,12 +15,13 @@ import {Alerts, strictValidObjectWithKeys} from '../utils/commonUtils';
 const RootStack = createStackNavigator();
 import messaging from '@react-native-firebase/messaging';
 import {useSelector} from 'react-redux';
+import {config} from '../utils/config';
 
 const Routes = () => {
   const [brokerDetails, setbrokerDetails] = React.useState({});
   const userId = useSelector((state) => state.user.profile.user.id);
   React.useEffect(() => {
-    const socket = io('http://3.235.91.25:3000');
+    const socket = io(config.Api_Url);
     socket.on(`broker_details_${userId}`, (msg) => {
       setbrokerDetails(msg);
     });

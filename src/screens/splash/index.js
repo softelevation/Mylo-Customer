@@ -14,6 +14,7 @@ import io from 'socket.io-client';
 import messaging from '@react-native-firebase/messaging';
 import {Linking, PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
+import {config} from '../../utils/config';
 
 const Splash = () => {
   const navigation = useNavigation();
@@ -39,7 +40,7 @@ const Splash = () => {
   };
   useEffect(() => {
     callAuthApi();
-    const socket = io('http://3.235.91.25:3000');
+    const socket = io(config.Api_Url);
     socket.on('connect', (a) => {
       console.log(socket, 'socket');
       dispatch(socketConnection(socket));
