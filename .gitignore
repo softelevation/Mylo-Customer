@@ -57,7 +57,8 @@ buck-out/
 
 # CocoaPods
 /ios/Pods/
-android/app/release/mylo-customer.apk
+android/app/release/
 src 2.zip
 src.zip
 android/app/release/Mylo-Broker.apk
+.eslintrc.js
