@@ -34,7 +34,7 @@ const Header = ({
       flex={false}>
       {leftIcon ? (
         <CustomButton
-          flex={1}
+          // flex={1}
           left
           middle
           onPress={() =>
@@ -52,12 +52,12 @@ const Header = ({
       ) : (
         <CustomButton flex={1} left middle />
       )}
-      <Block flex={false} center middle>
+      <Block  flex={false} center middle>
         <Text
           size={16}
           semibold
           style={
-            rightText ? {width: wp(60)} : {width: wp(70), marginRight: wp(5)}
+            rightText ? {width: wp(70)} : {width: wp(70), marginRight: wp(12)}
           }
           transform="uppercase"
           center

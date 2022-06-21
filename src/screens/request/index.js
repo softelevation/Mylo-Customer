@@ -53,7 +53,7 @@ const Request = ({navigationState}) => {
   );
   return (
     <Block safearea flex={false}>
-      <Header centerText={'Requests'} />
+      <Header centerText={'Requests'}  />
       <FlatList
         data={routes}
         horizontal

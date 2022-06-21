@@ -398,6 +398,7 @@ const SelectDateTime = () => {
         rightIcon="down_icon"
         rightPress={() => setToggle(!toggle)}
         rightColor="#fff"
+        rightText
         centerText={
           strictValidObjectWithKeys(currentAddress)
             ? currentAddress.address
