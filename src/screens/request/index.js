@@ -19,6 +19,8 @@ const Request = ({navigationState}) => {
   const socket = useSelector((state) => state.socket.data);
   const userId = useSelector((state) => state.user.profile.user.id);
 
+  console.log('uuuuuuu ',userId)
+
   const dispatch = useDispatch();
 
   const navigation = useNavigation();
