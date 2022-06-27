@@ -74,6 +74,16 @@ const UpcomingRequest = () => {
     );
   };
 
+    const renderStatus = (key) => {
+      switch (key) {
+        case 'in_progress':
+          return 'In Progress';
+
+        default:
+          return key;
+      }
+    };
+
   const _renderItem = ({item, index}) => {
     return (
       <CustomButton
@@ -142,7 +152,7 @@ const UpcomingRequest = () => {
               flex={false}
               secondary>
               <Text transform="uppercase" size={13} white>
-                {item.status}
+                {renderStatus(item.status)}
               </Text>
             </Block>
             {item.status !== 'pending' && (

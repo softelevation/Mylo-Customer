@@ -28,6 +28,16 @@ const PastRequest = () => {
     return moment(v).format('hh:mm a');
   };
 
+  const renderStatus = (key) => {
+    switch (key) {
+      case 'travel_to_booking':
+        return 'Travel to booking';
+
+      default:
+        return key;
+    }
+  }
+
   const onRefresh = () => {
     setRefreshing(true);
     setTimeout(() => {
@@ -93,7 +103,7 @@ const PastRequest = () => {
               flex={false}
               secondary>
               <Text transform="uppercase" size={13} white>
-                {item.status}
+                {renderStatus(item.status)}
               </Text>
             </Block>
           </Block>
