@@ -33,6 +33,8 @@ const Notifications = () => {
   useFocusEffect(
     React.useCallback(() => {
       dispatch(notificationRequest());
+      console.log(notificationRequest());
+      console.log("this is...")
     }, []),
   );
   useHardwareBack(handleBack);
@@ -113,6 +115,8 @@ const Notifications = () => {
         return 'Rejected';
       case 'cancelled':
         return 'Cancelled';
+      case 'completed':
+        return 'Completed';
       default:
         return '';
     }
@@ -122,9 +126,10 @@ const Notifications = () => {
       <>
         {(item.status === 'accepted' ||
           item.status === 'pending' ||
+          item.status === 'completed' ||
           item.status === 'in_progress') && (
           <CustomButton
-            disabled={item.status === 'pending'}
+            // disabled={item.status === 'pending'}
             onPress={() =>
               navigation.navigate('RequestDetails', {
                 item: item.booking_detail,

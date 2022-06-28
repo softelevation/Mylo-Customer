@@ -78,7 +78,7 @@ const Splash = () => {
       },
       (error) => {},
       {
-        enableHighAccuracy: true,
+        enableHighAccuracy: false,
         timeout: 15000,
       },
     );

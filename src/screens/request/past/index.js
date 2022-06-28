@@ -101,8 +101,13 @@ const PastRequest = () => {
               padding={[5, 10, 5, 10]}
               borderRadius={5}
               flex={false}
-              secondary>
-              <Text transform="uppercase" size={13} white>
+              color={
+                item.status === 'completed' ? 'rgba(87, 185, 86,.3)' : '#F7E5E0'
+              }>
+              <Text
+                transform="uppercase"
+                size={13}
+                color={item.status === 'completed' ? '#39B54A' : '#B92D00'}>
                 {renderStatus(item.status)}
               </Text>
             </Block>
