@@ -14,6 +14,7 @@ import {Block, Text, ImageComponent, Button} from '../../../components';
 import {light} from '../../../components/theme/colors';
 import {t1, t2, w1, w2, w3, w4, w5} from '../../../components/theme/fontsize';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import {Feedback} from '../../feedback';
 import {
   strictValidArrayWithLength,
   strictValidString,
@@ -24,7 +25,7 @@ const RequestDetails = ({
   },
 }) => {
   const [seeMore, setSeeMore] = useState(false);
-  const nav = useNavigation();
+  const navigate = useNavigation();
   const dialCall = () => {
     let phoneNumber = '';
 
@@ -201,6 +202,15 @@ const RequestDetails = ({
             />
           </Block>
         )}
+        <Block flex={false} center>
+          <Button
+            onPress={() => navigate(Feedback)}
+            shadow
+            style={{width: wp(83)}}
+            color="primary">
+            Submit `Feedback`
+          </Button>
+        </Block>
       </ScrollView>
     </Block>
   );
