@@ -14,6 +14,7 @@ import {Alerts} from './src/utils/commonUtils';
 import {light} from './src/components/theme/colors';
 import NetInfo from '@react-native-community/netinfo';
 import Geolocation from '@react-native-community/geolocation';
+import {socket, SocketContext} from './src/utils/socket';
 
 const sagaMiddleware = createSagaMiddleware();
 
@@ -95,12 +96,12 @@ const App = () => {
   };
 
   return (
-    <>
+    <SocketContext.Provider value={socket}>
       <Provider store={store}>
         <Routes />
       </Provider>
       <FlashMessage position="top" />
-    </>
+    </SocketContext.Provider>
   );
 };
 

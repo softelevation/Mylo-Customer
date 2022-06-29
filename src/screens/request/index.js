@@ -19,8 +19,6 @@ const Request = ({navigationState}) => {
   const socket = useSelector((state) => state.socket.data);
   const userId = useSelector((state) => state.user.profile.user.id);
 
-  console.log('uuuuuuu ',userId)
-
   const dispatch = useDispatch();
 
   const navigation = useNavigation();
@@ -47,7 +45,7 @@ const Request = ({navigationState}) => {
     React.useCallback(() => {
       dispatch(brokerRequest());
       socket.on(`refresh_feed_${userId}`, (msg) => {
-        console.log(msg,"msg")
+        console.log(msg, 'msg');
         if (msg.type === 'book_broker') {
           dispatch(brokerRequest());
         }
@@ -56,7 +54,7 @@ const Request = ({navigationState}) => {
   );
   return (
     <Block safearea flex={false}>
-      <Header centerText={'Requests'}  />
+      <Header centerText={'Requests'} />
       <FlatList
         data={routes}
         horizontal

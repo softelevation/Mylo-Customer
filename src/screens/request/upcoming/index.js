@@ -74,15 +74,15 @@ const UpcomingRequest = () => {
     );
   };
 
-    const renderStatus = (key) => {
-      switch (key) {
-        case 'in_progress':
-          return 'In Progress';
+  const renderStatus = (key) => {
+    switch (key) {
+      case 'in_progress':
+        return 'In Progress';
 
-        default:
-          return key;
-      }
-    };
+      default:
+        return key;
+    }
+  };
 
   const _renderItem = ({item, index}) => {
     return (
