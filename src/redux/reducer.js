@@ -5,6 +5,7 @@ import request from './requests/reducer';
 import socket from './socket/reducer';
 import location from './location/reducer';
 import notification from './notification/reducer';
+import feedback from './feedback/reducer';
 
 const rootreducer = combineReducers({
   user,
@@ -13,5 +14,6 @@ const rootreducer = combineReducers({
   socket,
   location,
   notification,
+  feedback,
 });
 export default rootreducer;

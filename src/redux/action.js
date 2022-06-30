@@ -33,3 +33,8 @@ export {
 } from './requests/action';
 export {socketConnection, socketDisconnect, socketFlush} from './socket/action';
 export {locationRequest, locationSuccess} from './location/action';
+export {
+  feedbackRequest,
+  feedbacktSuccess,
+  feedbackError,
+} from './feedback/action';

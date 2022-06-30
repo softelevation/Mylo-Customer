@@ -146,6 +146,11 @@ const RequestStack = () => (
       options={transition}
       component={TrackBroker}
     />
+    <PostLoginStack.Screen
+      name="Feedback"
+      options={transition}
+      component={Feedback}
+    />
   </PostLoginStack.Navigator>
 );
 const NotificationsStack = () => (

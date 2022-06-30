@@ -78,7 +78,8 @@ const UpcomingRequest = () => {
     switch (key) {
       case 'in_progress':
         return 'In Progress';
-
+      case 'travel_to_booking':
+        return 'travel to booking';
       default:
         return key;
     }
@@ -147,11 +148,14 @@ const UpcomingRequest = () => {
           </Block>
           <Block flex={false} center middle style={{width: wp(35)}}>
             <Block
-              padding={[5, 10, 5, 10]}
+              padding={[hp(1), wp(2)]}
+              margin={[0,wp(2)]}
               borderRadius={5}
               flex={false}
+              center
+              middle
               secondary>
-              <Text transform="uppercase" size={13} white>
+              <Text transform="uppercase" size={13} center white>
                 {renderStatus(item.status)}
               </Text>
             </Block>

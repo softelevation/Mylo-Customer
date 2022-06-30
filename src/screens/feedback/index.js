@@ -6,8 +6,34 @@ import {t1, t2, t5, w1, w2, w3} from '../../components/theme/fontsize';
 import StarRating from 'react-native-star-rating';
 import {light} from '../../components/theme/colors';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import {
+  feedbackRequest,
+  feedbacktSuccess,
+  feedbackError,
+} from '../../redux/action';
+import {useDispatch, useSelector} from 'react-redux';
+import {useRoute} from '@react-navigation/core';
+import { Keyboard } from 'react-native';
+
 const Feedback = () => {
-  const [Ratings, setRatings] = useState(3);
+  const [ratings, setRatings] = useState(1);
+  const {params} = useRoute();
+  const {item} = params;
+  console.log(item);
+  const dispatch = useDispatch();
+  const [brokerFeedback, setBrokerFeedback] = useState('');
+
+  const onSubmit = (values) => {
+     const data = {
+       book_id: item.id,
+       rating: ratings,
+       message: brokerFeedback,
+     };
+     console.log(data,"data")
+    dispatch(feedbackRequest({data}));
+    Keyboard.dismiss();
+  };
+
   return (
     <Block secondary>
       <Header
@@ -33,12 +59,12 @@ const Feedback = () => {
               his/hers services.
             </Text>
             <StarRating
-              starSize={50}
+              starSize={35}
               maxStars={5}
               selectedStar={(rating) => setRatings(rating)}
               fullStarColor={light.starColor}
-              rating={Ratings}
-              starStyle={{marginLeft: w1}}
+              rating={ratings}
+              starStyle={{marginLeft: w2}}
               containerStyle={{
                 marginVertical: t2,
               }}
@@ -50,13 +76,21 @@ const Feedback = () => {
           <Block flex={false} margin={[t1, w2, 0, w2]}>
             <Input
               multiline={true}
+              value={brokerFeedback}
+              onChangeText={(w) => setBrokerFeedback(w)}
               style={{height: heightPercentageToDP(10)}}
               textAlignVertical={'top'}
               label={'A few words about your experience with the broker'}
               placeholder={'Enter text here ...'}
             />
           </Block>
-          <Button color="secondary">Send Feedback</Button>
+          <Button
+            onPress={() => {
+             onSubmit()
+            }}
+            color="secondary">
+            Send Feedback
+          </Button>
         </Block>
       </KeyboardAwareScrollView>
     </Block>

@@ -227,7 +227,7 @@ const Home = ({navigation}) => {
           }}>
           <Marker.Animated
             ref={markerRef}
-            coordinate={{latitude: item.latitude, longitude: item.longitude}}>
+            coordinate={coordinate}>
             {/* <Image
               source={images.attachment_icon}
               style={{
@@ -239,8 +239,8 @@ const Home = ({navigation}) => {
             /> */}
           </Marker.Animated>
 
-          {Object.keys(destinationCords).length > 0 && (
-            <Marker coordinate={destinationCords} />
+          {Object.keys({latitude: item.latitude, longitude: item.longitude}).length > 0 && (
+            <Marker coordinate={{latitude: item.latitude, longitude: item.longitude}} />
           )}
         </MapView>
         {/* <TouchableOpacity style={styles.onCenterStyle} onPress={onCenter}>
