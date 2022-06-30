@@ -39,7 +39,6 @@ const Home = ({navigation}) => {
   const markerRef = useRef();
   const socket = useContext(SocketContext);
   const userId = useSelector((state) => state.user.profile.user.id);
-  console.log(item, 'item');
   const [state, setState] = useState({
     curLoc: {
       latitude: 30.7046,
@@ -71,18 +70,10 @@ const Home = ({navigation}) => {
   //     current_longitude: longitude,
   //     current_angle: heading,
   //   });
-  //   console.log({
-  //     token: token,
-  //     booking_id: data.id,
-  //     current_latitude: latitude,
-  //     current_longitude: longitude,
-  //     current_angle: heading,
-  //   });
   // };
 
   useEffect(() => {
     socket.on(`cus_track_${userId}`, (msg) => {
-      console.log(msg, 'check notificaton');
       //  if (msg.type === 'notification') {
       //    dispatch(notificationRequest());
       //  }
@@ -121,7 +112,6 @@ const Home = ({navigation}) => {
   //   const locPermissionDenied = await locationPermission();
   //   if (locPermissionDenied) {
   //     const {latitude, longitude, heading} = await getCurrentLocation();
-  //     console.log('get live location after 1 minute', heading);
   //     animate(latitude, longitude);
   //     updateState({
   //       heading: heading,
@@ -151,7 +141,6 @@ const Home = ({navigation}) => {
   // }, [data]);
 
   // const fetchValue = (data) => {
-  //   console.log('this is data', data);
   //   updateState({
   //     destinationCords: {
   //       // latitude: 30.6783634,
@@ -197,7 +186,6 @@ const Home = ({navigation}) => {
   // const onhandleDelete = async (id, status) => {
   //   const token = await AsyncStorage.getItem('token');
   //   socket.emit('request', {id, status, token});
-  //   console.log('{id, status, token}: ', {id, status, token});
   //   goBack();
   // };
 

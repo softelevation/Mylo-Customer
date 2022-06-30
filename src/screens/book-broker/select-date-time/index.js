@@ -256,7 +256,6 @@ const SelectDateTime = () => {
     }, []),
   );
   const fetchCoordsAddress = async (searchVal, inital, mapCoords) => {
-    console.log(searchVal, inital, mapCoords);
     // this.setState({currentLocationLoading: true});
     const {latitudeDelta, longitudeDelta} = mapCoords || location;
     try {
@@ -265,18 +264,12 @@ const SelectDateTime = () => {
       const res = await fetch(url);
       const response = await res.json();
       const searchAddressNewList = [];
-      console.log(response, 'response');
       response.results.forEach((item) => {
         const newLocation = item.geometry.location;
         const defaultlocation = {
           lat: -33.8650229,
           lng: 151.2099088,
         };
-        console.log(
-          newLocation,
-          item.formatted_address,
-          'item.formatted_address',
-        );
         if (
           isMapRegionSydney({
             latitude: newLocation.lat,

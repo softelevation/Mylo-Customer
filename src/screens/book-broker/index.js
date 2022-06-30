@@ -55,7 +55,6 @@ const BookBroker = (props) => {
     latitudeDelta: locationReducer.latitudeDelta || 0.2556429502693618,
     longitudeDelta: locationReducer.longitudeDelta || 0.3511001542210579,
   });
-  console.log(location);
   const [modal, setmodal] = useState(false);
   const [initialModal, setInitialmodal] = useState(false);
   const [alertdata, setAlert] = useState({
@@ -84,11 +83,6 @@ const BookBroker = (props) => {
     // Assume a message-notification contains a "type" property in the data payload of the screen to open
 
     messaging().onNotificationOpenedApp((remoteMessage) => {
-      console.log(remoteMessage, 'remoteMessage');
-      console.log(
-        'Notification caused app to open from background state:',
-        remoteMessage.notification,
-      );
       navigation.navigate('Notifications');
     });
 
@@ -306,7 +300,6 @@ const BookBroker = (props) => {
   };
 
   const fetchCoordsAddress = async (searchVal, inital, mapCoords) => {
-    console.log(searchVal, inital, mapCoords);
     // this.setState({currentLocationLoading: true});
     const {latitudeDelta, longitudeDelta} = mapCoords || location;
     try {
@@ -315,18 +308,12 @@ const BookBroker = (props) => {
       const res = await fetch(url);
       const response = await res.json();
       const searchAddressNewList = [];
-      console.log(response, 'response');
       response.results.forEach((item) => {
         const newLocation = item.geometry.location;
         const defaultlocation = {
           lat: -33.8650229,
           lng: 151.2099088,
         };
-        console.log(
-          newLocation,
-          item.formatted_address,
-          'item.formatted_address',
-        );
         if (
           isMapRegionSydney({
             latitude: newLocation.lat,

@@ -46,7 +46,6 @@ const Notifications = () => {
   };
   useEffect(() => {
     socket.on(`refresh_feed_${userId}`, (msg) => {
-      console.log(msg, 'check notificaton');
       if (msg.type === 'notification') {
         dispatch(notificationRequest());
       }

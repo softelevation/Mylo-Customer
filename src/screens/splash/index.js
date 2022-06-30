@@ -41,7 +41,6 @@ const Splash = () => {
   useEffect(() => {
     callAuthApi();
     socket.on('connect', (a) => {
-      console.log(socket, 'socket');
       dispatch(socketConnection(socket));
     });
     // initiateSocket();

@@ -41,7 +41,6 @@ const Profile = () => {
       cropperCircleOverlay: true,
       compressImageQuality: 0.5,
     }).then((v) => {
-      console.log(v);
       setImage(v);
     });
   };
@@ -55,7 +54,6 @@ const Profile = () => {
       cropping: true,
       compressImageQuality: 0.5,
     }).then((v) => {
-      console.log(v);
       setImage(v);
     });
   };

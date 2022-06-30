@@ -25,20 +25,12 @@ const UpcomingRequest = () => {
   const dispatch = useDispatch();
   const socket = React.useContext(SocketContext);
 
-  useEffect(() => {
-    getTimeZone();
-  }, []);
   const {upcoming} = data;
   const formatDate = (v) => {
     return moment(v).format('DD, MMM YYYY');
   };
   const formatTime = (v) => {
     return moment(v).format('hh:mm a');
-  };
-
-  const getTimeZone = async () => {
-    const timeZone = await TimeZone.getTimeZone().then((zone) => zone);
-    console.log(timeZone);
   };
 
   const onRefresh = async () => {

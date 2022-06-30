@@ -40,7 +40,6 @@ const Request = ({navigationState}) => {
     React.useCallback(() => {
       dispatch(brokerRequest());
       socket.on(`refresh_feed_${userId}`, (msg) => {
-        console.log(msg, 'msg');
         if (msg.type === 'book_broker') {
           dispatch(brokerRequest());
         }
