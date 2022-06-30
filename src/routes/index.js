@@ -10,18 +10,18 @@ import {SafeAreaView, StatusBar} from 'react-native';
 import {light} from '../components/theme/colors';
 import {navigationRef} from './NavigationService';
 import BrokerDetails from '../common/dialog/broker_details';
-import io from 'socket.io-client';
 import {Alerts, strictValidObjectWithKeys} from '../utils/commonUtils';
 const RootStack = createStackNavigator();
 import messaging from '@react-native-firebase/messaging';
 import {useSelector} from 'react-redux';
-import {config} from '../utils/config';
+import {SocketContext} from '../utils/socket';
 
 const Routes = () => {
   const [brokerDetails, setbrokerDetails] = React.useState({});
   const userId = useSelector((state) => state.user.profile.user.id);
+  const socket = React.useContext(SocketContext);
+
   React.useEffect(() => {
-    const socket = io(config.Api_Url);
     socket.on(`broker_details_${userId}`, (msg) => {
       setbrokerDetails(msg);
     });
@@ -29,8 +29,6 @@ const Routes = () => {
 
   React.useEffect(() => {
     const unsubscribe = messaging().onMessage(async (remoteMessage) => {
-      // Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
-      console.log(remoteMessage);
       Alerts(
         remoteMessage.notification.title,
         remoteMessage.notification.body,

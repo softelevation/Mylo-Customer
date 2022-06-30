@@ -17,7 +17,11 @@ export function* loginRequest(action) {
       });
       Alerts('Success', response.data.message, light.secondary);
     } else if (response.data.data.roll_id === 2) {
-      alert('Please login with registered user number ');
+      Alerts(
+        'Error',
+        'Please login with registered user number ',
+        light.accent,
+      );
       yield put(loginError(response));
     } else {
       yield put(loginError(response));
