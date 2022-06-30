@@ -4,20 +4,14 @@ import {useNavigation} from '@react-navigation/native';
 import React, {useEffect} from 'react';
 import {useDispatch} from 'react-redux';
 import {Block, ImageComponent} from '../../components';
-import {
-  locationRequest,
-  loginSuccess,
-  socketConnection,
-} from '../../redux/action';
+import {locationRequest, loginSuccess} from '../../redux/action';
 import {Alerts, strictValidString} from '../../utils/commonUtils';
 import messaging from '@react-native-firebase/messaging';
 import {Linking, PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import {SocketContext} from '../../utils/socket';
 
 const Splash = () => {
   const navigation = useNavigation();
-  const socket = React.useContext(SocketContext);
 
   const dispatch = useDispatch();
 
@@ -40,9 +34,6 @@ const Splash = () => {
   };
   useEffect(() => {
     callAuthApi();
-    socket.on('connect', (a) => {
-      dispatch(socketConnection(socket));
-    });
     // initiateSocket();
   }, []);
 

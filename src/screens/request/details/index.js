@@ -114,7 +114,7 @@ const RequestDetails = ({
               starSize={20}
               maxStars={5}
               fullStarColor={light.starColor}
-              rating={item.rating || 1}
+              rating={item.rating || 0}
               starStyle={{marginLeft: w1}}
               containerStyle={{
                 width: wp(20),
