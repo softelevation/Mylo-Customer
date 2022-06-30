@@ -3,7 +3,7 @@ import {put, call, all, takeLatest} from 'redux-saga/effects';
 import {Api} from './api';
 import {feedbackError, feedbacktSuccess} from './action';
 import * as navigation from '../../routes/NavigationService';
-import { Alert } from 'react-native';
+import {Alerts} from '../../utils/commonUtils';
 
 export function* request(action) {
   try {
@@ -11,8 +11,8 @@ export function* request(action) {
     console.log(response, 'response');
     if (response.data.status === 1) {
       yield put(feedbacktSuccess(response.data.data));
-       navigation.navigate('UpcomingRequest');
-        Alert.alert('Success', 'Feedback Submitted.');
+      navigation.navigate('Request');
+      Alerts('Success', 'Feedback Submitted.');
     } else {
       yield put(feedbackError(response));
     }

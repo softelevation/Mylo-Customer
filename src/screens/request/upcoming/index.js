@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-community/async-storage';
 import {useNavigation} from '@react-navigation/native';
 import moment from 'moment';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {Alert, FlatList, RefreshControl, TouchableOpacity} from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -14,7 +14,6 @@ import EmptyFile from '../../../components/emptyFile';
 import {t1, t2, w3} from '../../../components/theme/fontsize';
 import {brokerRequest} from '../../../redux/requests/action';
 import {strictValidObjectWithKeys} from '../../../utils/commonUtils';
-import TimeZone from 'react-native-timezone';
 import {SocketContext} from '../../../utils/socket';
 
 const UpcomingRequest = () => {
@@ -139,7 +138,7 @@ const UpcomingRequest = () => {
           <Block flex={false} center middle style={{width: wp(35)}}>
             <Block
               padding={[hp(1), wp(2)]}
-              margin={[0,wp(2)]}
+              margin={[0, wp(2)]}
               borderRadius={5}
               flex={false}
               center
@@ -149,7 +148,8 @@ const UpcomingRequest = () => {
                 {renderStatus(item.status)}
               </Text>
             </Block>
-            {item.status !== 'pending' && (
+            {(item.status === 'in_progress' ||
+              item.status === 'travel_to_booking') && (
               <Text
                 onPress={() =>
                   navigation.navigate('TrackBroker', {
@@ -169,7 +169,7 @@ const UpcomingRequest = () => {
   };
   return (
     <Block white middle>
-      {isLoad && <ActivityLoader />}
+      {!refreshing && isLoad && <ActivityLoader />}
       {strictValidObjectWithKeys(data) && (
         <FlatList
           refreshControl={

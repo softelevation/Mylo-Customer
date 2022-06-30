@@ -113,8 +113,10 @@ const Notifications = () => {
         return 'Cancelled';
       case 'completed':
         return 'Completed';
+      case 'travel_to_booking':
+        return 'In Progress';
       default:
-        return '';
+        return type;
     }
   };
   const _renderItem = ({item}) => {
@@ -123,7 +125,8 @@ const Notifications = () => {
         {(item.status === 'accepted' ||
           item.status === 'pending' ||
           item.status === 'completed' ||
-          item.status === 'in_progress') && (
+          item.status === 'in_progress' ||
+          item.status === 'travel_to_booking') && (
           <CustomButton
             // disabled={item.status === 'pending'}
             onPress={() =>
@@ -192,12 +195,12 @@ const Notifications = () => {
   };
   return (
     <Block white safearea>
-      {!refreshing && loading && <ActivityLoader />}
       <Header
         rightPress={() => clearRequest()}
         rightText={strictValidArrayWithLength(data) ? 'Clear All' : ''}
         centerText={'Notifications'}
       />
+      {!refreshing && loading && <ActivityLoader />}
       <FlatList
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

@@ -213,9 +213,7 @@ const Home = ({navigation}) => {
             latitudeDelta: LATITUDE_DELTA,
             longitudeDelta: LONGITUDE_DELTA,
           }}>
-          <Marker.Animated
-            ref={markerRef}
-            coordinate={coordinate}>
+          <Marker.Animated ref={markerRef} coordinate={coordinate}>
             {/* <Image
               source={images.attachment_icon}
               style={{
@@ -227,8 +225,11 @@ const Home = ({navigation}) => {
             /> */}
           </Marker.Animated>
 
-          {Object.keys({latitude: item.latitude, longitude: item.longitude}).length > 0 && (
-            <Marker coordinate={{latitude: item.latitude, longitude: item.longitude}} />
+          {Object.keys({latitude: item.latitude, longitude: item.longitude})
+            .length > 0 && (
+            <Marker
+              coordinate={{latitude: item.latitude, longitude: item.longitude}}
+            />
           )}
         </MapView>
         {/* <TouchableOpacity style={styles.onCenterStyle} onPress={onCenter}>

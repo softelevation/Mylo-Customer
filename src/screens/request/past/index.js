@@ -36,7 +36,7 @@ const PastRequest = () => {
       default:
         return key;
     }
-  }
+  };
 
   const onRefresh = () => {
     setRefreshing(true);
@@ -49,6 +49,7 @@ const PastRequest = () => {
   const _renderItem = ({item}) => {
     return (
       <CustomButton
+        disabled={item.status === 'expired'}
         shadow
         onPress={() =>
           navigation.navigate('RequestDetails', {
@@ -118,7 +119,7 @@ const PastRequest = () => {
   };
   return (
     <Block white middle>
-      {isLoad && <ActivityLoader />}
+      {!refreshing && isLoad && <ActivityLoader />}
       {strictValidObjectWithKeys(data) && (
         <FlatList
           refreshControl={

@@ -201,19 +201,21 @@ const RequestDetails = ({
             />
           </Block>
         )}
-        <Block flex={false} center>
-          <Button
-            onPress={() =>
-              navigate('Feedback', {
-                item: item,
-              })
-            }
-            shadow
-            style={{width: wp(83)}}
-            color="primary">
-            Submit Feedback
-          </Button>
-        </Block>
+        {item.status === 'completed' && item.is_feedback === 0 && (
+          <Block flex={false} center>
+            <Button
+              onPress={() =>
+                navigate('Feedback', {
+                  item: item,
+                })
+              }
+              shadow
+              style={{width: wp(83)}}
+              color="primary">
+              Submit Feedback
+            </Button>
+          </Block>
+        )}
       </ScrollView>
     </Block>
   );

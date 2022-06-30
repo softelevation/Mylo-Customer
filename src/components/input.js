@@ -55,6 +55,7 @@ const Input = ({
   editable = true,
   center,
   placeholderTextColor,
+  labelStyle,
   ...rest
 }) => {
   const styles = componentStyles();
@@ -66,7 +67,7 @@ const Input = ({
           errorColor={errorText}
           size={14}
           center={center ? true : false}
-          style={styles.label}
+          style={[styles.label, labelStyle]}
           black={!error}
           accent={error}
           color="#636363">

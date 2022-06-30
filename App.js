@@ -1,25 +1,18 @@
 import React, {useEffect} from 'react';
 import Routes from './src/routes';
-
-import createSagaMiddleware from 'redux-saga';
-import {createStore, applyMiddleware} from 'redux';
 import {Provider} from 'react-redux';
-import {logger} from 'redux-logger';
-import rootreducer from './src/redux/reducer';
-import rootSaga from './src/redux/saga';
 import {Alert, BackHandler, DeviceEventEmitter} from 'react-native';
 import LocationServicesDialogBox from 'react-native-android-location-services-dialog-box';
 import FlashMessage from 'react-native-flash-message';
 import {Alerts} from './src/utils/commonUtils';
 import {light} from './src/components/theme/colors';
 import NetInfo from '@react-native-community/netinfo';
-import Geolocation from '@react-native-community/geolocation';
 import {socket, SocketContext} from './src/utils/socket';
+import {sagaMiddleware, store} from './src/redux/store';
+import rootSaga from './src/redux/saga';
 
-const sagaMiddleware = createSagaMiddleware();
-
-const store = createStore(rootreducer, applyMiddleware(sagaMiddleware, logger));
 sagaMiddleware.run(rootSaga);
+
 const App = () => {
   const [status, setStatus] = React.useState(false);
   const checkGps = () => {

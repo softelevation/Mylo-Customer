@@ -13,23 +13,23 @@ import {
 } from '../../redux/action';
 import {useDispatch, useSelector} from 'react-redux';
 import {useRoute} from '@react-navigation/core';
-import { Keyboard } from 'react-native';
+import {Keyboard} from 'react-native';
 
 const Feedback = () => {
   const [ratings, setRatings] = useState(1);
   const {params} = useRoute();
   const {item} = params;
-  console.log(item);
   const dispatch = useDispatch();
   const [brokerFeedback, setBrokerFeedback] = useState('');
+  const isLoad = useSelector((v) => v.feedback.loading);
 
   const onSubmit = (values) => {
-     const data = {
-       book_id: item.id,
-       rating: ratings,
-       message: brokerFeedback,
-     };
-     console.log(data,"data")
+    const data = {
+      book_id: item.id,
+      rating: ratings,
+      message: brokerFeedback,
+    };
+    console.log(data, 'data');
     dispatch(feedbackRequest({data}));
     Keyboard.dismiss();
   };
@@ -75,6 +75,7 @@ const Feedback = () => {
           </Block>
           <Block flex={false} margin={[t1, w2, 0, w2]}>
             <Input
+              labelStyle={{marginBottom: heightPercentageToDP(1)}}
               multiline={true}
               value={brokerFeedback}
               onChangeText={(w) => setBrokerFeedback(w)}
@@ -85,8 +86,9 @@ const Feedback = () => {
             />
           </Block>
           <Button
+            isLoading={isLoad}
             onPress={() => {
-             onSubmit()
+              onSubmit();
             }}
             color="secondary">
             Send Feedback
