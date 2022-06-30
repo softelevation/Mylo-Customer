@@ -44,6 +44,7 @@ import {
 import images from '../../assets';
 import AsyncStorage from '@react-native-community/async-storage';
 import messaging from '@react-native-firebase/messaging';
+import {SocketContext} from '../../utils/socket';
 
 const BookBroker = (props) => {
   const locationReducer = useSelector((state) => state.location.data);
@@ -73,7 +74,7 @@ const BookBroker = (props) => {
   const locationRef = useRef();
   const [selectedLocation, setSelectedLocation] = useState('');
   const [currentAddress, setCurrentAddress] = useState({});
-  const socket = useSelector((state) => state.socket.data);
+  const socket = React.useContext(SocketContext);
   const [searching, setSearching] = useState({});
   const [callFrom, setCallFrom] = useState('Region');
   const [locationAddress, setLocationAddress] = useState('');
@@ -103,6 +104,7 @@ const BookBroker = (props) => {
         }
         setLoading(false);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -513,16 +515,16 @@ const BookBroker = (props) => {
               clearButtonMode={'while-editing'}
               keyboardShouldPersistTaps={'handled'}
               onPress={(data, details = null) => {
-                 const longitude = details.geometry.location.lng;
-                 const latitude = details.geometry.location.lat;
+                const longitude = details.geometry.location.lng;
+                const latitude = details.geometry.location.lat;
                 setLocationAddress(data.description);
                 setLocationByPlaceholder(details);
-                   const selectedAddress = {
-                     lat: latitude,
-                     lng: longitude,
-                     address: data.description,
-                   };
-                   setCurrentAddress(selectedAddress);
+                const selectedAddress = {
+                  lat: latitude,
+                  lng: longitude,
+                  address: data.description,
+                };
+                setCurrentAddress(selectedAddress);
               }}
               styles={{
                 textInputContainer: {

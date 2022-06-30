@@ -10,14 +10,14 @@ import {
   socketConnection,
 } from '../../redux/action';
 import {Alerts, strictValidString} from '../../utils/commonUtils';
-import io from 'socket.io-client';
 import messaging from '@react-native-firebase/messaging';
 import {Linking, PermissionsAndroid, Platform} from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
-import {config} from '../../utils/config';
+import {SocketContext} from '../../utils/socket';
 
 const Splash = () => {
   const navigation = useNavigation();
+  const socket = React.useContext(SocketContext);
 
   const dispatch = useDispatch();
 
@@ -40,7 +40,6 @@ const Splash = () => {
   };
   useEffect(() => {
     callAuthApi();
-    const socket = io(config.Api_Url);
     socket.on('connect', (a) => {
       console.log(socket, 'socket');
       dispatch(socketConnection(socket));

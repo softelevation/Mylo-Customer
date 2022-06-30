@@ -15,8 +15,7 @@ import {t1, t2, w3} from '../../../components/theme/fontsize';
 import {brokerRequest} from '../../../redux/requests/action';
 import {strictValidObjectWithKeys} from '../../../utils/commonUtils';
 import TimeZone from 'react-native-timezone';
-import io from 'socket.io-client';
-import {config} from '../../../utils/config';
+import {SocketContext} from '../../../utils/socket';
 
 const UpcomingRequest = () => {
   const navigation = useNavigation();
@@ -24,6 +23,7 @@ const UpcomingRequest = () => {
   const data = useSelector((state) => state.request.list.data);
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
+  const socket = React.useContext(SocketContext);
 
   useEffect(() => {
     getTimeZone();
@@ -50,8 +50,6 @@ const UpcomingRequest = () => {
   };
 
   const onhandleDelete = async (id, status) => {
-    const socket = io(config.Api_Url);
-
     const token = await AsyncStorage.getItem('token');
     socket.emit('request', {id, status, token});
   };

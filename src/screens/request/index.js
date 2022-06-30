@@ -1,6 +1,6 @@
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import React, {useEffect} from 'react';
-import {BackHandler, FlatList, Text, View} from 'react-native';
+import {FlatList, StyleSheet, Text} from 'react-native';
 import {
   heightPercentageToDP,
   widthPercentageToDP,
@@ -9,14 +9,13 @@ import {useDispatch, useSelector} from 'react-redux';
 import Header from '../../common/header';
 import {Block, CustomButton} from '../../components';
 import {brokerRequest} from '../../redux/requests/action';
-import io from 'socket.io-client';
-import {handleBackPress} from '../../utils/commonAppUtils';
 import useHardwareBack from '../../components/usehardwareBack';
+import {SocketContext} from '../../utils/socket';
 
 const Request = ({navigationState}) => {
   const {routes, index} = navigationState;
   const selected = index;
-  const socket = useSelector((state) => state.socket.data);
+  const socket = React.useContext(SocketContext);
   const userId = useSelector((state) => state.user.profile.user.id);
 
   const dispatch = useDispatch();
@@ -37,10 +36,6 @@ const Request = ({navigationState}) => {
     return 'Upcoming';
   };
 
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   useFocusEffect(
     React.useCallback(() => {
       dispatch(brokerRequest());
@@ -50,6 +45,7 @@ const Request = ({navigationState}) => {
           dispatch(brokerRequest());
         }
       });
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []),
   );
   return (
@@ -58,12 +54,7 @@ const Request = ({navigationState}) => {
       <FlatList
         data={routes}
         horizontal
-        contentContainerStyle={{
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          flexDirection: 'row',
-          flex: 1,
-        }}
+        contentContainerStyle={styles.FlatListStyle}
         keyExtractor={(item) => item.key}
         renderItem={({item, index}) => {
           return (
@@ -74,21 +65,12 @@ const Request = ({navigationState}) => {
               style={[
                 ButtonStyle,
                 selected === index
-                  ? {
-                      borderBottomColor: '#231F20',
-                      borderBottomWidth: 4,
-                    }
-                  : {borderBottomColor: 'transparent', borderBottomWidth: 4},
+                  ? styles.selectedStyle
+                  : styles.unSelectedStyle,
               ]}
               onPress={() => navigation.navigate(item.name)}>
               <Text
-                style={[
-                  CustomText,
-                  selected === index && {
-                    color: '#231F20',
-                    fontWeight: '500',
-                  },
-                ]}>
+                style={[CustomText, selected === index && styles.selectedText]}>
                 {getValues(item.name)}
               </Text>
             </CustomButton>
@@ -108,4 +90,24 @@ const ButtonStyle = {
   justifyContent: 'center',
   alignItems: 'center',
 };
+const styles = StyleSheet.create({
+  FlatListStyle: {
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    flexDirection: 'row',
+    flex: 1,
+  },
+  selectedStyle: {
+    borderBottomColor: '#231F20',
+    borderBottomWidth: 4,
+  },
+  unSelectedStyle: {
+    borderBottomColor: 'transparent',
+    borderBottomWidth: 4,
+  },
+  selectedText: {
+    color: '#231F20',
+    fontWeight: '500',
+  },
+});
 export default Request;

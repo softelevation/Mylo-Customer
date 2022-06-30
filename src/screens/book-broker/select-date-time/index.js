@@ -29,8 +29,7 @@ import moment from 'moment';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import useHardwareBack from '../../../components/usehardwareBack';
 import TimeZone from 'react-native-timezone';
-import io from 'socket.io-client';
-import {config} from '../../../utils/config';
+import {SocketContext} from '../../../utils/socket';
 
 const initialState = {
   date: '',
@@ -49,6 +48,8 @@ const SelectDateTime = () => {
   const [currentAddress, setCurrentAddress] = useState({});
   const [modal, setmodal] = useState(false);
   const [selectLocation, setSelectLocation] = useState('');
+  const socket = React.useContext(SocketContext);
+
   const [alertdata, setAlert] = useState({
     title: '',
     description: '',
@@ -86,8 +87,6 @@ const SelectDateTime = () => {
     );
   };
   const bookNowBroker = async () => {
-    const socket = io(config.Api_Url);
-
     setLoader(true);
     const token = await AsyncStorage.getItem('token');
     socket.emit('book_now', {
@@ -135,7 +134,6 @@ const SelectDateTime = () => {
   };
   const checkType = async () => {
     const timeZone = await TimeZone.getTimeZone().then((zone) => zone);
-    const socket = io(config.Api_Url);
 
     if (type === 'ASAP') {
       bookNowBroker();
