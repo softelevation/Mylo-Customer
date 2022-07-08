@@ -1,7 +1,13 @@
 import React, {useEffect} from 'react';
 import Routes from './src/routes';
 import {Provider} from 'react-redux';
-import {Alert, BackHandler, DeviceEventEmitter} from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  BackHandler,
+  DeviceEventEmitter,
+  Modal,
+} from 'react-native';
 import LocationServicesDialogBox from 'react-native-android-location-services-dialog-box';
 import FlashMessage from 'react-native-flash-message';
 import {Alerts} from './src/utils/commonUtils';
@@ -10,11 +16,20 @@ import NetInfo from '@react-native-community/netinfo';
 import {socket, SocketContext} from './src/utils/socket';
 import {sagaMiddleware, store} from './src/redux/store';
 import rootSaga from './src/redux/saga';
+import codePush from 'react-native-code-push';
+import {Block, Text} from './src/components';
+import {
+  heightPercentageToDP as hp,
+  widthPercentageToDP as wp,
+} from 'react-native-responsive-screen';
 
 sagaMiddleware.run(rootSaga);
+let codePushOptions = {checkFrequency: codePush.CheckFrequency.ON_APP_START};
 
 const App = () => {
   const [status, setStatus] = React.useState(false);
+  const [progress, setProgress] = React.useState(false);
+
   const checkGps = () => {
     LocationServicesDialogBox.checkLocationServicesIsEnabled({
       message:
@@ -77,6 +92,90 @@ const App = () => {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    codePush.sync(
+      {
+        updateDialog: true,
+        installMode: codePush.InstallMode.IMMEDIATE,
+      },
+      codePushStatusDidChange,
+      codePushDownloadDidProgress,
+    );
+  }, []);
+  const codePushStatusDidChange = (syncStatus) => {
+    switch (syncStatus) {
+      case codePush.SyncStatus.CHECKING_FOR_UPDATE:
+        console.log('Checking for update.');
+        break;
+      case codePush.SyncStatus.DOWNLOADING_PACKAGE:
+        console.log('Download packaging....');
+        break;
+      case codePush.SyncStatus.AWAITING_USER_ACTION:
+        console.log('Awaiting user action....');
+        break;
+      case codePush.SyncStatus.INSTALLING_UPDATE:
+        console.log('Installing update');
+        setProgress(false);
+        break;
+      case codePush.SyncStatus.UP_TO_DATE:
+        console.log('codepush status up to date');
+        break;
+      case codePush.SyncStatus.UPDATE_IGNORED:
+        console.log('update cancel by user');
+        setProgress(false);
+        break;
+      case codePush.SyncStatus.UPDATE_INSTALLED:
+        console.log('Update installed and will be applied on restart.');
+        setProgress(false);
+        break;
+      case codePush.SyncStatus.UNKNOWN_ERROR:
+        console.log('An unknown error occurred');
+        setProgress(false);
+        break;
+    }
+  };
+  const codePushDownloadDidProgress = (pro) => {
+    setProgress(pro);
+  };
+
+  const showProgressView = () => {
+    return (
+      <Modal visible={true} transparent>
+        <Block center middle color={'rgba(0,0,0,0.8)'}>
+          <Block
+            center
+            flex={false}
+            borderRadius={8}
+            padding={[hp(2), wp(10)]}
+            color="#fff">
+            <Text margin={[hp(0.5), 0, 0]} capitalize>
+              In Progress....
+            </Text>
+
+            <Block flex={false} center>
+              <Text margin={[8, 0, 0]}>{`${(
+                Number(progress?.receivedBytes) / 1048576
+              ).toFixed(2)}MB/${(
+                Number(progress?.totalBytes) / 1048576
+              ).toFixed(2)}`}</Text>
+              <Block flex={false} center margin={[hp(1), 0]}>
+                <ActivityIndicator color={light.secondary} />
+              </Block>
+              <Text>
+                {(
+                  (Number(progress?.receivedBytes) /
+                    Number(progress?.totalBytes)) *
+                  100
+                ).toFixed(0)}
+                %
+              </Text>
+            </Block>
+          </Block>
+        </Block>
+      </Modal>
+    );
+  };
+
   const handleFirstConnectivityChange = (isConnected) => {
     if (isConnected === false) {
       Alerts('Error', 'You are offline!', light.warning);
@@ -90,6 +189,7 @@ const App = () => {
 
   return (
     <SocketContext.Provider value={socket}>
+      {progress ? showProgressView() : null}
       <Provider store={store}>
         <Routes />
       </Provider>
@@ -98,4 +198,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default codePush(codePushOptions)(App);

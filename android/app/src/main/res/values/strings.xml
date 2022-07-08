@@ -2,4 +2,5 @@
     <string name="app_name">Mylo-Customer</string>
     <string name="facebook_app_id">1565953397069828</string>
     <string name="facebook_client_token">1565953397069828</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">Qp02Tap-95JHdcDyA67k8b6LGUm1bDbaCI5Ve</string>
 </resources>
