@@ -115,6 +115,8 @@ const Notifications = () => {
         return 'Completed';
       case 'travel_to_booking':
         return 'In Progress';
+      case 'expired':
+        return 'expired';
       default:
         return type;
     }
@@ -126,6 +128,7 @@ const Notifications = () => {
           item.status === 'pending' ||
           item.status === 'completed' ||
           item.status === 'in_progress' ||
+          item.status === 'expired' ||
           item.status === 'travel_to_booking') && (
           <CustomButton
             // disabled={item.status === 'pending'}
